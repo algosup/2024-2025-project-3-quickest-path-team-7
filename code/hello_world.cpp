@@ -1,7 +1,11 @@
 // code/hello_world.cpp
 #include <iostream>
 
+void printHelloWorld() {
+    std::cout << "Hello, World!" << std::endl;
+}
+
 int main() {
-   std::cout << "Hello, World!" << std::endl;
-   return 0;
+    printHelloWorld();
+    return 0;
 }
