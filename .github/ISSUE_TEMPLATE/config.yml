@@ -6,10 +6,10 @@ contact_links:
 
 issue_template:
   - name: Typography Report
-    title: "[Typography]: "
+    title: "✏️ [Typography]: "
     about: "Report a typography error in project documents."
     labels: ["documentation", "typography"]
   - name: Bug Report
-    title: "[Bug]: "
+    title: "🐞 [Bug]: "
     about: "Report a bug error in the code."
     labels: ["bug", "error"]
