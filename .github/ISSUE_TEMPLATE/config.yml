@@ -6,6 +6,6 @@ contact_links:
 
 issue_template:
   - name: Bug Report
-    title: "🐞 [Bug]: "
+    title: "🐞 [Bug]: " 
     about: "Report a bug error in the code."
     labels: ["bug", "error"]
