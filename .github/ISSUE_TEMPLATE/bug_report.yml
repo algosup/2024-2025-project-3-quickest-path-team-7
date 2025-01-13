@@ -1,0 +1,84 @@
+name: Bug Report
+description: Report a bug error in the code.
+title: "🐞 [Bug]: "
+labels: ["bug", "error"]
+projects: ["algosup/2024-2025-project-3-quickest-path-team-7"]
+assignees:
+  - Pierre2103
+  - HiNett
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🚨 **Oops! There's a bug in the code.**  
+        Thank you for taking the time to report it. Please provide as much detail as possible so we can fix the issue quickly. 🛠️
+  - type: input
+    id: date
+    attributes:
+      label: 📅 Bug Report Date
+      description: Specify the date when the bug was reported.
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 🐞 Bug Description
+      description: What happened? What did you expect to happen?
+      placeholder: Provide a clear and concise description of the problem.
+      value: "A bug occurred!"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: Provide the steps to reproduce the issue.
+      placeholder: e.g., "1. Do this. 2. Do that. 3. See the error."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📜 Relevant Log Output
+      description: Paste any relevant log output. This will be formatted as code.
+      render: shell
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 🖥️ Environment
+      description: Provide details about your environment.
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: 🔢 Version
+      description: Select the version where the bug occurred.
+      options:
+        - v0.0.3
+        - v0.0.2
+        - v0.0.1
+    validations:
+      required: true
+  - type: input
+    id: branch
+    attributes:
+      label: 🌿 Branch
+      description: Enter the branch where the bug occurred.
+      placeholder: Enter the branch name.
+      validations:
+        required: true
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: ℹ️ Additional Information
+      description: Add any other details or context that could help us resolve the issue.
+      placeholder: Provide additional details here.
+      validations:
+        required: false
