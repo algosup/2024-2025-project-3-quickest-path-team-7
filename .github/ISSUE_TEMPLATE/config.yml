@@ -1,0 +1,15 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Need help or have questions?
+    url: https://google.com/
+    about: If you're unsure how to proceed, reach out to us here.
+
+issue_template:
+  - name: Typography Report
+    title: "✏️ [Typography]: "
+    about: "Report a typography error in project documents."
+    labels: ["documentation", "typography"]
+  - name: Bug Report
+    title: "🐞 [Bug]: "
+    about: "Report a bug error in the code."
+    labels: ["bug", "error"]
