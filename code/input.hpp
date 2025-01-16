@@ -3,7 +3,7 @@
 
 #include "header.hpp"
 
-int takeUserInput(PathData& path_data, vector<vector<pii>>& graph, bool& break_early) {
+int takeUserInput(PathData& path_data, Graph& graph, bool& break_early) {
 
     // Ask and check for the start and end nodes to calculate the shortest path
     cout << "\n\nEnter the start node: ";
@@ -12,14 +12,14 @@ int takeUserInput(PathData& path_data, vector<vector<pii>>& graph, bool& break_e
         loadGraph(graph, true);
         return -1; // Restart the loop
     }
-    if (path_data.start < 0 || path_data.start >= graph.size() || graph[path_data.start].empty()) 
+    if (path_data.start < 0 || path_data.start >= graph.data.size() || graph.data[path_data.start].empty()) 
     {
         cout << "Invalid node. Please try again." << endl;
         return -1;
     }
     cout << "Enter the end node: ";
     cin >> path_data.end;
-    if (path_data.end < 0 || path_data.end >= graph.size() || graph[path_data.end].empty())
+    if (path_data.end < 0 || path_data.end >= graph.data.size() || graph.data[path_data.end].empty())
     {
         cout << "Invalid node. Please try again." << endl;
         return -1;

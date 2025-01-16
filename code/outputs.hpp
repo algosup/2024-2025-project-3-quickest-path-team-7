@@ -48,9 +48,6 @@ void reconstructPath(PathData& path_data, Timer& timer) {
     }
     path_data.path = reversedPath;
     path_data.time = timer.time;
-
-    // Reset the path
-    path_data.prev.clear();
 }
 
 void savePathToCSV(string filename, PathData& path_data) {

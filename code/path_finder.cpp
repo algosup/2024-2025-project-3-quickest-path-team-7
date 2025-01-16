@@ -3,19 +3,15 @@
 int main() {
 
     bool break_early = false;
-    vector<vector<pii>> graph(NODE_MAX_VALUE+1);
-    GraphData graph_data;
+    Graph graph;
     PathData  path_data;
     Timer dijkstraTimer;
 
     cout << "\nInitialization\n" << endl;
 
     // Load Csv data in memory as graph eventually from a backup
-    loadGraph(graph);
-
-    // Build some data structures to speed up the dijkstra algorithm
-    preprocessGraph(graph, graph_data);
-
+    buildGraph(graph);
+    
     // Main loop
     while (true) {
         
@@ -23,7 +19,7 @@ int main() {
         if (takeUserInput(path_data, graph, break_early) == -1) { continue;}
 
         // Run the dijkstra algorithm
-        dijkstra(graph_data, path_data, dijkstraTimer, break_early);
+        dijkstra(graph, path_data, dijkstraTimer, break_early);
 
         // If there is no path between the two nodes, output a message
         if (path_data.path.empty()) {

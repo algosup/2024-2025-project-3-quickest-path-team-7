@@ -3,27 +3,29 @@
 
 #include "header.hpp"
 
-struct GraphData {
+struct Graph {
+    vector<vector<pii>> data;
     vector<int> start_indices;
     vector<int> neighbors;
     vector<int> weights;
 };
 
-void preprocessGraph(const vector<vector<pii>>& graph, GraphData& graph_data) {
+void preprocessGraph(Graph& graph) {
+    
     cout << "Preprocessing the graph ..." << flush;
-    int n = graph.size();
+    int n = graph.data.size();
 
-    graph_data.start_indices.resize(n + 1);
+    graph.start_indices.resize(n + 1);
     for (int i = 0; i < n; ++i) {
-        graph_data.start_indices[i] = graph_data.neighbors.size();
-        for (const auto& p : graph[i]) {
+        graph.start_indices[i] = graph.neighbors.size();
+        for (const auto& p : graph.data[i]) {
             int neighbor = p.first;
             int weight = p.second;
-            graph_data.neighbors.push_back(neighbor);
-            graph_data.weights.push_back(weight);
+            graph.neighbors.push_back(neighbor);
+            graph.weights.push_back(weight);
         }
     }
-    graph_data.start_indices[n] = graph_data.neighbors.size();
+    graph.start_indices[n] = graph.neighbors.size();
     cout << " Done !" << endl;
 }
 
@@ -66,16 +68,16 @@ void loadGraphFromBinary(const string& filename, vector<vector<pii>>& graph) {
     file.close();
 }
 
-void loadGraph(vector<vector<pii>>& graph, bool force = false) {
+void loadGraph(Graph& graph, bool force = false) {
 
     if (!force) {cout << "Loading the graph from the binary backup ..." << flush;}
     ifstream binaryFile(BACKUP, ios::binary);
     if (binaryFile.is_open() && !force) {
         binaryFile.close();
-        loadGraphFromBinary(BACKUP, graph);
+        loadGraphFromBinary(BACKUP, graph.data);
         cout << "Done !" << endl;
         // Calculate and display memory usage
-        GraphMemoryUsage(graph);
+        GraphMemoryUsage(graph.data);
         return;
     }
 
@@ -105,8 +107,8 @@ void loadGraph(vector<vector<pii>>& graph, bool force = false) {
             int node1 = nodeData[0];
             int node2 = nodeData[1];
             int distance = nodeData[2];
-            graph[node1].push_back({node2, distance});
-            graph[node2].push_back({node1, distance});
+            graph.data[node1].push_back({node2, distance});
+            graph.data[node2].push_back({node1, distance});
         }
 
         counter++;
@@ -120,11 +122,18 @@ void loadGraph(vector<vector<pii>>& graph, bool force = false) {
     csv_map.close();
 
     // Save the graph to a binary file for future use
-    saveGraphToBinary(BACKUP, graph);
+    saveGraphToBinary(BACKUP, graph.data);
     cout << "\nGraph saved to binary backup." << endl;
 
     // Calculate and display memory usage
-    GraphMemoryUsage(graph);
+    GraphMemoryUsage(graph.data);
+    
+}
+
+void buildGraph(Graph& graph) {
+    graph.data.resize(NODE_MAX_VALUE + 1);
+    loadGraph(graph);
+    preprocessGraph(graph);
 }
 
 #endif
