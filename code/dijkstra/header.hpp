@@ -49,7 +49,6 @@ It is able to detect if there is no path between the two nodes.
 #include <sstream>
 #include <string>
 #include <chrono>
-#include <filesystem>
 
 // Alias
 using namespace std;

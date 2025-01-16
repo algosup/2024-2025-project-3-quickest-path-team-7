@@ -8,3 +8,11 @@ code/path_finder
 code/USA-roads.csv
 code/USA-roads_graph.bin
 code/shortest_path.csv
+code/dijkstra/path_finder
+/code/dijkstra/path_finder.dSYM
+code/dijkstra/USA-roads.csv
+code/dijkstra/USA-roads_graph.bin
+/code/integrity_checker/checker.dSYM
+code/integrity_checker/checker
+code/integrity_checker/USA-roads.csv
+code/integrity_checker/USA-roads_graph.bin

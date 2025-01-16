@@ -3,15 +3,8 @@
 
 #include "header.hpp"
 
-struct Graph {
-    vector<vector<pii>> data;
-    vector<int> start_indices;
-    vector<int> neighbors;
-    vector<int> weights;
-};
-
 void preprocessGraph(Graph& graph) {
-    
+
     cout << "Preprocessing the graph ..." << flush;
     int n = graph.data.size();
 
@@ -76,8 +69,6 @@ void loadGraph(Graph& graph, bool force = false) {
         binaryFile.close();
         loadGraphFromBinary(BACKUP, graph.data);
         cout << "Done !" << endl;
-        // Calculate and display memory usage
-        GraphMemoryUsage(graph.data);
         return;
     }
 
@@ -125,8 +116,7 @@ void loadGraph(Graph& graph, bool force = false) {
     saveGraphToBinary(BACKUP, graph.data);
     cout << "\nGraph saved to binary backup." << endl;
 
-    // Calculate and display memory usage
-    GraphMemoryUsage(graph.data);
+    
     
 }
 
@@ -134,6 +124,7 @@ void buildGraph(Graph& graph) {
     graph.data.resize(NODE_MAX_VALUE + 1);
     loadGraph(graph);
     preprocessGraph(graph);
+    GraphMemoryUsage(graph);
 }
 
 #endif
