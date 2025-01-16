@@ -19,6 +19,8 @@ int main() {
     // Main loop
     while (true) {
 
+        path_data.path.clear();
+
         cout << "\n\nEnter the start node: ";
         cin >> path_data.start;
         if (path_data.start == -1) {
@@ -55,6 +57,7 @@ int main() {
         } 
 
         cout << "\nCalculating the shortest path ...\n" << endl;
+
         // Measure the execution time
         auto start_time = chrono::high_resolution_clock::now();
 

@@ -41,18 +41,21 @@ void dijkstra(GraphData& graph_data, PathData& path_data, bool break_early = fal
 }
 
 void reconstructPath(PathData& path_data, long time) {
-    path_data.time = time;
-    for (int at = path_data.end; at != -1; at = path_data.prev[at]) {
-        path_data.path.push_back(at);
+    int node = path_data.end;
+    while (node != -1) {
+        path_data.path.push_back(node);
+        node = path_data.prev[node];
     }
     vector<int> reversedPath;
     for (auto it = path_data.path.rbegin(); it != path_data.path.rend(); ++it) {
         reversedPath.push_back(*it);
     }
     path_data.path = reversedPath;
-    if (path_data.path[0] != path_data.start) {
-        path_data.path.clear();
-    }
+    path_data.time = time;
+
+    // Reset the path
+    path_data.prev.clear();
+
 }
 
 #endif

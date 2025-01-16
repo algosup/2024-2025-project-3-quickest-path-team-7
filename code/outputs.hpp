@@ -47,8 +47,8 @@ void savePathToCSV(string filename, PathData& path_data) {
         file << node << ", " << path_data.distance[node] - previous_distance << "\n";
         previous_distance = path_data.distance[node];
     }
-
     file.close();
+
 }
 
 #endif
