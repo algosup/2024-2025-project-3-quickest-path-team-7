@@ -13,10 +13,18 @@ struct PathData {
 };
 
 struct Graph {
+    bool loaded = false;
     vector<vector<pii>> data;
     vector<int> start_indices;
     vector<int> neighbors;
     vector<int> weights;
+};
+
+struct Files {
+    string folder_path;
+    string dataset;
+    string backup;
+    string output;
 };
 
 // Function to calculate then display the memory usage of the graph
@@ -71,7 +79,7 @@ void reconstructPath(PathData& path_data, Timer& timer) {
     path_data.time = timer.time;
 }
 
-void savePathToCSV(string filename, PathData& path_data) {
+void savePathToCSV(string filename, PathData& path_data, bool break_early) {
     ofstream file(filename);
     if (!file.is_open()) {
         cerr << "Failed to open the file for writing." << endl;
@@ -80,10 +88,14 @@ void savePathToCSV(string filename, PathData& path_data) {
 
     int last_node = path_data.path[path_data.path.size() - 1];
 
-    file << "Nodes to go from " << formatWithSpaces(path_data.path[0]) << " to " << formatWithSpaces(last_node) 
-    << "\nShortest path    : " << formatWithSpaces(path_data.distance[last_node]) 
-    << "\nNumber of edges  : " << formatWithSpaces(path_data.path.size() - 1)
-    << "\nCalculation time : " << formatWithSpaces(path_data.time) << " ms\n\n";
+    file 
+    << "Dijkstra Algorithm, "   << (break_early ? "with" : "without") << " early break"
+    << "\nStart Node, "           << formatWithSpaces(path_data.path[0]) 
+    << "\nEnd Node, "           << formatWithSpaces(last_node) 
+    << "\nPath lenght, "        << formatWithSpaces(path_data.distance[last_node]) 
+    << "\nNumber of nodes, "    << formatWithSpaces(path_data.path.size() - 1)
+    << "\nCalculation time, "   << formatWithSpaces(path_data.time)                 << " ms"
+    << "\n\nNode, Weight\n";
 
     int previous_distance = 0;
     for (int node : path_data.path) {

@@ -16,3 +16,5 @@ code/dijkstra/USA-roads_graph.bin
 code/integrity_checker/checker
 code/integrity_checker/USA-roads.csv
 code/integrity_checker/USA-roads_graph.bin
+code/dijkstra/graph-backup.bin
+code/dijkstra/shortest_path.csv

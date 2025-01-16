@@ -41,7 +41,7 @@ void saveGraphToBinary(const string& filename, const vector<vector<pii>>& graph)
     file.close();
 }
 
-void loadGraphFromBinary(const string& filename, vector<vector<pii>>& graph) {
+void loadGraphFromBinary(const string& filename, Graph& graph) {
     ifstream file(filename, ios::binary);
     if (!file.is_open()) {
         cerr << "\nFailed to open the file for reading." << endl;
@@ -50,32 +50,40 @@ void loadGraphFromBinary(const string& filename, vector<vector<pii>>& graph) {
 
     size_t size;
     file.read(reinterpret_cast<char*>(&size), sizeof(size));
-    graph.resize(size);
+    graph.data.resize(size);
 
-    for (auto& neighbors : graph) {
+    for (auto& neighbors : graph.data) {
         file.read(reinterpret_cast<char*>(&size), sizeof(size));
         neighbors.resize(size);
         file.read(reinterpret_cast<char*>(neighbors.data()), size * sizeof(pii));
     }
 
     file.close();
+
+    graph.loaded = true;
 }
 
-void loadGraph(Graph& graph, bool force = false) {
+void loadGraph(Graph& graph, Files& files, bool force = false) {
 
-    if (!force) {cout << "Loading the graph from the binary backup ..." << flush;}
-    ifstream binaryFile(BACKUP, ios::binary);
+    if (!force) {cout << "Loading the graph from the backup " << files.backup << " ..." << flush;}
+    ifstream binaryFile(files.backup, ios::binary);
     if (binaryFile.is_open() && !force) {
         binaryFile.close();
-        loadGraphFromBinary(BACKUP, graph.data);
+        loadGraphFromBinary(files.backup, graph);
         cout << "Done !" << endl;
         return;
     }
 
-    if(!force){cout << "Any backup found" << endl;}
+    if(!force){cout << "\nThe backup " << files.backup << " was not found. \nSearching for " <<  files.dataset << " ..." << endl;}
 
     // Load the CSV file in the graph
-    fstream csv_map(DATASET);
+    fstream csv_map(files.dataset);
+
+    if (!csv_map.is_open()) {
+        cerr << "The dataset " << files.dataset << " was not found. " << endl;
+        graph.loaded = false;
+        return;
+    }
 
     unsigned int counter = 0;
     unsigned int progression = 0;
@@ -84,7 +92,6 @@ void loadGraph(Graph& graph, bool force = false) {
     string line;
 
     while (getline(csv_map, line)) {
-
 
         stringstream nodeString(line);
         string node_cell;
@@ -112,17 +119,29 @@ void loadGraph(Graph& graph, bool force = false) {
 
     csv_map.close();
 
+    graph.loaded = true;
+
     // Save the graph to a binary file for future use
-    saveGraphToBinary(BACKUP, graph.data);
+    saveGraphToBinary(files.backup, graph.data);
     cout << "\nGraph saved to binary backup." << endl;
 
     
     
 }
 
-void buildGraph(Graph& graph) {
+void buildGraph(Graph& graph, Files& files, bool force = false) {
     graph.data.resize(NODE_MAX_VALUE + 1);
-    loadGraph(graph);
+    loadGraph(graph, files, force);   
+    while (graph.loaded == false) {
+        cout << "Please provide " << files.dataset << " , then type either 'retry' or a new dataset (\"path/file.csv\") : ";
+        string input;
+        cin >> input;
+        if (input != "retry") {
+            files.dataset = input;
+        }
+        cout << endl;
+        loadGraph(graph, files, force);
+    }
     preprocessGraph(graph);
     GraphMemoryUsage(graph);
 }

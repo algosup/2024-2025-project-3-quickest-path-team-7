@@ -36,9 +36,14 @@ It is able to detect if there is no path between the two nodes.
 
 #define CSV_LINES 28854312
 #define NODE_MAX_VALUE 23947347
-#define BACKUP "USA-roads_graph.bin"
+
+#define BACKUP "graph-backup.bin"
 #define DATASET "USA-roads.csv"
-#define OUTPUT "shortest_path.csv"
+#define OUTPUT "shortest-path.csv"
+
+#define ASK_FOLDER true 
+// if true, the program will ask, if wanted, for a different folder path than the working directory 
+// for input and output files
 
 
 #include <iostream>
