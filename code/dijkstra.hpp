@@ -3,105 +3,56 @@
 #ifndef DIJKSTRA_H
 #define DIJKSTRA_H
 
-/*
-
-Basically, Dijkstra's algorithm is used to find the shortest path between two nodes in a graph.
-It finds the shortest path from a starting node to all other nodes in the graph.
-It scans ALL the possible paths before determining the shortest one.
-So even if there is only one path between two nodes, it will scan all the paths to determine that it is the shortest.
-
-It tooks the same time for any two nodes, no matter how far they are from each other.
-Aproximately 10 seconds for a data set of 28,854,312 lines - 23,947,347 nodes. 
-On a Mac boook pro M3 2024.
-
-*/
-
-void dijkstra_preloaded(int start, int end, vector<int>& distance, vector<int>& prev, const vector<int>& start_indices, const vector<int>& neighbors, const vector<int>& weights) {
-    int n = start_indices.size() - 1;
-    distance.assign(n, numeric_limits<int>::max());
-    prev.assign(n, -1);
+void dijkstra(GraphData& graph_data, PathData& path_data, bool break_early = false) {
+    int n = graph_data.start_indices.size() - 1;
+    int neighbor, weight, newDist, dist, node;
+    
+    path_data.distance.assign(n, numeric_limits<int>::max());
+    path_data.prev.assign(n, -1);
 
     priority_queue<pii, vector<pii>, greater<pii>> pq;
-    distance[start] = 0;
-    pq.push({0, start});
+    path_data.distance[path_data.start] = 0;
+    pq.push({0, path_data.start});
 
     while (!pq.empty()) {
 
         auto top = pq.top();
-        int dist = top.first;
-        int node = top.second;
+        dist = top.first;
+        node = top.second;
 
         pq.pop();
 
-        if (dist > distance[node]) continue;
+        if (dist > path_data.distance[node]) continue;
 
-        for (int i = start_indices[node]; i < start_indices[node + 1]; ++i) {
-            int neighbor = neighbors[i];
-            int weight = weights[i];
-            int newDist = dist + weight;
+        if (node == path_data.end && break_early) break;
 
-            if (newDist < distance[neighbor]) {
-                distance[neighbor] = newDist;
-                prev[neighbor] = node;
+        for (int i = graph_data.start_indices[node]; i < graph_data.start_indices[node + 1]; ++i) {
+            neighbor = graph_data.neighbors[i];
+            weight = graph_data.weights[i];
+            newDist = dist + weight;
+
+            if (newDist < path_data.distance[neighbor]) {
+                path_data.distance[neighbor] = newDist;
+                path_data.prev[neighbor] = node;
                 pq.push({newDist, neighbor});
             }
         }
     }
 }
 
-void dijkstra(int start, int end, const vector<vector<pii>>& graph, vector<int>& distance, vector<int>& prev) {
-
-    int n = graph.size();
-    distance.assign(n, numeric_limits<int>::max());
-    prev.assign(n, -1);
-
-    // Priority queue to store {distance, node}
-    priority_queue<pii, vector<pii>, greater<pii>> pq;
-
-    distance[start] = 0;
-    pq.push({0, start});
-
-    int recursion = 0;
-
-    while (!pq.empty()) {
-
-        /* recursion++;
-        cout << "\r" << recursion << flush; */
-        
-        auto top = pq.top();
-        int dist = top.first;
-        int node = top.second;
-        pq.pop();
-
-        // Skip if this distance is not the latest
-        if (dist > distance[node]) continue;
-
-        for (const auto& edge : graph[node]) {
-            int neighbor = edge.first;
-            int weight = edge.second;
-            int newDist = dist + weight;
-
-            if (newDist < distance[neighbor]) {
-                distance[neighbor] = newDist;
-                prev[neighbor] = node;
-                pq.push({newDist, neighbor});
-            }
-        }
-    }
-}
-
-vector<int> reconstructPath(int start, int end, const vector<int>& prev) {
-    vector<int> path;
-    for (int at = end; at != -1; at = prev[at]) {
-        path.push_back(at);
+void reconstructPath(PathData& path_data, long time) {
+    path_data.time = time;
+    for (int at = path_data.end; at != -1; at = path_data.prev[at]) {
+        path_data.path.push_back(at);
     }
     vector<int> reversedPath;
-    for (auto it = path.rbegin(); it != path.rend(); ++it) {
+    for (auto it = path_data.path.rbegin(); it != path_data.path.rend(); ++it) {
         reversedPath.push_back(*it);
     }
-    path = reversedPath;
-    if (path[0] == start) return path;
-    return {}; // No path found
+    path_data.path = reversedPath;
+    if (path_data.path[0] != path_data.start) {
+        path_data.path.clear();
+    }
 }
 
 #endif

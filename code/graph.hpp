@@ -3,20 +3,21 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-void preprocessGraph(const vector<vector<pii>>& graph, vector<int>& start_indices, vector<int>& neighbors, vector<int>& weights) {
+void preprocessGraph(const vector<vector<pii>>& graph, GraphData& graph_data) {
     cout << "Preprocessing the graph ..." << flush;
     int n = graph.size();
-    start_indices.resize(n + 1);
+
+    graph_data.start_indices.resize(n + 1);
     for (int i = 0; i < n; ++i) {
-        start_indices[i] = neighbors.size();
+        graph_data.start_indices[i] = graph_data.neighbors.size();
         for (const auto& p : graph[i]) {
             int neighbor = p.first;
             int weight = p.second;
-            neighbors.push_back(neighbor);
-            weights.push_back(weight);
+            graph_data.neighbors.push_back(neighbor);
+            graph_data.weights.push_back(weight);
         }
     }
-    start_indices[n] = neighbors.size();
+    graph_data.start_indices[n] = graph_data.neighbors.size();
     cout << " Done !" << endl;
 }
 
@@ -75,7 +76,7 @@ void loadGraph(vector<vector<pii>>& graph, bool force = false) {
     if(!force){cout << "Any backup found" << endl;}
 
     // Load the CSV file in the graph
-    fstream csv_map(PATH);
+    fstream csv_map(DATASET);
 
     unsigned int counter = 0;
     unsigned int progression = 0;

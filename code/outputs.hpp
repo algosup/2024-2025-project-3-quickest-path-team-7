@@ -28,22 +28,24 @@ string formatWithSpaces(long number) {
 }
 
 
-void savePathToCSV(const string& filename, const vector<int>& path, const vector<int>& distance, const long& time) {
+void savePathToCSV(string filename, PathData& path_data) {
     ofstream file(filename);
     if (!file.is_open()) {
         cerr << "Failed to open the file for writing." << endl;
         return;
     }
 
-    file << "Nodes to go from " << formatWithSpaces(path[0]) << " to " << formatWithSpaces(path[path.size() - 1]) 
-    << "\nShortest path    : " << formatWithSpaces(distance[path[path.size() - 1]]) 
-    << "\nNumber of edges  : " << formatWithSpaces(path.size() - 1)
-    << "\nCalculation time : " << formatWithSpaces(time) << " ms\n\n";
+    int last_node = path_data.path[path_data.path.size() - 1];
+
+    file << "Nodes to go from " << formatWithSpaces(path_data.path[0]) << " to " << formatWithSpaces(last_node) 
+    << "\nShortest path    : " << formatWithSpaces(path_data.distance[last_node]) 
+    << "\nNumber of edges  : " << formatWithSpaces(path_data.path.size() - 1)
+    << "\nCalculation time : " << formatWithSpaces(path_data.time) << " ms\n\n";
 
     int previous_distance = 0;
-    for (int node : path) {
-        file << node << ", " << distance[node] - previous_distance << "\n";
-        previous_distance = distance[node];
+    for (int node : path_data.path) {
+        file << node << ", " << path_data.distance[node] - previous_distance << "\n";
+        previous_distance = path_data.distance[node];
     }
 
     file.close();

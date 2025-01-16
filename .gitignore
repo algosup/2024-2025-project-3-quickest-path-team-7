@@ -2,3 +2,8 @@
 .DS_Store
 # googletest
 build
+/.vscode
+/code/path_finder.dSYM
+code/path_finder
+code/USA-roads.csv
+code/USA-roads_graph.bin

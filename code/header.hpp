@@ -14,7 +14,7 @@ example:
 To use a certain CSV file, you must adapt the 4 definitions at the beginning of the program:
 - CSV_LINES: the number of lines in the CSV file
 - NODE_MAX_VALUE: the maximum value of a node
-- PATH: the name of the CSV file
+- DATASET: the name of the CSV file
 - BACKUP: the name of the binary file to save the graph (try to keep the same name as the CSV file)
 
 The program will then calculate the shortest path between two nodes using the Dijkstra algorithm.
@@ -37,7 +37,8 @@ It is able to detect if there is no path between the two nodes.
 #define CSV_LINES 28854312
 #define NODE_MAX_VALUE 23947347
 #define BACKUP "USA-roads_graph.bin"
-#define PATH "USA-roads.csv"
+#define DATASET "USA-roads.csv"
+#define OUTPUT "shortest_path.csv"
 
 
 #include <iostream>
@@ -50,10 +51,24 @@ It is able to detect if there is no path between the two nodes.
 #include <chrono>
 #include <filesystem>
 
-
 // Alias
 using namespace std;
 using pii = pair<int, int>;
+
+struct GraphData {
+    vector<int> start_indices;
+    vector<int> neighbors;
+    vector<int> weights;
+};
+
+struct PathData {
+    int start;
+    int end;
+    long time;
+    vector<int> distance;
+    vector<int> prev;
+    vector<int> path;
+};
 
 #include "outputs.hpp"
 #include "graph.hpp"

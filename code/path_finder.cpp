@@ -2,10 +2,11 @@
 
 int main() {
 
-    int start, end;                            // Example start and end
+    bool break_early = false;                     // Break early flag
+    char c;                                    // Character for break early
     vector<vector<pii>> graph(NODE_MAX_VALUE+1); // Graph is a vector of vectors of pairs of integers of size NODE_MAX_VALUE
-    vector<int> distance, prev, path;          // Distance, previous node and path
-    vector<int> start_indices, neighbors, weights;
+    GraphData graph_data;                            // Data structure
+    PathData  path_data;                             // Data structure
 
     cout << "\nInitialization\n" << endl;
 
@@ -13,52 +14,69 @@ int main() {
     loadGraph(graph);
 
     // Preprocess the graph for Dijkstra
-    preprocessGraph(graph, start_indices, neighbors, weights);
+    preprocessGraph(graph, graph_data);
 
     // Main loop
     while (true) {
 
         cout << "\n\nEnter the start node: ";
-        cin >> start;
-        if (start == -1) {
+        cin >> path_data.start;
+        if (path_data.start == -1) {
             loadGraph(graph, true);
             continue; // Restart the loop
         }
-        if (start < 0 || start >= graph.size() || graph[start].empty()) 
+        if (path_data.start < 0 || path_data.start >= graph.size() || graph[path_data.start].empty()) 
         {
             cout << "Invalid node. Please try again." << endl;
             continue;
         }
         cout << "Enter the end node: ";
-        cin >> end;
-        if (end < 0 || end >= graph.size() || graph[end].empty())
+        cin >> path_data.end;
+        if (path_data.end < 0 || path_data.end >= graph.size() || graph[path_data.end].empty())
         {
             cout << "Invalid node. Please try again." << endl;
             continue;
         }
 
+        // Ask the user if they want to break early the dijkstra algorithm
+        c = 'x';
+        while (c!='y' && c!='n') {
+            cout << "Break early (y/n)? ";
+            cin >> c;
+            if (c == 'y') {
+                break_early = true;
+            } else {
+                if (c == 'n') {
+                    break_early = false;
+                } else {
+                    cout << "Invalid input. Please try again." << endl;
+                }
+            }
+        } 
+
         cout << "\nCalculating the shortest path ...\n" << endl;
         // Measure the execution time
         auto start_time = chrono::high_resolution_clock::now();
-        dijkstra_preloaded(start, end, distance, prev, start_indices, neighbors, weights);
-        //dijkstra(start, end, graph, distance, prev);
+
+        dijkstra(graph_data, path_data, break_early);
+
         auto end_time = chrono::high_resolution_clock::now();
 
         //Calculate the time
         long time = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
 
         // Calculate the path
-        path = reconstructPath(start, end, prev);
+        reconstructPath(path_data, time);
 
-        if (path.empty()) {
-            cout << "No path found between node " << formatWithSpaces(start) << " and node " << formatWithSpaces(end) << "." << endl;
+        if (path_data.path.empty()) {
+            cout << "No path found between node " << formatWithSpaces(path_data.start) << " and node " << formatWithSpaces(path_data.end) << "." << endl;
         } else {
             // Save the path nodes to a CSV file
-            savePathToCSV("shortest_path.csv", path, distance, time);
+            savePathToCSV(OUTPUT, path_data);
 
             // Output results
-            cout << "\nTotal Distance   : " << formatWithSpaces(distance[end])   << endl;
-            cout <<   "Number of edges  : " << formatWithSpaces(path.size() - 1) << endl;
+            cout << "\nTotal Distance   : " << formatWithSpaces(path_data.distance[path_data.end])   << endl;
+            cout <<   "Number of edges  : " << formatWithSpaces(path_data.path.size() - 1) << endl;
             cout <<   "Calculation Time : " << formatWithSpaces(time)   << " ms" << endl;
         }
     }
