@@ -55,24 +55,10 @@ It is able to detect if there is no path between the two nodes.
 using namespace std;
 using pii = pair<int, int>;
 
-struct GraphData {
-    vector<int> start_indices;
-    vector<int> neighbors;
-    vector<int> weights;
-};
-
-struct PathData {
-    int start;
-    int end;
-    long time;
-    vector<int> distance;
-    vector<int> prev;
-    vector<int> path;
-};
-
+#include "time.hpp"
 #include "outputs.hpp"
 #include "graph.hpp"
+#include "input.hpp"
 #include "dijkstra.hpp"
-
 
 #endif

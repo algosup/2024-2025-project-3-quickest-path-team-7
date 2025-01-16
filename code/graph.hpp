@@ -1,7 +1,13 @@
-#include "header.hpp"
-
 #ifndef GRAPH_H
 #define GRAPH_H
+
+#include "header.hpp"
+
+struct GraphData {
+    vector<int> start_indices;
+    vector<int> neighbors;
+    vector<int> weights;
+};
 
 void preprocessGraph(const vector<vector<pii>>& graph, GraphData& graph_data) {
     cout << "Preprocessing the graph ..." << flush;

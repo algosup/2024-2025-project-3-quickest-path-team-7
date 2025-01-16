@@ -1,7 +1,16 @@
-#include "header.hpp"
-
 #ifndef OUTPUTS_H
 #define OUTPUTS_H
+
+#include "header.hpp"
+
+struct PathData {
+    int start;
+    int end;
+    long time;
+    vector<int> distance;
+    vector<int> prev;
+    vector<int> path;
+};
 
 // Function to calculate then display the memory usage of the graph
 void GraphMemoryUsage(const vector<vector<pii>>& graph) {
@@ -27,6 +36,22 @@ string formatWithSpaces(long number) {
     return numStr;
 }
 
+void reconstructPath(PathData& path_data, Timer& timer) {
+    int node = path_data.end;
+    while (node != -1) {
+        path_data.path.push_back(node);
+        node = path_data.prev[node];
+    }
+    vector<int> reversedPath;
+    for (auto it = path_data.path.rbegin(); it != path_data.path.rend(); ++it) {
+        reversedPath.push_back(*it);
+    }
+    path_data.path = reversedPath;
+    path_data.time = timer.time;
+
+    // Reset the path
+    path_data.prev.clear();
+}
 
 void savePathToCSV(string filename, PathData& path_data) {
     ofstream file(filename);

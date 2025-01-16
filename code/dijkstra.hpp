@@ -1,9 +1,10 @@
-#include "header.hpp"
-
 #ifndef DIJKSTRA_H
 #define DIJKSTRA_H
 
-void dijkstra(GraphData& graph_data, PathData& path_data, bool break_early = false) {
+#include "header.hpp"
+
+void dijkstra_algorithm(GraphData& graph_data, PathData& path_data, bool break_early = false){
+
     int n = graph_data.start_indices.size() - 1;
     int neighbor, weight, newDist, dist, node;
     
@@ -40,22 +41,26 @@ void dijkstra(GraphData& graph_data, PathData& path_data, bool break_early = fal
     }
 }
 
-void reconstructPath(PathData& path_data, long time) {
-    int node = path_data.end;
-    while (node != -1) {
-        path_data.path.push_back(node);
-        node = path_data.prev[node];
-    }
-    vector<int> reversedPath;
-    for (auto it = path_data.path.rbegin(); it != path_data.path.rend(); ++it) {
-        reversedPath.push_back(*it);
-    }
-    path_data.path = reversedPath;
-    path_data.time = time;
+void dijkstra(GraphData& graph_data, PathData& path_data, Timer& dijkstraTimer, bool break_early = false) {
 
-    // Reset the path
-    path_data.prev.clear();
+    // Clear the path data
+    path_data.path.clear();
+
+    cout << "\nCalculating the shortest path ...\n" << endl;
+
+    // Start the timer for the dijkstra algorithm
+    start_timer(dijkstraTimer);
+
+    // Run the dijkstra algorithm
+    dijkstra_algorithm(graph_data, path_data, break_early);
+    
+    // Stop the timer for the dijkstra algorithm
+    stop_timer(dijkstraTimer);
+
+    // Build the path from the dijkstra results
+    reconstructPath(path_data, dijkstraTimer);
 
 }
+
 
 #endif
