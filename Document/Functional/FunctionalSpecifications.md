@@ -41,8 +41,7 @@
    - [1.4 Deliverables](#14-deliverables)  
    - [1.5 Milestones](#15-milestones)  
    - [1.6 Terms, Acronyms, and Definitions](#16-terms-acronyms-and-definitions)  
-2. [Requirements, Constraints, and Assumptions](#requirements-constraints-and-assumptions)  
-
+2. [System](#2-system)
 
 </details>
 
@@ -55,7 +54,7 @@ This document defines the functional specifications of the Quickest Path project
 | **Feature**                              | **Description**                                                                                 | **In Scope** | **Out of Scope** |
 |------------------------------------------|-------------------------------------------------------------------------------------------------|--------------|------------------|
 | **Shortest Path Calculation**            | The system must calculate the shortest path between two landmarks using heuristic algorithms.   | ✅            |                  |
-| **REST API**                             | The system must expose functionality via a REST API supporting JSON and XML response formats.   | ✅            |                  |
+| **REST API**                             | The system must expose functionality via a REST API with a single GET endpoint, supporting JSON and XML response formats.   | ✅            |                  |
 | **Data Validation**  ```TO CHECK```                    | The system must validate the integrity and connectivity of the input dataset.                  | ✅            |                  |
 | **Heuristic Optimization**               | The system must use heuristics to maintain performance while staying within the 10% error margin. | ✅            |                  |
 | **Multi-Format Support**                 | The API must provide outputs in both JSON and XML formats.                                      | ✅            |                  |
@@ -131,28 +130,54 @@ External project reviewers have been appointed by the project owner to review ou
 
 ## 1.7 Requirements, Constraints, and Assumptions
 
-### 1.7.1 Requirements  
-- **Language**: The system must be developed in C++ to optimize performance for large-scale graph computations and align with client requirements.  
-- **REST API**: The system will expose its functionality through a REST API:  
-  - **Input**: Accepts the source and destination landmark IDs as query parameters.  
-  - **Output**: Returns the total travel time and the ordered list of landmarks along the path.  
-  - **Response Formats**: Supports JSON (default) and XML formats.  
-  - **Error Handling**: The API must handle and respond with appropriate HTTP status codes (e.g., 200, 400, 404) and descriptive error messages.  
-- **Graph Validation (One-Time Check)**:  
-  - Validate the dataset to ensure the graph is free of loops (cycles) before it is used for queries.  
-- **Performance**:  
-  - Respond to all queries within 1 second on standard laptop hardware.  
-  - Allow a heuristic margin of up to 10% from the shortest path for performance optimization.  
+### 1.7.1 Requirements
+**Language:**  
+The system must be developed in C++ to optimize performance for graph computations and align with project requirements.
 
-### 1.7.2 Constraints  
-- **Timeline**: The project must adhere to the defined timeline and milestones.  
-- **Hardware**: The system must operate efficiently on a standard laptop with limited computational resources.  
-- **Graph Validation Frequency**: The loop validation check must only be performed once during the graph initialization phase and not repeated for each query.  
+**REST API:**  
+The system will expose its functionality through a REST API:
+- **Input:** Accepts the source and destination landmark IDs as query parameters.
+- **Output:** Returns the total travel time and the ordered list of landmarks along the path.
+- **Response Formats:** Supports JSON (default) and XML formats.
+- **Error Handling:** The API must handle and respond with appropriate HTTP status codes (e.g., 200, 400, 404) and descriptive error messages.
 
-### 1.7.3 Assumptions  
-1. The provided dataset is accurate and does not require transformation or corrections beyond loop validation.  
-2. Users will provide valid and existing landmark IDs for source and destination queries.  
-3. Stable internet connectivity is assumed for API interactions.  
+**Graph Validation (One-Time Check):**  
+The dataset will be processed to generate a graph, which will undergo a one-time validation to:
+- Ensure it is free of loops (cycles).
+- Verify it is fully connected, ensuring a path exists between any two landmarks.
+
+This graph will be preloaded into memory and reused for all subsequent queries during the localhost session.
+
+**Performance:**  
+- Respond to all queries within 1 second on a standard development machine (laptop).
+- Allow a heuristic margin of up to 10% from the shortest path for performance optimization.
+
+**Environment:**  
+- The system will run exclusively on a localhost environment for development and testing purposes.
+
+---
+
+### 1.7.2 Constraints
+**Timeline:**  
+The project must adhere to the defined timeline and milestones.
+
+**Hardware:**  
+The system must operate efficiently on a standard development laptop with limited computational resources (e.g., 8 GB RAM, quad-core processor).
+
+**Graph Validation Frequency:**  
+The graph validation check must only be performed once during the initialization phase and will not be repeated for each query.
+
+**Environment:**  
+The system does not require internet connectivity for operation, as all computations are performed locally. Interaction is limited to local API calls (e.g., `http://localhost:8080`).
+
+---
+
+### 1.7.3 Assumptions
+- The provided dataset is accurate and does not require transformation or corrections beyond loop validation and connectivity checks.
+- Users will provide valid and existing landmark IDs for source and destination queries.
+- The system is expected to handle only a limited number of concurrent queries during localhost testing.
+- The API will not require authentication or encryption for localhost development.
+
 
 ---
 
@@ -227,23 +252,38 @@ External project reviewers have been appointed by the project owner to review ou
             </path>
         </response>
   ```
+  
 # 2. System
 
 ## 2.1 Functional API Details
 
 ### **2.1.1 Endpoints**
 
-#### **GET /quickest-path**
-- **Description**: Calculates the quickest path between two landmarks in the graph.
-- **Parameters**:
-  - `source` (required): Landmark ID representing the starting point (A).
-  - `destination` (required): Landmark ID representing the endpoint (B).
-  - `format` (optional): Specifies the response format. Accepted values are `json` (default) and `xml`.
-- **Request Example**:
-  ```plaintext
-  GET http://localhost:8080/?source=123&destination=456&format=json
-  ```
+This project will use a single `GET` request method to handle all queries, ensuring simplicity and consistency in the API design.
 
+#### **Endpoint**: `GET /quickest-path`
+- **Description**: Calculates the quickest path between two landmarks in the graph.
+- **Accepted Headers**:
+  - `Accept`: Specifies the desired response format. Supported values are:
+    - `application/json` (default)
+    - `application/xml`
+- **Query Parameters**:
+  - `source` (required): The ID of the starting landmark (A).
+  - `destination` (required): The ID of the destination landmark (B).
+  - `format` (optional): Overrides the `Accept` header to specify the response format. Accepted values are `json` and `xml`.
+
+#### **Request Examples**:
+
+**1. Request with `Accept` Header**:
+```plaintext
+GET /quickest-path?source=123&destination=456 HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+```
+**2. Request with `Query` Parameter**:
+```
+GET http://localhost:8080/quickest-path?source=123&destination=456&format=xml
+```
 ## 2.2 Response Details
 ### 2.2.1 Success Response
 - **200 OK**: The path is successfully calculated.
@@ -277,7 +317,7 @@ The API returns appropriate error codes with descriptive messages in the request
     - **Default JSON:** 
       ```json
       {
-        "error": "Invalid or missing parameters.",
+        "status": "Invalid or missing parameters.",
         "code": "ERR4001",
         "details": {
           "missing_parameters": ["source", "destination"],
@@ -288,7 +328,7 @@ The API returns appropriate error codes with descriptive messages in the request
       ```
     - **Requested XML**:
       ```XML
-        <error>
+        <status>
             <message>Invalid or missing parameters.</message>
             <code>ERR4001</code>
             <details>
@@ -307,7 +347,7 @@ The API returns appropriate error codes with descriptive messages in the request
     - **Default JSON:** 
       ```json
       {
-        "error": "Landmark not found.",
+        "status": "Landmark not found.",
         "code": "ERR4041",
         "details": {
           "landmark_id": "123",
@@ -318,7 +358,7 @@ The API returns appropriate error codes with descriptive messages in the request
       ```
     - **Requested XML**:
       ```XML
-        <error>
+        <status>
             <message>Landmark not found.</message>
             <code>ERR4041</code>
             <details>
@@ -333,7 +373,7 @@ The API returns appropriate error codes with descriptive messages in the request
     - **Default JSON:** 
       ```json
       {
-        "error": "Unexpected server-side error.",
+        "status": "Unexpected server-side error.",
         "code": "ERR5001",
         "details": {
           "timestamp": "2025-01-16T14:30:00Z",
@@ -343,7 +383,7 @@ The API returns appropriate error codes with descriptive messages in the request
       ```
     - **Requested XML**:
       ```XML
-        <error>
+        <status>
             <message>Unexpected server-side error.</message>
             <code>ERR5001</code>
             <details>
@@ -352,6 +392,55 @@ The API returns appropriate error codes with descriptive messages in the request
             </details>
         </error>
       ```
+  - **405 Method Not Allowed**: unsupported HTTP method (e.g., POST instead of GET) is used on your API
+
+    - **Default JSON:** 
+      ```json
+      {
+          "status": "Method Not Allowed",
+          "code": "ERR4051",
+          "details": {
+              "method_used": "POST",
+              "allowed_methods": ["GET"],
+              "resolution": "Use the correct HTTP method. Refer to the API documentation for supported methods.",
+              "documentation": "https://example.com/docs#http-methods"
+          },
+          "timestamp": "2025-01-16T14:45:00Z"
+      }
+      ```
+    - **Requested XML**:
+      ```XML
+        <status>
+            <message>Method Not Allowed</message>
+            <code>ERR4051</code>
+            <details>
+                <method_used>POST</method_used>
+                <allowed_methods>
+                    <method>GET</method>
+                </allowed_methods>
+                <resolution>Use the correct HTTP method. Refer to the API documentation for supported methods.</resolution>
+                <documentation>https://example.com/docs#http-methods</documentation>
+            </details>
+            <timestamp>2025-01-16T14:45:00Z</timestamp>
+        </error>
+      ```
+
+## 2.2 Data validation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
