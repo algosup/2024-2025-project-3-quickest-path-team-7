@@ -756,26 +756,24 @@ This table summarizes the key steps in the process flow and their corresponding 
 
 ```mermaid
 graph TD
-  classDef wrapClass text-align:center;white-space:normal;
-
-  A["User Input:<br>Send request to<br>http://localhost:8080/quickest-path"]:::wrapClass
-  A --> B{"Is method<br>GET?"}:::wrapClass
-  B -->|"No"| C["Return 405<br>Method Not Allowed"]:::wrapClass
-  B -->|"Yes"| D["Process<br>request"]:::wrapClass
-  D --> E{"Is input<br>valid?"}:::wrapClass
-  E -->|"No"| F["Return 400<br>Bad Request"]:::wrapClass
-  E -->|"Yes"| G{"Are source<br>and destination<br>found?"}:::wrapClass
-  G -->|"No"| H["Return 404<br>Not Found"]:::wrapClass
-  G -->|"Yes"| I{"Are source<br>and destination<br>identical?"}:::wrapClass
-  I -->|"Yes"| J["Return 200 OK:<br>Identical landmarks"]:::wrapClass
-  I -->|"No"| K["Run pathfinding<br>algorithm"]:::wrapClass
-  K --> L{"Is a valid<br>path found?"}:::wrapClass
-  L -->|"No"| M["Return 404<br>Not Found"]:::wrapClass
-  L -->|"Yes"| N["Format response"]:::wrapClass
-  N --> O{"Requested<br>format?"}:::wrapClass
-  O -->|"JSON"| P["Return JSON<br>response"]:::wrapClass
-  O -->|"XML"| Q["Return XML<br>response"]:::wrapClass
-  P --> R["Send 200 OK<br>response with path"]:::wrapClass
+  A["User Input:<br>Send request to<br>http://localhost:8080/quickest-path"]
+  A --> B{"Is method<br>GET?"}
+  B -->|"No"| C["Return 405<br>Method Not Allowed"]
+  B -->|"Yes"| D["Process<br>request"]
+  D --> E{"Is input<br>valid?"}
+  E -->|"No"| F["Return 400<br>Bad Request"]
+  E -->|"Yes"| G{"Are source and<br>destination found?"}
+  G -->|"No"| H["Return 404<br>Not Found"]
+  G -->|"Yes"| I{"Are source and<br>destination identical?"}
+  I -->|"Yes"| J["Return 200 OK:<br>Identical landmarks"]
+  I -->|"No"| K["Run pathfinding<br>algorithm"]
+  K --> L{"Is a valid<br>path found?"}
+  L -->|"No"| M["Return 404<br>Not Found"]
+  L -->|"Yes"| N["Format response"]
+  N --> O{"Requested<br>format?"}
+  O -->|"JSON"| P["Return JSON<br>response"]
+  O -->|"XML"| Q["Return XML<br>response"]
+  P --> R["Send 200 OK<br>response with path"]
   Q --> R
   J --> R
 ```
