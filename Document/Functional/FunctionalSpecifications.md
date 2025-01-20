@@ -61,11 +61,13 @@ This document defines the functional specifications of the Quickest Path project
 | **Real-Time Responses**                  | The system must deliver responses within 1 second for a standard laptop setup.                 | ✅            |                  |
 | **Batch Processing**                     | The system must support batch route calculations for multiple source-destination pairs.         |              | ❌               |
 | **User Authentication**                  | The system must authenticate users accessing the API.                                          |              | ❌               |
-| **Offline Functionality**                | The system must function offline without internet connectivity.                                |              | ❌               |
 | **Graphical Interface**                  | The system must provide a graphical user interface for user interaction.                       |              | ❌               |
-| **Voice Input**                          | The system must support voice input for navigation requests.                                   |              | ❌               |
+
 
 ---
+## 1.1.1 Targeted audience
+- Software developers
+- Logistic compagnies 
 
 ## 1.2 Project Team
 | Role              | Description                                                                                                                                                                | Name                                                                 |
@@ -262,28 +264,37 @@ The system does not require internet connectivity for operation, as all computat
 This project will use a single `GET` request method to handle all queries, ensuring simplicity and consistency in the API design.
 
 #### **Endpoint**: `GET /quickest-path`
-- **Description**: Calculates the quickest path between two landmarks in the graph.
-- **Accepted Headers**:
-  - `Accept`: Specifies the desired response format. Supported values are:
-    - `application/json` (default)
-    - `application/xml`
-- **Query Parameters**:
-  - `source` (required): The ID of the starting landmark (A).
-  - `destination` (required): The ID of the destination landmark (B).
-  - `format` (optional): Overrides the `Accept` header to specify the response format. Accepted values are `json` and `xml`.
+| **Attribute**     | **Description**                                                                                                                                               |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Description**    | Calculates the quickest path between two landmarks in the graph.                                                                                             |
+| **Method**         | `GET`                                                                                                                                                        |
+| **Endpoint URL**   | `/quickest-path`                                                                                                                                            |
 
-#### **Request Examples**:
+---
 
-**1. Request with `Accept` Header**:
-```plaintext
-GET /quickest-path?source=123&destination=456 HTTP/1.1
-Host: localhost:8080
-Accept: application/json
-```
-**2. Request with `Query` Parameter**:
-```
-GET http://localhost:8080/quickest-path?source=123&destination=456&format=xml
-```
+#### **Accepted Headers**
+| **Header** | **Description**                             | **Values**                           | **Default**      |
+|------------|---------------------------------------------|---------------------------------------|------------------|
+| `Accept`   | Specifies the desired response format.      | `application/json`, `application/xml`| `application/json` |
+
+---
+
+#### **Query Parameters**
+| **Parameter**  | **Required** | **Description**                                                                                              | **Accepted Values**         |
+|-----------------|-------------|--------------------------------------------------------------------------------------------------------------|-----------------------------|
+| `source`       | Yes         | The ID of the starting landmark (A). Must be an integer within the valid range.                              | Integer (1–23,947,347)      |
+| `destination`  | Yes         | The ID of the destination landmark (B). Must be an integer within the valid range.                           | Integer (1–23,947,347)      |
+| `format`       | No          | Overrides the `Accept` header to specify the response format.                                                | `json`, `xml`               |
+
+---
+
+#### **Request Examples**
+
+| **Example**               | **Details**                                                                                     |
+|----------------------------|-------------------------------------------------------------------------------------------------|
+| **Request with Header**    | ``` GET /quickest-path?source=123&destination=456 HTTP/1.1```<br>```Host: localhost:8080```<br>```Accept: application/json``` |
+| **Request with Query Parameter** | ```GET http://localhost:8080/quickest-path?source=123&destination=456&format=xml```                     |
+
 ## 2.2 Response Details
 ### 2.2.1 Success Response
 - **200 OK**: The path is successfully calculated.
@@ -318,7 +329,6 @@ The API returns appropriate error codes with descriptive messages in the request
       ```json
       {
         "status": "Invalid or missing parameters.",
-        "code": "ERR4001",
         "details": {
           "missing_parameters": ["source", "destination"],
           "resolution": "Ensure both 'source' and 'destination' are included as query parameters.",
@@ -330,7 +340,6 @@ The API returns appropriate error codes with descriptive messages in the request
       ```XML
         <status>
             <message>Invalid or missing parameters.</message>
-            <code>ERR4001</code>
             <details>
                 <missing_parameters>
                     <parameter>source</parameter>
@@ -348,7 +357,6 @@ The API returns appropriate error codes with descriptive messages in the request
       ```json
       {
         "status": "Landmark not found.",
-        "code": "ERR4041",
         "details": {
           "landmark_id": "123",
           "resolution": "Check the dataset for valid landmark IDs.",
@@ -360,35 +368,10 @@ The API returns appropriate error codes with descriptive messages in the request
       ```XML
         <status>
             <message>Landmark not found.</message>
-            <code>ERR4041</code>
             <details>
                 <landmark_id>123</landmark_id>
                 <resolution>Check the dataset for valid landmark IDs.</resolution>
                 <documentation>https://example.com/docs#landmarks</documentation>
-            </details>
-        </error>
-      ```
-  - **500 Internal Server Error**: Unexpected server-side error.
-
-    - **Default JSON:** 
-      ```json
-      {
-        "status": "Unexpected server-side error.",
-        "code": "ERR5001",
-        "details": {
-          "timestamp": "2025-01-16T14:30:00Z",
-          "support": "Contact support@example.com with the timestamp and request details."
-        }
-      }
-      ```
-    - **Requested XML**:
-      ```XML
-        <status>
-            <message>Unexpected server-side error.</message>
-            <code>ERR5001</code>
-            <details>
-                <timestamp>2025-01-16T14:30:00Z</timestamp>
-                <support>Contact support@example.com with the timestamp and request details.</support>
             </details>
         </error>
       ```
@@ -398,7 +381,7 @@ The API returns appropriate error codes with descriptive messages in the request
       ```json
       {
           "status": "Method Not Allowed",
-          "code": "ERR4051",
+
           "details": {
               "method_used": "POST",
               "allowed_methods": ["GET"],
@@ -412,7 +395,6 @@ The API returns appropriate error codes with descriptive messages in the request
       ```XML
         <status>
             <message>Method Not Allowed</message>
-            <code>ERR4051</code>
             <details>
                 <method_used>POST</method_used>
                 <allowed_methods>
