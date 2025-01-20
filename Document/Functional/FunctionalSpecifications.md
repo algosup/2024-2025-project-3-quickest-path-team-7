@@ -21,6 +21,7 @@
 |------------|---------|-------------------------------|-------------------|
 | 01/06/2025 | 0       | Create template               | Abderrazaq MAKRAN |
 | 01/16/2025 | 0.5       | Finished Intro (have to check data validation and add back to top) + Doing Functional API Details               | Abderrazaq MAKRAN |
+| 01/16/2025 | 1       | First version functional (Data Validation isnt finished yet)          | Abderrazaq MAKRAN |
 ---
 
 ## Stakeholders
@@ -55,7 +56,7 @@ This document defines the functional specifications of the Quickest Path project
 |------------------------------------------|-------------------------------------------------------------------------------------------------|--------------|------------------|
 | **Shortest Path Calculation**            | The system must calculate the shortest path between two landmarks using heuristic algorithms.   | ✅            |                  |
 | **REST API**                             | The system must expose functionality via a REST API with a single GET endpoint, supporting JSON and XML response formats.   | ✅            |                  |
-| **Data Validation**  ```TO CHECK```                    | The system must validate the integrity and connectivity of the input dataset.                  | ✅            |                  |
+| **Data Validation**                    | The system must validate the integrity and connectivity of the input dataset.                  | ✅            |                  |
 | **Heuristic Optimization**               | The system must use heuristics to maintain performance while staying within the 10% error margin. | ✅            |                  |
 | **Multi-Format Support**                 | The API must provide outputs in both JSON and XML formats.                                      | ✅            |                  |
 | **Real-Time Responses**                  | The system must deliver responses within 1 second for a standard laptop setup.                 | ✅            |                  |
@@ -133,67 +134,174 @@ External project reviewers have been appointed by the project owner to review ou
 ## 1.7 Requirements, Constraints, and Assumptions
 
 ### 1.7.1 Requirements
-**Language:**  
-The system must be developed in C++ to optimize performance for graph computations and align with project requirements.
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Language</strong></td>
+      <td>The system must be developed in C++ to optimize performance for graph computations and align with project requirements.</td>
+    </tr>
+    <tr>
+      <td><strong>REST API</strong></td>
+      <td>
+        The system will expose its functionality through a REST API:
+        <ul>
+          <li><strong>Input:</strong> Accepts the source and destination landmark IDs as query parameters.</li>
+          <li><strong>Output:</strong> Returns the total travel time and the ordered list of landmarks along the path.</li>
+          <li><strong>Response Formats:</strong> Supports JSON (default) and XML formats.</li>
+          <li><strong>Error Handling:</strong> The API must handle and respond with appropriate HTTP status codes (e.g., 200, 400, 404) and descriptive error messages.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Graph Validation (One-Time Check)</strong></td>
+      <td>
+        The dataset will be processed to generate a graph, which will undergo a one-time validation to:
+        <ul>
+          <li>Ensure it is free of loops (cycles).</li>
+          <li>Verify it is fully connected, ensuring a path exists between any two landmarks.</li>
+        </ul>
+        This graph will be preloaded into memory and reused for all subsequent queries during the localhost session.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Performance</strong></td>
+      <td>
+        <ul>
+          <li>Respond to all queries within 1 second on a standard development machine (laptop).</li>
+          <li>Allow a heuristic margin of up to 10% from the shortest path for performance optimization.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Environment</strong></td>
+      <td>
+        <ul>
+          <li>The system will run exclusively on a localhost environment for development and testing purposes.</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-**REST API:**  
-The system will expose its functionality through a REST API:
-- **Input:** Accepts the source and destination landmark IDs as query parameters.
-- **Output:** Returns the total travel time and the ordered list of landmarks along the path.
-- **Response Formats:** Supports JSON (default) and XML formats.
-- **Error Handling:** The API must handle and respond with appropriate HTTP status codes (e.g., 200, 400, 404) and descriptive error messages.
-
-**Graph Validation (One-Time Check):**  
-The dataset will be processed to generate a graph, which will undergo a one-time validation to:
-- Ensure it is free of loops (cycles).
-- Verify it is fully connected, ensuring a path exists between any two landmarks.
-
-This graph will be preloaded into memory and reused for all subsequent queries during the localhost session.
-
-**Performance:**  
-- Respond to all queries within 1 second on a standard development machine (laptop).
-- Allow a heuristic margin of up to 10% from the shortest path for performance optimization.
-
-**Environment:**  
-- The system will run exclusively on a localhost environment for development and testing purposes.
 
 ---
 
 ### 1.7.2 Constraints
-**Timeline:**  
-The project must adhere to the defined timeline and milestones.
-
-**Hardware:**  
-The system must operate efficiently on a standard development laptop with limited computational resources (e.g., 8 GB RAM, quad-core processor).
-
-**Graph Validation Frequency:**  
-The graph validation check must only be performed once during the initialization phase and will not be repeated for each query.
-
-**Environment:**  
-The system does not require internet connectivity for operation, as all computations are performed locally. Interaction is limited to local API calls (e.g., `http://localhost:8080`).
-
----
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Timeline</strong></td>
+      <td>The project must adhere to the defined timeline and milestones.</td>
+    </tr>
+    <tr>
+      <td><strong>Hardware</strong></td>
+      <td>
+        The system must operate efficiently on a standard development laptop with limited computational resources 
+        (e.g., 8 GB RAM, quad-core processor).
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Graph Validation Frequency</strong></td>
+      <td>The graph validation check must only be performed once during the initialization phase and will not be repeated for each query.</td>
+    </tr>
+    <tr>
+      <td><strong>Environment</strong></td>
+      <td>
+        The system does not require internet connectivity for operation, as all computations are performed locally. 
+        Interaction is limited to local API calls (e.g., <code>http://localhost:8080</code>).
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ### 1.7.3 Assumptions
-- The provided dataset is accurate and does not require transformation or corrections beyond loop validation and connectivity checks.
-- Users will provide valid and existing landmark IDs for source and destination queries.
-- The system is expected to handle only a limited number of concurrent queries during localhost testing.
-- The API will not require authentication or encryption for localhost development.
+<table>
+  <thead>
+    <tr>
+      <th>Assumption</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>The provided dataset is accurate and does not require transformation or corrections beyond loop validation and connectivity checks.</td>
+    </tr>
+    <tr>
+      <td>Users will provide valid and existing landmark IDs for source and destination queries.</td>
+    </tr>
+    <tr>
+      <td>The system is expected to handle only a limited number of concurrent queries during localhost testing.</td>
+    </tr>
+    <tr>
+      <td>The API will not require authentication or encryption for localhost development.</td>
+    </tr>
+  </tbody>
+</table>
+
 
 
 ---
 
-## 1.8 Risks and Challenges
+### 1.8 Risks and Challenges
 
-### 1.8.1 Risks  
-1. **Dataset Size**: Large datasets (24 million nodes) may cause performance or memory challenges.  
-2. **Algorithm Accuracy**: The use of heuristics for approximations could lead to deviations exceeding the acceptable 10% margin in rare cases.  
-3. **System Load**: High query volumes could overload the system, particularly on constrained hardware.  
+#### 1.8.1 Risks
+<table>
+  <thead>
+    <tr>
+      <th>Risk</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Dataset Size</strong></td>
+      <td>Large datasets (24 million nodes) may cause performance or memory challenges.</td>
+    </tr>
+    <tr>
+      <td><strong>Algorithm Accuracy</strong></td>
+      <td>The use of heuristics for approximations could lead to deviations exceeding the acceptable 10% margin in rare cases.</td>
+    </tr>
+    <tr>
+      <td><strong>System Load</strong></td>
+      <td>High query volumes could overload the system, particularly on constrained hardware.</td>
+    </tr>
+  </tbody>
+</table>
 
-### 1.8.2 Challenges  
-- **Speed vs. Accuracy**: Ensuring that heuristic optimizations maintain a balance between fast response times and acceptable error margins.  
-- **Graph Size Management**: Efficiently managing large datasets in memory for multiple queries without excessive resource consumption.  
-- **Robust Error Handling**: Consistently identifying and communicating errors in input or system operations without impacting the user experience.  
+#### 1.8.2 Challenges
+<table>
+  <thead>
+    <tr>
+      <th>Challenge</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Speed vs. Accuracy</strong></td>
+      <td>Ensuring that heuristic optimizations maintain a balance between fast response times and acceptable error margins.</td>
+    </tr>
+    <tr>
+      <td><strong>Graph Size Management</strong></td>
+      <td>Efficiently managing large datasets in memory for multiple queries without excessive resource consumption.</td>
+    </tr>
+    <tr>
+      <td><strong>Robust Error Handling</strong></td>
+      <td>Consistently identifying and communicating errors in input or system operations without impacting the user experience.</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -259,11 +367,11 @@ The system does not require internet connectivity for operation, as all computat
 
 ## 2.1 Functional API Details
 
-### **2.1.1 Endpoints**
+### **2.1.1 Endpoint**
 
 This project will use a single `GET` request method to handle all queries, ensuring simplicity and consistency in the API design.
 
-#### **Endpoint**: `GET /quickest-path`
+#### **Endpoint**:
 | **Attribute**     | **Description**                                                                                                                                               |
 |--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Description**    | Calculates the quickest path between two landmarks in the graph.                                                                                             |
@@ -297,125 +405,378 @@ This project will use a single `GET` request method to handle all queries, ensur
 
 ## 2.2 Response Details
 ### 2.2.1 Success Response
-- **200 OK**: The path is successfully calculated.
-- **Response**:
-  - The response contains the calculated travel time (in arbitrary units, such as minutes, hours, or km/h)  and the ordered list of landmarks.
-  - The format depends on the format query parameter in the request.
-    - **Example Responses**:
-      - **Default (JSON)**:
-        ```json
-        {
-            "time": 145,
-            "path": ["123", "234", "345", "456"]
-        }
-      - **Example XML Response**:
-        ```XML
-              <response>
-                  <time>145</time>
-                  <path>
-                      <landmark>123</landmark>
-                      <landmark>234</landmark>
-                      <landmark>345</landmark>
-                      <landmark>456</landmark>
-                  </path>
-              </response>
-        ```
+
+<table>
+  <thead>
+    <tr>
+      <th>HTTP Status</th>
+      <th>Condition</th>
+      <th>Description</th>
+      <th>Example Response</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>200 OK</strong></td>
+      <td>Path successfully calculated</td>
+      <td>The system calculates the shortest path between the source and destination landmarks.</td>
+      <td>
+        <strong>JSON:</strong>
+        <pre>
+{
+  "time": 145,
+  "path": ["123", "234", "345", "456"]
+}
+        </pre>
+        <strong>XML:</strong>
+        <pre>
+&lt;response&gt;
+  &lt;time&gt;145&lt;/time&gt;
+  &lt;path&gt;
+    &lt;landmark&gt;123&lt;/landmark&gt;
+    &lt;landmark&gt;234&lt;/landmark&gt;
+    &lt;landmark&gt;345&lt;/landmark&gt;
+    &lt;landmark&gt;456&lt;/landmark&gt;
+  &lt;/path&gt;
+&lt;/response&gt;
+        </pre>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>200 OK</strong></td>
+      <td>Identical landmarks</td>
+      <td>The source and destination are the same. The system indicates the landmarks are identical.</td>
+      <td>
+        <strong>JSON:</strong>
+        <pre>
+{
+  "message": "Source and destination are identical.",
+  "landmark": "123"
+}
+        </pre>
+        <strong>XML:</strong>
+        <pre>
+&lt;response&gt;
+  &lt;message&gt;Source and destination are identical.&lt;/message&gt;
+  &lt;landmark&gt;123&lt;/landmark&gt;
+&lt;/response&gt;
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
 
 ### 2.2.2 Error Responses
-The API returns appropriate error codes with descriptive messages in the requested format (json by default):
-  - **400 Bad Request**: Malformed request or missing parameters.
+The API returns appropriate error codes with descriptive messages in the requested format (JSON by default):
 
-    - **Default JSON:** 
-      ```json
-      {
-        "status": "Invalid or missing parameters.",
-        "details": {
-          "missing_parameters": ["source", "destination"],
-          "resolution": "Ensure both 'source' and 'destination' are included as query parameters.",
-          "documentation": "https://example.com/docs#parameters"
-        }
-      }
-      ```
-    - **Requested XML**:
-      ```XML
-        <status>
-            <message>Invalid or missing parameters.</message>
-            <details>
-                <missing_parameters>
-                    <parameter>source</parameter>
-                    <parameter>destination</parameter>
-                </missing_parameters>
-                <resolution>Ensure both 'source' and 'destination' are included as query parameters.</resolution>
-                <documentation>https://example.com/docs#parameters</documentation>
-            </details>
-        </error>
+<table>
+  <thead>
+    <tr>
+      <th>HTTP Status</th>
+      <th>Condition</th>
+      <th>Description</th>
+      <th>Example Response</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>400 Bad Request</b></td>
+      <td>Malformed request or missing parameters</td>
+      <td>The input query is missing required parameters or is incorrectly formatted.</td>
+      <td>
+        <b>JSON:</b>
+        <pre>
+{
+  "status": "Invalid or missing parameters.",
+  "details": {
+    "missing_parameters": ["source", "destination"],
+    "resolution": "Ensure both 'source' and 'destination' are included as query parameters.",
+    "documentation": "https://example.com/docs#parameters"
+  }
+}
+        </pre>
+        <b>XML:</b>
+        <pre>
+&lt;status&gt;
+  &lt;message&gt;Invalid or missing parameters.&lt;/message&gt;
+  &lt;details&gt;
+    &lt;missing_parameters&gt;
+      &lt;parameter&gt;source&lt;/parameter&gt;
+      &lt;parameter&gt;destination&lt;/parameter&gt;
+    &lt;/missing_parameters&gt;
+    &lt;resolution&gt;Ensure both 'source' and 'destination' are included as query parameters.&lt;/resolution&gt;
+    &lt;documentation&gt;https://example.com/docs#parameters&lt;/documentation&gt;
+  &lt;/details&gt;
+&lt;/status&gt;
+        </pre>
+      </td>
+    </tr>
+    <tr>
+      <td><b>404 Not Found</b></td>
+      <td>Invalid source or destination ID</td>
+      <td>The <code>source</code> or <code>destination</code> landmark ID does not exist in the dataset.</td>
+      <td>
+        <b>JSON:</b>
+        <pre>
+{
+  "status": "Landmark not found.",
+  "details": {
+    "landmark_id": "123",
+    "resolution": "Check the dataset for valid landmark IDs.",
+    "documentation": "https://example.com/docs#landmarks"
+  }
+}
+        </pre>
+        <b>XML:</b>
+        <pre>
+&lt;status&gt;
+  &lt;message&gt;Landmark not found.&lt;/message&gt;
+  &lt;details&gt;
+    &lt;landmark_id&gt;123&lt;/landmark_id&gt;
+    &lt;resolution&gt;Check the dataset for valid landmark IDs.&lt;/resolution&gt;
+    &lt;documentation&gt;https://example.com/docs#landmarks&lt;/documentation&gt;
+  &lt;/details&gt;
+&lt;/status&gt;
+        </pre>
+      </td>
+    </tr>
+    <tr>
+      <td><b>404 Not Found</b></td>
+      <td>No valid path found</td>
+      <td>No valid path exists between the <code>source</code> and <code>destination</code> due to disconnected graph components or missing data.</td>
+      <td>
+        <b>JSON:</b>
+        <pre>
+{
+  "status": "No valid path found.",
+  "details": {
+    "source": "123",
+    "destination": "456",
+    "resolution": "Verify connectivity in the dataset.",
+    "documentation": "https://example.com/docs#paths"
+  }
+}
+        </pre>
+        <b>XML:</b>
+        <pre>
+&lt;status&gt;
+  &lt;message&gt;No valid path found.&lt;/message&gt;
+  &lt;details&gt;
+    &lt;source&gt;123&lt;/source&gt;
+    &lt;destination&gt;456&lt;/destination&gt;
+    &lt;resolution&gt;Verify connectivity in the dataset.&lt;/resolution&gt;
+    &lt;documentation&gt;https://example.com/docs#paths&lt;/documentation&gt;
+  &lt;/details&gt;
+&lt;/status&gt;
+        </pre>
+      </td>
+    </tr>
+    <tr>
+      <td><b>405 Method Not Allowed</b></td>
+      <td>Unsupported HTTP method</td>
+      <td>A method other than <code>GET</code> (e.g., <code>POST</code>) is used to access the API.</td>
+      <td>
+        <b>JSON:</b>
+        <pre>
+{
+  "status": "Method Not Allowed",
+  "details": {
+    "method_used": "POST",
+    "allowed_methods": ["GET"],
+    "resolution": "Use the correct HTTP method. Refer to the API documentation for supported methods.",
+    "documentation": "https://example.com/docs#http-methods"
+  },
+  "timestamp": "2025-01-16T14:45:00Z"
+}
+        </pre>
+        <b>XML:</b>
+        <pre>
+&lt;status&gt;
+  &lt;message&gt;Method Not Allowed&lt;/message&gt;
+  &lt;details&gt;
+    &lt;method_used&gt;POST&lt;/method_used&gt;
+    &lt;allowed_methods&gt;
+      &lt;method&gt;GET&lt;/method&gt;
+    &lt;/allowed_methods&gt;
+    &lt;resolution&gt;Use the correct HTTP method. Refer to the API documentation for supported methods.&lt;/resolution&gt;
+    &lt;documentation&gt;https://example.com/docs#http-methods&lt;/documentation&gt;
+  &lt;/details&gt;
+  &lt;timestamp&gt;2025-01-16T14:45:00Z&lt;/timestamp&gt;
+&lt;/status&gt;
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-      ```
-  - **404 Not Found:** Invalid source or destination ID.
 
-    - **Default JSON:** 
-      ```json
-      {
-        "status": "Landmark not found.",
-        "details": {
-          "landmark_id": "123",
-          "resolution": "Check the dataset for valid landmark IDs.",
-          "documentation": "https://example.com/docs#landmarks"
-        }
-      }
-      ```
-    - **Requested XML**:
-      ```XML
-        <status>
-            <message>Landmark not found.</message>
-            <details>
-                <landmark_id>123</landmark_id>
-                <resolution>Check the dataset for valid landmark IDs.</resolution>
-                <documentation>https://example.com/docs#landmarks</documentation>
-            </details>
-        </error>
-      ```
-  - **405 Method Not Allowed**: unsupported HTTP method (e.g., POST instead of GET) is used on your API
+## 2.3 Data Validation
 
-    - **Default JSON:** 
-      ```json
-      {
-          "status": "Method Not Allowed",
+### Overview
+Graph validation ensures the integrity of the dataset (`USA-roads.csv`) by checking:
+1. **DAG Property**: The graph must be a **Directed Acyclic Graph (DAG)**.
+2. **Connectivity**: The graph must be **fully connected** (no isolated nodes or subgraphs).
+3. **Undirected Interpretation**: After validation, the graph is treated as **undirected** for pathfinding.
 
-          "details": {
-              "method_used": "POST",
-              "allowed_methods": ["GET"],
-              "resolution": "Use the correct HTTP method. Refer to the API documentation for supported methods.",
-              "documentation": "https://example.com/docs#http-methods"
-          },
-          "timestamp": "2025-01-16T14:45:00Z"
-      }
-      ```
-    - **Requested XML**:
-      ```XML
-        <status>
-            <message>Method Not Allowed</message>
-            <details>
-                <method_used>POST</method_used>
-                <allowed_methods>
-                    <method>GET</method>
-                </allowed_methods>
-                <resolution>Use the correct HTTP method. Refer to the API documentation for supported methods.</resolution>
-                <documentation>https://example.com/docs#http-methods</documentation>
-            </details>
-            <timestamp>2025-01-16T14:45:00Z</timestamp>
-        </error>
-      ```
+### Validation Workflow
+The validation process consists of four key stages:
 
-## 2.2 Data validation
+| **Stage**               | **Objective**                                                                 | **Method**                                                                 |
+|--------------------------|-------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| 1. Load the Graph        | Parse the dataset and construct the graph using an adjacency list or matrix. | Efficient data structures for traversal and validation.                    |
+| 2. Verify DAG Property   | Ensure the graph contains no cycles.                                         | Use **Kahn’s Algorithm** or **DFS** for topological sorting.               |
+| 3. Check Connectivity    | Ensure every node is reachable from at least one other node.                 | Use **BFS** or **Union-Find** to confirm connectivity.                     |
+| 4. Transform the Graph   | Convert the graph to undirected for pathfinding.                             | Add reverse edges to every directed edge if not already present.           |
 
+---
 
+### 1. Load the Graph
+**Steps**:
+- Parse the `USA-roads.csv` file.
+- Construct the graph using:
+  - **Adjacency List**: A space-efficient representation for large datasets.
+  - **Adjacency Matrix**: Easier to implement but less space-efficient.
 
+**Output**:
+- A directed graph ready for validation.
 
+---
 
+### 2. Verify DAG Property
+**Objective**: Ensure the graph contains no cycles.
 
+**Method**: Perform **Topological Sorting** using one of the following:
+1. **Kahn’s Algorithm**:
+   - Count incoming edges (in-degrees) for all nodes.
+   - Start with nodes that have an in-degree of `0`.
+   - Remove processed nodes, reducing the in-degree of their neighbors.
+   - If all nodes are processed, the graph is a DAG. If nodes remain, a cycle exists.
+2. **Depth-First Search (DFS)**:
+   - Mark nodes during traversal.
+   - If a node is revisited during the same traversal, a cycle is detected.
 
+**Example**:
 
+| **Step**     | **Action**                              | **Result**                          |
+|--------------|-----------------------------------------|--------------------------------------|
+| Count in-degrees | Node A: 0, Node B: 1, Node C: 2      | Queue: [A]                          |
+| Process A    | Remove A, reduce neighbors’ in-degrees. | Queue: [B]                          |
+| Process B    | Remove B, reduce neighbors’ in-degrees. | Queue: [C]                          |
+| Process C    | All nodes processed.                   | Graph is a DAG.                     |
+
+**Output**:
+- **Success**: No cycles detected.
+- **Failure**: A cycle is found. Halt validation with an error.
+
+---
+
+### 3. Check Connectivity
+**Objective**: Ensure every node is reachable.
+
+**Method**:
+- **Breadth-First Search (BFS)**:
+  - Start from any node.
+  - Mark all reachable nodes during traversal.
+  - If some nodes remain unvisited, the graph is not fully connected.
+- **Union-Find**:
+  - Treat nodes as individual sets initially.
+  - Merge sets for every edge.
+  - If only one set remains, the graph is connected.
+
+**Example**:
+
+| **Node** | **Visited During BFS?** | **Result**      |
+|----------|--------------------------|-----------------|
+| A        | Yes                      | Connected       |
+| B        | Yes                      | Connected       |
+| C        | No                       | Not Connected   |
+
+**Output**:
+- **Success**: All nodes are connected.
+- **Failure**: Isolated nodes or subgraphs detected. Halt validation with an error.
+
+---
+
+### 4. Transform the Graph
+**Objective**: Prepare the graph for undirected pathfinding algorithms.
+
+**Steps**:
+1. For every directed edge `(A → B)`:
+   - Add a reverse edge `(B → A)` if not already present.
+2. Save the modified graph in memory.
+
+**Output**:
+- A fully undirected graph for use in algorithms.
+
+---
+
+### Final Workflow Summary
+| **Stage**               | **Action**                                                                 | **Outcome**                                                             |
+|--------------------------|----------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| Load the Graph           | Parse the dataset and construct the graph.                                | Graph ready for validation.                                             |
+| Verify DAG Property      | Perform topological sorting to detect cycles.                             | Confirm acyclicity or halt on failure.                                  |
+| Check Connectivity       | Use BFS or Union-Find to ensure all nodes are connected.                  | Confirm connectivity or halt on failure.                                |
+| Transform the Graph      | Add reverse edges for undirected interpretation.                          | Undirected graph ready for pathfinding algorithms.                      |
+
+---
+
+### Key Considerations
+- **Single-Time Validation**:
+  - Validation is conducted only once during system initialization.
+  - If validation fails, the system halts to prevent errors in downstream computations.
+- **Performance**:
+  - Although efficient algorithms are used, computational speed is not critical since validation is a one-time process.
+
+**Error Handling**:
+- If cycles are detected:
+  - Error: The dataset is not a valid DAG. Cycles detected.
+- If connectivity fails:
+  - Error: The graph is not fully connected. Isolated nodes detected.
+
+## 2.4 Process Flow
+
+As we explored earlier in this document, here is a small recap of how the process flow for the **Quickest Path REST API** is structured:
+
+| **Step**               | **Description**                                                                                      | **Response**                     |
+|------------------------|------------------------------------------------------------------------------------------------------|----------------------------------|
+| **Method Validation**  | Ensures the request method is `GET`. If not, the API rejects the request.                            | **405 Method Not Allowed**       |
+| **Input Validation**   | Validates `source` and `destination` parameters for presence and correctness.                        | **400 Bad Request**              |
+| **Landmark Check**     | Checks if the `source` and `destination` exist in the dataset:                                       |                                  |
+|                        | - If either is missing, the API returns an error.                                                   | **404 Not Found**                |
+|                        | - If `source` equals `destination`, it returns success with a message indicating identical landmarks.| **200 OK: Identical Landmarks**  |
+| **Pathfinding**        | Runs a pathfinding algorithm (e.g., A*) to calculate the shortest path:                              |                                  |
+|                        | - If no valid path is found, the API returns an error.                                              | **404 Not Found**                |
+|                        | - If successful, the calculated path is processed.                                                  | **200 OK**                       |
+| **Response Formatting**| Formats the output in the requested format (JSON by default, or XML if specified).                   | **200 OK**                       |
+| **Send Response**      | Sends the formatted response with the shortest path to the user.                                     | **200 OK**                       |
+
+This table summarizes the key steps in the process flow and their corresponding system responses.
+
+```mermaid
+graph TD
+  A["User Input: Send request to http://localhost:8080/quickest-path"]
+  A --> B{"Is method GET?"}
+  B -->|"No"| C["Return 405 Method Not Allowed"]
+  B -->|"Yes"| D["Process request"]
+  D --> E{"Is input valid?"}
+  E -->|"No"| F["Return 400 Bad Request"]
+  E -->|"Yes"| G{"Are source and destination found?"}
+  G -->|"No"| H["Return 404 Not Found"]
+  G -->|"Yes"| I{"Are source and destination identical?"}
+  I -->|"Yes"| J["Return 200 OK: Identical landmarks"]
+  I -->|"No"| K["Run pathfinding algorithm"]
+  K --> L{"Is a valid path found?"}
+  L -->|"No"| M["Return 404 Not Found"]
+  L -->|"Yes"| N["Format response"]
+  N --> O{"Requested format?"}
+  O -->|"JSON"| P["Return JSON response"]
+  O -->|"XML"| Q["Return XML response"]
+  P --> R["Send 200 OK response with path"]
+  Q --> R
+  J --> R
+```
 
 
 
