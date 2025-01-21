@@ -3,6 +3,16 @@
 
 #include "header.hpp"
 
+struct Path {
+
+    int start;
+    int end;
+    int distance;
+    int calculation_time;
+    // The path is stored as a vector of pairs {node, weight}
+    vector<int_pair> path;
+};
+
 struct Graph {
 
     bool loaded = false;
@@ -74,47 +84,32 @@ string formatWithSpaces(long number) {
     }
     return numStr;
 }
-/* 
-void reconstructPath(PathData& path_data, Timer& timer) {
-    int node = path_data.end;
-    while (node != -1) {
-        path_data.path.push_back(node);
-        node = path_data.prev[node];
-    }
-    vector<int> reversedPath;
-    for (auto it = path_data.path.rbegin(); it != path_data.path.rend(); ++it) {
-        reversedPath.push_back(*it);
-    }
-    path_data.path = reversedPath;
-    path_data.time = timer.time;
-}
 
-void savePathToCSV(string filename, PathData& path_data, bool break_early) {
-    ofstream file(filename);
+void savePathToCSV(Files& files, Path& path_data) {
+    ofstream file(files.output);
     if (!file.is_open()) {
         cerr << "Failed to open the file for writing." << endl;
         return;
     }
-
-    int last_node = path_data.path[path_data.path.size() - 1];
-
     file 
-    << "Dijkstra Algorithm, "   << (break_early ? "with" : "without") << " early break"
-    << "\nStart Node, "           << formatWithSpaces(path_data.path[0]) 
-    << "\nEnd Node, "           << formatWithSpaces(last_node) 
-    << "\nPath lenght, "        << formatWithSpaces(path_data.distance[last_node]) 
+    << "A-star Algorithm, "     << "using " << LANDMARKS_QTY << " landmarks"
+    << "\nStart Node, "         << formatWithSpaces(path_data.start) 
+    << "\nEnd Node, "           << formatWithSpaces(path_data.end) 
+    << "\nPath lenght, "        << formatWithSpaces(path_data.distance) 
     << "\nNumber of nodes, "    << formatWithSpaces(path_data.path.size() - 1)
-    << "\nCalculation time, "   << formatWithSpaces(path_data.time)                 << " ms"
-    << "\n\nNode, Weight\n";
+    << "\nCalculation time, "   << formatWithSpaces(path_data.calculation_time)      << " ms"
+    << "\n\nNode,"              << " Weight\n";
 
-    int previous_distance = 0;
-    for (int node : path_data.path) {
-        file << node << ", " << path_data.distance[node] - previous_distance << "\n";
-        previous_distance = path_data.distance[node];
+    for (int_pair node : path_data.path) {
+        file << node.first << ", " << node.second << "\n";
     }
+
     file.close();
 
-} */
+    // reset the path_data
+    path_data.path.clear();
+
+}
 
 
 #endif

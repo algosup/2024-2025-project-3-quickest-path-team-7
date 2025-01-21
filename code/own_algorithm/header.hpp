@@ -12,6 +12,9 @@
 #define DATASET             "USA-roads.csv"
 #define OUTPUT              "shortest-path.csv"
 
+#define INVALID_NODE        -1
+#define STOP                -2
+
 
 #define ASK_FOLDER          false
 // if true, the program will ask, if wanted, for a different folder path than the working directory 

@@ -42,4 +42,30 @@ void takeFolderInput(Files& files) {
     cout << "The program will save a backup of the graph to these files: " << files.map_backup << " and " << files.landmarks_backup << "-X.bin" << endl;
 }
 
+int takeUserInput(Graph& graph, Path& path) {
+
+    // Ask and check for the start and end nodes to calculate the shortest path
+    cout << "\n\nEnter the start node: ";
+    cin >> path.start;
+   
+    if (path.start == STOP) {
+        return STOP; // Stop the program
+    }
+
+    if (path.start <= 0 || path.start > NODE_MAX_VALUE || path.start >= graph.map.size() || graph.map[path.start].empty()) 
+    {
+        cout << "Invalid node. Please try again." << endl;
+        return INVALID_NODE; // Invalid node
+    }
+    cout << "Enter the end node: ";
+    cin >> path.end;
+    if (path.end <= 0 || path.end > NODE_MAX_VALUE || path.end >= graph.map.size() || graph.map[path.end].empty())
+    {
+        cout << "Invalid node. Please try again." << endl;
+        return INVALID_NODE; // Invalid node
+    }
+
+    return 0;
+}
+
 #endif

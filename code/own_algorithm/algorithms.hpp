@@ -3,6 +3,70 @@
 
 #include "header.hpp"
 
+int estimate_distance(Graph& graph, int source, int destination) {
+    cout << "Estimating distance between " << source << " and " << destination << "..." << endl;
+    int estimation = 0;
+    // For each landmark : "
+    for (int i = 0; i < graph.landmarks.size(); i++) {
+        int landmark = graph.landmarks[i];
+        cout << "\n\nfor landmark " << landmark << " : " << endl;
+        // Get the distance between the source and the landmark
+        int source_distance = graph.landmark_distance[source][i];
+        cout << "source distance : " << source_distance << endl;
+        // Get the distance between the destination and the landmark
+        int destination_distance = graph.landmark_distance[destination][i];
+        cout << "destination distance : " << destination_distance << endl;
+        // Take the absolute value of the difference between these two distances
+        int diff = abs(source_distance - destination_distance);
+        cout << "diff : " << diff << endl;
+        // Keep only the maximum of these estimations
+        estimation = max(estimation, diff);
+    }
+    cout << "estimated distance : " << estimation << endl;
+    return estimation;
+
+}
+
+// A* algorithm to find the shortest path between two nodes
+void find_path(Graph& graph, Path& path_data) {
+    
+    // Min-heap priority queue: (estimated distance, node)
+    priority_queue<pair<int, int_pair>, vector<pair<int, int_pair>>, greater<>> pq;
+
+    cout << "Estimating distance..." << endl;
+    int estimation = estimate_distance(graph, path_data.start, path_data.end);
+    int startDist = 0;
+    pq.push({estimation, {startDist, path_data.start}});
+
+    cout << "Calculating shortest path..." << endl;
+
+    while (!pq.empty()) {
+        pair<int, int_pair> top = pq.top();
+        int estimatedDist = top.first;
+        int currentNode = top.second.first;
+        int currentDist = top.second.second;
+        pq.pop();
+
+        cout << "Current node: " << currentNode << " with distance: " << estimatedDist << endl;
+
+        path_data.path.push_back({currentNode, currentDist});
+
+        if (currentNode == path_data.end) {
+            return;
+        }
+
+        for (int_pair node : graph.map[currentNode]) {
+            int neighbor = node.first;
+            int weight = node.second;
+            int newEstimation = estimate_distance(graph, neighbor, path_data.end);
+            pq.push({newEstimation, {neighbor, weight}});
+        }
+    }
+    
+}
+
+
+
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i
 vector<int> shortestPaths(Graph& graph, int source) {
     int n = graph.map.size(); // Number of nodes in the graph
