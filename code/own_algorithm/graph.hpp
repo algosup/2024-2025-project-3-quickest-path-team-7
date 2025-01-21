@@ -1,24 +1,19 @@
-#ifndef GRAPH_HPP
-#define GRAPH_HPP
-
-#include "header.hpp"
-
 #ifndef GRAPH_H
 #define GRAPH_H
 
 #include "header.hpp"
 
-void saveGraphToBinary(const string& filename, const vector<vector<int_pair>>& graph) {
-    ofstream file(filename, ios::binary);
+void saveGraphToBinary(Graph& graph, Files& files) {
+    ofstream file(files.map_backup, ios::binary);
     if (!file.is_open()) {
         cerr << "Failed to open the file for writing." << endl;
         return;
     }
 
-    size_t size = graph.size();
+    size_t size = graph.map.size();
     file.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
-    for (const auto& neighbors : graph) {
+    for (const vector<int_pair>& neighbors : graph.map) {
         size = neighbors.size();
         file.write(reinterpret_cast<const char*>(&size), sizeof(size));
         file.write(reinterpret_cast<const char*>(neighbors.data()), size * sizeof(int_pair));
@@ -27,8 +22,8 @@ void saveGraphToBinary(const string& filename, const vector<vector<int_pair>>& g
     file.close();
 }
 
-void loadGraphFromBinary(const string& filename, Graph& graph) {
-    ifstream file(filename, ios::binary);
+void loadGraphFromBinary(Graph& graph, Files& files) {
+    ifstream file(files.map_backup, ios::binary);
     if (!file.is_open()) {
         cerr << "\nFailed to open the file for reading." << endl;
         return;
@@ -38,7 +33,7 @@ void loadGraphFromBinary(const string& filename, Graph& graph) {
     file.read(reinterpret_cast<char*>(&size), sizeof(size));
     graph.map.resize(size);
 
-    for (auto& neighbors : graph.map) {
+    for (vector<int_pair>& neighbors : graph.map) {
         file.read(reinterpret_cast<char*>(&size), sizeof(size));
         neighbors.resize(size);
         file.read(reinterpret_cast<char*>(neighbors.data()), size * sizeof(int_pair));
@@ -49,13 +44,13 @@ void loadGraphFromBinary(const string& filename, Graph& graph) {
     graph.loaded = true;
 }
 
-void loadGraph(Graph& graph, Files& files, bool force = false) {
+void buildGraph(Graph& graph, Files& files, bool force = false) {
 
     if (!force) {cout << "Loading the graph from the backup " << files.map_backup << " ..." << flush;}
     ifstream binaryFile(files.map_backup, ios::binary);
     if (binaryFile.is_open() && !force) {
         binaryFile.close();
-        loadGraphFromBinary(files.map_backup, graph);
+        loadGraphFromBinary(graph, files);
         cout << "Done !" << endl;
         return;
     }
@@ -108,14 +103,14 @@ void loadGraph(Graph& graph, Files& files, bool force = false) {
     graph.loaded = true;
 
     // Save the graph to a binary file for future use
-    saveGraphToBinary(files.map_backup, graph.map);
+    saveGraphToBinary(graph, files);
     cout << "\nGraph saved to binary backup." << endl;
     
 }
 
-void buildGraph(Graph& graph, Files& files, bool force = false) {
+void loadGraph(Graph& graph, Files& files, bool force = false) {
     graph.map.resize(NODE_MAX_VALUE + 1);
-    loadGraph(graph, files, force);   
+    buildGraph(graph, files, force);   
     while (graph.loaded == false) {
         cout << "Please provide " << files.dataset << " , then type either 'retry' or a new dataset (\"path/file.csv\") : ";
         string input;
@@ -124,11 +119,9 @@ void buildGraph(Graph& graph, Files& files, bool force = false) {
             files.dataset = input;
         }
         cout << endl;
-        loadGraph(graph, files, force);
+        buildGraph(graph, files, force);
     }
 
 }
-
-#endif
 
 #endif

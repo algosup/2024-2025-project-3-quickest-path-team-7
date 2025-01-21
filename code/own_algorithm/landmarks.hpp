@@ -1,5 +1,5 @@
-#ifndef LANDMARKS_HPP
-#define LANDMARKS_HPP
+#ifndef LANDMARKS_QTY_HPP
+#define LANDMARKS_QTY_HPP
 
 #include "header.hpp"
 
@@ -48,10 +48,10 @@ void reverseLandmarkTableIndexes(Graph& graph) {
 // The next landmark is the one that has the maximum distance to the previous landmarks
 // This process is repeated until the number of landmarks is reached 
 
-void buildLandmarks(Graph& graph, int numLandmarks) {
+void buildLandmarks(Graph& graph) {
     int n = graph.map.size();
     vector<bool> isLandmark(n, false);
-    graph.landmark_distance.resize(numLandmarks, vector<int>(n));
+    graph.landmark_distance.resize(LANDMARKS_QTY, vector<int>(n));
     int firstLandmark = ROOT;
     int sourceNode;
 
@@ -62,7 +62,7 @@ void buildLandmarks(Graph& graph, int numLandmarks) {
     // Calculate all the distances from the first landmark to all the nodes
     // and store them in the landmark_distance table
     // Then find the farthest node as the next landmark
-    for (int landmark = 0; landmark < numLandmarks; ++landmark) {
+    for (int landmark = 0; landmark < LANDMARKS_QTY; ++landmark) {
         sourceNode = graph.landmarks.back();
         cout << "Landmark " << landmark + 1 << ": " << sourceNode << endl;
         cout << "Calculating shortest path to all nodes..." << endl;
@@ -71,7 +71,7 @@ void buildLandmarks(Graph& graph, int numLandmarks) {
         // Scan the distances from the current landmark to all the nodes
         // to find the farthest node as the next landmark
 
-        if (landmark == numLandmarks - 1) {
+        if (landmark == LANDMARKS_QTY - 1) {
             break; // As we don't need to find the farthest node for the last landmark
         }
 
@@ -105,6 +105,19 @@ void buildLandmarks(Graph& graph, int numLandmarks) {
     cout << "Landmarks reversing completed." << endl;
 }
 
+void loadLandmarks (Graph& graph, Files& files){
+    cout << "Building landmarks..." << endl;
+    /* // check if a landmarks backup exists
+    if (loadLandmarksFromBinary(files.landmarks_backup, graph.landmarks)) {
+        cout << "Landmarks loaded from binary backup." << endl;
+        return;
+    } */
+    buildLandmarks(graph);
+    cout << "Landmarks built." << endl;
+    /* saveLandmarksToBinary(files.landmarks_backup, graph.landmarks); 
+    cout << "Landmarks saved to binary backup." << endl;*/
+    cout << "End of landmarks building." << endl;
 
+}
 
 #endif

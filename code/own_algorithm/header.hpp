@@ -1,17 +1,19 @@
 #ifndef HEADER_H
 #define HEADER_H
 
-#define CSV_LINES 28854312
-#define NODE_MAX_VALUE 23947347
+#define CSV_LINES           28854312
+#define NODE_MAX_VALUE      23947347
 
-#define ROOT 1
-#define LANDMARKS 10
+#define ROOT                1
+#define LANDMARKS_QTY       10
 
-#define BACKUP "graph-backup.bin"
-#define DATASET "USA-roads.csv"
-#define OUTPUT "shortest-path.csv"
+#define MAP_BACKUP          "map-backup.bin"
+#define LANDMARKS_BACKUP    "landmarks-backup.bin"
+#define DATASET             "USA-roads.csv"
+#define OUTPUT              "shortest-path.csv"
 
-#define ASK_FOLDER false
+
+#define ASK_FOLDER          false
 // if true, the program will ask, if wanted, for a different folder path than the working directory 
 // for input and output files
 
