@@ -105,17 +105,70 @@ void buildLandmarks(Graph& graph) {
     cout << "Landmarks reversing completed." << endl;
 }
 
+// Function to save the landmarks to a binary file
+void saveLandmarksToBinary(Graph& graph, Files& files){
+    cout << "Saving landmarks to binary backup..." << endl;
+    string filename = files.landmarks_backup + "-" + to_string(LANDMARKS_QTY) + ".bin";
+    ofstream file(filename, ios::binary);
+
+    int n = graph.map.size();
+    int m = graph.landmarks.size();
+    
+    file.write(reinterpret_cast<char*>(&n), sizeof(n));
+    file.write(reinterpret_cast<char*>(&m), sizeof(m));
+
+    file.write(reinterpret_cast<char*>(graph.landmarks.data()), m * sizeof(int));
+
+    for (const vector<int>& distances : graph.landmark_distance) {
+        file.write(reinterpret_cast<const char*>(distances.data()), m * sizeof(int));
+    }
+
+    file.close();
+}
+
+bool loadLandmarksFromBinary(Graph& graph, Files& files){
+    string filename = files.landmarks_backup + "-" + to_string(LANDMARKS_QTY) + ".bin";
+    ifstream file(filename, ios::binary);
+    if (!file.is_open()) {
+        cerr << "Failed to open the file for reading." << endl;
+        return false;
+    }
+
+    int n, m;
+    file.read(reinterpret_cast<char*>(&n), sizeof(n));
+    file.read(reinterpret_cast<char*>(&m), sizeof(m));
+
+    graph.landmarks.resize(m);
+    graph.landmark_distance.resize(m, vector<int>(n));
+
+    file.read(reinterpret_cast<char*>(graph.landmarks.data()), m * sizeof(int));
+
+    for (vector<int>& distances : graph.landmark_distance) {
+        distances.resize(n); // Ensure the vector is properly resized
+        file.read(reinterpret_cast<char*>(distances.data()), m * sizeof(int));
+    }
+
+    file.close();
+    return true;
+}
+
 void loadLandmarks (Graph& graph, Files& files){
     cout << "Building landmarks..." << endl;
-    /* // check if a landmarks backup exists
-    if (loadLandmarksFromBinary(files.landmarks_backup, graph.landmarks)) {
+
+    // check if a landmarks backup exists
+    if (loadLandmarksFromBinary(graph, files)) {
         cout << "Landmarks loaded from binary backup." << endl;
-        return;
-    } */
-    buildLandmarks(graph);
-    cout << "Landmarks built." << endl;
-    /* saveLandmarksToBinary(files.landmarks_backup, graph.landmarks); 
-    cout << "Landmarks saved to binary backup." << endl;*/
+        cout << "Landmarks selected: " << endl;
+        for (int landmark : graph.landmarks) {
+            cout << " - " << landmark << endl;
+        }
+    } else {
+        cout << "Landmarks backup not found." << endl;
+        buildLandmarks(graph);
+        cout << "Landmarks built." << endl;
+        saveLandmarksToBinary(graph, files); 
+        cout << "Landmarks saved to binary backup." << endl;
+    }
     cout << "End of landmarks building." << endl;
 
 }

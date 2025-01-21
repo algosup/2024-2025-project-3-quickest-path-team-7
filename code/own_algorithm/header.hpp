@@ -5,10 +5,10 @@
 #define NODE_MAX_VALUE      23947347
 
 #define ROOT                1
-#define LANDMARKS_QTY       10
+#define LANDMARKS_QTY       3
 
 #define MAP_BACKUP          "map-backup.bin"
-#define LANDMARKS_BACKUP    "landmarks-backup.bin"
+#define LANDMARKS_BACKUP    "landmarks-backup"
 #define DATASET             "USA-roads.csv"
 #define OUTPUT              "shortest-path.csv"
 

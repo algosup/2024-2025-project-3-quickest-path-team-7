@@ -39,7 +39,7 @@ void takeFolderInput(Files& files) {
     
     cout << "\nThe program will read this dataset: " << files.dataset << endl;
     cout << "The program will save the output to this file: " << files.output << endl;
-    cout << "The program will save a backup of the graph to these files: " << files.map_backup << " and " << files.landmarks_backup << endl;
+    cout << "The program will save a backup of the graph to these files: " << files.map_backup << " and " << files.landmarks_backup << "-X.bin" << endl;
 }
 
 #endif
