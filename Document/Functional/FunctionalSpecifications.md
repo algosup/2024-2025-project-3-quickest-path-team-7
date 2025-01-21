@@ -12,7 +12,7 @@
 
 **Created on:** January 6<sup>th</sup>, 2025
 
-**Last updated:** January 16<sup>th</sup>, 2025
+**Last updated:** January 21<sup>th</sup>, 2025
 
 ---
 ---
@@ -21,7 +21,7 @@
 |------------|---------|-------------------------------|-------------------|
 | 01/06/2025 | 0       | Create template               | Abderrazaq MAKRAN |
 | 01/16/2025 | 0.5       | Finished Intro (have to check data validation and add back to top) + Doing Functional API Details               | Abderrazaq MAKRAN |
-| 01/16/2025 | 1       | First version functional (Data Validation isnt finished yet)          | Abderrazaq MAKRAN |
+| 01/21/2025 | 1       | First version functional, still needs to be reviewed        | Abderrazaq MAKRAN |
 ---
 
 ## Stakeholders
@@ -621,13 +621,13 @@ Graph validation ensures the integrity of the dataset (`USA-roads.csv`) by check
 3. **Undirected Interpretation**: After validation, the graph is treated as **undirected** for pathfinding.
 
 ### Validation Workflow
-The validation process consists of four key stages:
+The validation process consists of three key stages:
 
 | **Stage**               | **Objective**                                                                 | **Method**                                                                 |
 |--------------------------|-------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | 1. Load the Graph        | Parse the dataset and construct the graph using an adjacency list or matrix. | Efficient data structures for traversal and validation.                    |
-| 2. Verify DAG Property   | Ensure the graph contains no cycles.                                         | Use **Kahn’s Algorithm** or **DFS** for topological sorting.               |
-| 3. Check Connectivity    | Ensure every node is reachable from at least one other node.                 | Use **BFS** or **Union-Find** to confirm connectivity.                     |
+| 2. Verify DAG Property   | Ensure the graph contains no cycles.                                         | Use **Depth-First Search (DFS)** for cycle detection.                      |
+| 3. Check Connectivity    | Ensure every node is reachable from at least one other node.                 | Use **Breadth-First Search (BFS)** to confirm connectivity.                |
 | 4. Transform the Graph   | Convert the graph to undirected for pathfinding.                             | Add reverse edges to every directed edge if not already present.           |
 
 ---
@@ -647,24 +647,17 @@ The validation process consists of four key stages:
 ### 2. Verify DAG Property
 **Objective**: Ensure the graph contains no cycles.
 
-**Method**: Perform **Topological Sorting** using one of the following:
-1. **Kahn’s Algorithm**:
-   - Count incoming edges (in-degrees) for all nodes.
-   - Start with nodes that have an in-degree of `0`.
-   - Remove processed nodes, reducing the in-degree of their neighbors.
-   - If all nodes are processed, the graph is a DAG. If nodes remain, a cycle exists.
-2. **Depth-First Search (DFS)**:
-   - Mark nodes during traversal.
-   - If a node is revisited during the same traversal, a cycle is detected.
+**Method**: Perform cycle detection using **Depth-First Search (DFS)**:
+- During traversal, maintain a "visited" list and a "recursion stack."
+- If a node is revisited while it is still in the recursion stack, a cycle is detected.
 
-**Example**:
-
-| **Step**     | **Action**                              | **Result**                          |
-|--------------|-----------------------------------------|--------------------------------------|
-| Count in-degrees | Node A: 0, Node B: 1, Node C: 2      | Queue: [A]                          |
-| Process A    | Remove A, reduce neighbors’ in-degrees. | Queue: [B]                          |
-| Process B    | Remove B, reduce neighbors’ in-degrees. | Queue: [C]                          |
-| Process C    | All nodes processed.                   | Graph is a DAG.                     |
+**Steps**:
+1. Start DFS from an arbitrary node.
+2. Mark the node as "visited" and add it to the recursion stack.
+3. Traverse its neighbors:
+   - If a neighbor is already in the recursion stack, a cycle exists.
+4. Remove the node from the stack after processing all neighbors.
+5. Repeat for unvisited nodes.
 
 **Output**:
 - **Success**: No cycles detected.
@@ -675,23 +668,17 @@ The validation process consists of four key stages:
 ### 3. Check Connectivity
 **Objective**: Ensure every node is reachable.
 
-**Method**:
-- **Breadth-First Search (BFS)**:
-  - Start from any node.
-  - Mark all reachable nodes during traversal.
-  - If some nodes remain unvisited, the graph is not fully connected.
-- **Union-Find**:
-  - Treat nodes as individual sets initially.
-  - Merge sets for every edge.
-  - If only one set remains, the graph is connected.
+**Method**: Perform a connectivity check using **Breadth-First Search (BFS)**:
+- Start from an arbitrary node.
+- Traverse all reachable nodes, marking them as "visited."
+- After traversal, check if all nodes have been visited:
+  - If any node remains unvisited, the graph is not fully connected.
 
-**Example**:
-
-| **Node** | **Visited During BFS?** | **Result**      |
-|----------|--------------------------|-----------------|
-| A        | Yes                      | Connected       |
-| B        | Yes                      | Connected       |
-| C        | No                       | Not Connected   |
+**Steps**:
+1. Pick a starting node and initialize an empty "visited" list.
+2. Use BFS to traverse all connected nodes.
+3. After traversal, verify if all nodes are in the "visited" list.
+4. If not, report disconnected nodes or subgraphs.
 
 **Output**:
 - **Success**: All nodes are connected.
@@ -716,8 +703,8 @@ The validation process consists of four key stages:
 | **Stage**               | **Action**                                                                 | **Outcome**                                                             |
 |--------------------------|----------------------------------------------------------------------------|-------------------------------------------------------------------------|
 | Load the Graph           | Parse the dataset and construct the graph.                                | Graph ready for validation.                                             |
-| Verify DAG Property      | Perform topological sorting to detect cycles.                             | Confirm acyclicity or halt on failure.                                  |
-| Check Connectivity       | Use BFS or Union-Find to ensure all nodes are connected.                  | Confirm connectivity or halt on failure.                                |
+| Verify DAG Property      | Perform cycle detection using DFS.                                        | Confirm acyclicity or halt on failure.                                  |
+| Check Connectivity       | Use BFS to ensure all nodes are connected.                                | Confirm connectivity or halt on failure.                                |
 | Transform the Graph      | Add reverse edges for undirected interpretation.                          | Undirected graph ready for pathfinding algorithms.                      |
 
 ---
@@ -727,7 +714,7 @@ The validation process consists of four key stages:
   - Validation is conducted only once during system initialization.
   - If validation fails, the system halts to prevent errors in downstream computations.
 - **Performance**:
-  - Although efficient algorithms are used, computational speed is not critical since validation is a one-time process.
+  - DFS and BFS are efficient algorithms for these tasks, making the process scalable for large datasets.
 
 **Error Handling**:
 - If cycles are detected:
