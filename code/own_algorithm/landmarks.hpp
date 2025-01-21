@@ -49,6 +49,8 @@ void reverseLandmarkTableIndexes(Graph& graph) {
 // This process is repeated until the number of landmarks is reached 
 
 void buildLandmarks(Graph& graph) {
+
+    int landmarks = 1;
     int n = graph.map.size();
     vector<bool> isLandmark(n, false);
     graph.landmark_distance.resize(LANDMARKS_QTY, vector<int>(n));
@@ -63,9 +65,10 @@ void buildLandmarks(Graph& graph) {
     // and store them in the landmark_distance table
     // Then find the farthest node as the next landmark
     for (int landmark = 0; landmark < LANDMARKS_QTY; ++landmark) {
+
+        cout << "\rBuilding landmarks (" << landmark+1  << "/" << LANDMARKS_QTY << ") ... " << flush;
+
         sourceNode = graph.landmarks.back();
-        cout << "Landmark " << landmark + 1 << ": " << sourceNode << endl;
-        cout << "Calculating shortest path to all nodes..." << endl;
         graph.landmark_distance[landmark] = shortestPaths(graph, sourceNode);
 
         // Scan the distances from the current landmark to all the nodes
@@ -98,18 +101,19 @@ void buildLandmarks(Graph& graph) {
         // Mark the farthest node as a new landmark
         graph.landmarks.push_back(farthestNode);
         isLandmark[farthestNode] = true;
+
     }
 
-    cout << "Reversing the landmark table indexes..." << endl;
+    cout << "\rBuilding landmarks (" << LANDMARKS_QTY << "/" << LANDMARKS_QTY << ") ... Done !" << endl;
+
+    cout << "\nReversing the landmark table indexes ... " << flush;
     reverseLandmarkTableIndexes(graph);
-    cout << "Landmarks reversing completed." << endl;
+
 }
 
 // Function to save the landmarks to a binary file
 void saveLandmarksToBinary(Graph& graph, Files& files){
-    cout << "Saving landmarks to binary backup..." << endl;
-    string filename = files.landmarks_backup + "-" + to_string(LANDMARKS_QTY) + ".bin";
-    ofstream file(filename, ios::binary);
+    ofstream file(files.landmarks_backup, ios::binary);
 
     int n = graph.map.size();
     int m = graph.landmarks.size();
@@ -127,10 +131,10 @@ void saveLandmarksToBinary(Graph& graph, Files& files){
 }
 
 bool loadLandmarksFromBinary(Graph& graph, Files& files){
-    string filename = files.landmarks_backup + "-" + to_string(LANDMARKS_QTY) + ".bin";
-    ifstream file(filename, ios::binary);
+    cout << "Loading landmarks from "<< files.landmarks_backup << " ... " << flush;
+    ifstream file(files.landmarks_backup, ios::binary);
     if (!file.is_open()) {
-        cerr << "Failed to open the file for reading." << endl;
+        cout << "Backup not found !\n" << endl;
         return false;
     }
 
@@ -149,28 +153,21 @@ bool loadLandmarksFromBinary(Graph& graph, Files& files){
     }
 
     file.close();
+    cout << "Done !" << endl;
     return true;
 }
 
 void loadLandmarks (Graph& graph, Files& files){
-    cout << "Building landmarks..." << endl;
 
     // check if a landmarks backup exists
-    if (loadLandmarksFromBinary(graph, files)) {
-        cout << "Landmarks loaded from binary backup." << endl;
-        cout << "Landmarks selected: " << endl;
-        for (int landmark : graph.landmarks) {
-            cout << " - " << landmark << endl;
-        }
-    } else {
-        cout << "Landmarks backup not found." << endl;
+    if (!loadLandmarksFromBinary(graph, files)) {
+        cout << "Building landmarks... " << flush;
         buildLandmarks(graph);
-        cout << "Landmarks built." << endl;
+        cout << "Done !" << endl;
+        cout << "Saving landmarks to binary backup... " << flush;
         saveLandmarksToBinary(graph, files); 
-        cout << "Landmarks saved to binary backup." << endl;
+        cout << "Done !" << endl;
     }
-    cout << "End of landmarks building." << endl;
-
 }
 
 #endif

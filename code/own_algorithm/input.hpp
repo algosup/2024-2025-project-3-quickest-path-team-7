@@ -36,10 +36,12 @@ void takeFolderInput(Files& files) {
         files.map_backup = MAP_BACKUP;
         files.landmarks_backup = LANDMARKS_BACKUP;
     }
+
+    files.landmarks_backup = files.landmarks_backup + "-" + to_string(LANDMARKS_QTY) + ".bin";
     
     cout << "\nThe program will read this dataset: " << files.dataset << endl;
     cout << "The program will save the output to this file: " << files.output << endl;
-    cout << "The program will save a backup of the graph to these files: " << files.map_backup << " and " << files.landmarks_backup << "-X.bin" << endl;
+    cout << "The program will save a backup of the graph to these files: " << files.map_backup << " and " << files.landmarks_backup << endl;
 }
 
 int takeUserInput(Graph& graph, Path& path) {

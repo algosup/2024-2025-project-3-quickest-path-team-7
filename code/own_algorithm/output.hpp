@@ -86,11 +86,13 @@ string formatWithSpaces(long number) {
 }
 
 void savePathToCSV(Files& files, Path& path_data) {
+
     ofstream file(files.output);
     if (!file.is_open()) {
         cerr << "Failed to open the file for writing." << endl;
         return;
     }
+
     file 
     << "A-star Algorithm, "     << "using " << LANDMARKS_QTY << " landmarks"
     << "\nStart Node, "         << formatWithSpaces(path_data.start) 
@@ -108,6 +110,7 @@ void savePathToCSV(Files& files, Path& path_data) {
 
     // reset the path_data
     path_data.path.clear();
+    path_data.distance = 0;
 
 }
 

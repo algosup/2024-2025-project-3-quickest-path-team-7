@@ -46,7 +46,7 @@ void loadGraphFromBinary(Graph& graph, Files& files) {
 
 void buildGraph(Graph& graph, Files& files, bool force = false) {
 
-    if (!force) {cout << "Loading the graph from the backup " << files.map_backup << " ..." << flush;}
+    if (!force) {cout << "\n\nLoading the graph from the backup " << files.map_backup << " ... " << flush;}
     ifstream binaryFile(files.map_backup, ios::binary);
     if (binaryFile.is_open() && !force) {
         binaryFile.close();
