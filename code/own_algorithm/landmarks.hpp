@@ -139,12 +139,12 @@ bool loadLandmarksFromBinary(Graph& graph, Files& files){
     file.read(reinterpret_cast<char*>(&m), sizeof(m));
 
     graph.landmarks.resize(m);
-    graph.landmark_distance.resize(m, vector<int>(n));
+    graph.landmark_distance.resize(n, vector<int>(m));
 
     file.read(reinterpret_cast<char*>(graph.landmarks.data()), m * sizeof(int));
 
     for (vector<int>& distances : graph.landmark_distance) {
-        distances.resize(n); // Ensure the vector is properly resized
+        distances.resize(m); // Ensure the vector is properly resized
         file.read(reinterpret_cast<char*>(distances.data()), m * sizeof(int));
     }
 
