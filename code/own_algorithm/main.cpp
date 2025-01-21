@@ -6,12 +6,11 @@ int main () {
     Files files;
 
     takeFolderInput(files, ASK_FOLDER);
-
     buildGraph(graph, files);
-    GraphMemoryUsage(graph);
     buildLandmarks(graph, LANDMARKS);
-    GraphMemoryUsage(graph);
-
+    mapToConnexions(graph);
+    cout << "End";
+ 
     cin.get(); // Pause the console
 
     return 0;

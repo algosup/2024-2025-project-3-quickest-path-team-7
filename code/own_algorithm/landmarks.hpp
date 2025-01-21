@@ -3,19 +3,44 @@
 
 #include "header.hpp"
 
+
+// Function to remove the weight from the graph to free memory
+// The graph is now a list of connexions
+void mapToConnexions(Graph& graph){
+    cout << "Transferring map to single connexions ..." << endl;
+    int graph_size = graph.map.size();
+    int temp_node;
+    graph.connexions.resize(graph_size);
+    for (int node = 0; node < graph_size; ++node){
+        for (int sub_node = 0; sub_node < graph.map[node].size(); ++sub_node ){
+            temp_node = graph.map[node][sub_node].first;
+            graph.connexions[node].push_back(temp_node);
+        }
+    graph.map[node].clear();
+    }
+    graph.map.clear();
+    graph.map.shrink_to_fit();
+    cout << "Map cleared" << endl;
+}
+
 // Function to reverse the landmark_distance table indexes for faster access
 // From landmark_distance[landmark_index][node] to landmark_distance[node][landmark_index]
 void reverseLandmarkTableIndexes(Graph& graph) {
     int n = graph.map.size();
     int m = graph.landmarks.size();
     vector<vector<int>> reversedLandmarkTable(n, vector<int>(m));
+
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < m; ++j) {
             reversedLandmarkTable[i][j] = graph.landmark_distance[j][i];
         }
     }
+    
+    graph.landmark_distance.clear();
+    graph.landmark_distance.shrink_to_fit();
     graph.landmark_distance = reversedLandmarkTable;
 }
+
 
 // Function to select the landmarks using the farthest selection
 // Beginiing with the root landmark, all the shortest paths to each node are calculated
@@ -50,12 +75,24 @@ void buildLandmarks(Graph& graph, int numLandmarks) {
             break; // As we don't need to find the farthest node for the last landmark
         }
 
-        // Iterate over all the nodes to find the longest distance
-        int farthestNode = -1, maxDistance = -1;
+        // Iterate over all the nodes to find the farthest node from all previous landmarks
+        int farthestNode = -1, maxDistance = -1, maxMinDistance = -1;
+        // Fo reach node
         for (int node = 0; node < n; ++node) {
-            if (!isLandmark[node] && graph.landmark_distance[landmark][node] > maxDistance) {
+            // Skip the nodes already selected as landmark
+            if (isLandmark[node]) continue;
+            
+            // Compute the minimum distance between the node to all chosen landmarks
+            int minDistance = INF;
+            for (int prevLandmark = 0; prevLandmark < graph.landmarks.size(); ++prevLandmark) {
+                int landmarkIndex = graph.landmarks[prevLandmark];
+                minDistance = min(minDistance, graph.landmark_distance[prevLandmark][node]);
+            }
+
+            // Update the farthest node based on the maximum of these minimum distances
+            if (minDistance > maxMinDistance) {
+                maxMinDistance = minDistance;
                 farthestNode = node;
-                maxDistance = graph.landmark_distance[landmark][node];
             }
         }
         // Mark the farthest node as a new landmark
@@ -63,64 +100,11 @@ void buildLandmarks(Graph& graph, int numLandmarks) {
         isLandmark[farthestNode] = true;
     }
 
-    // Reverse the landmark_distance table for faster access
     cout << "Reversing the landmark table indexes..." << endl;
     reverseLandmarkTableIndexes(graph);
+    cout << "Landmarks reversing completed." << endl;
 }
 
 
 
-/* 
-// Function to select landmarks using greedy farthest selection
-void selectLandmarks(Graph& graph, int numLandmarks) {
-    int n = graph.map.size();
-    vector<bool> isLandmark(n, false);
-    int firstLandmark = ROOT;
-
-    graph.landmarks.push_back(firstLandmark);
-    isLandmark[firstLandmark] = true;
-
-    // Step 2: Iteratively choose the farthest node from the existing landmarks
-    for (int i = 1; i < numLandmarks; ++i) {
-        int sourceNode = graph.landmarks.back();
-        vector<int> distances = dijkstra(graph, sourceNode);
-        // Find the longest distance and take it as the farthest node
-        int farthestNode = -1, maxDistance = -1;
-        for ( int distance : distances) {
-            if (!isLandmark[distance.first] && distance.second > maxDistance) {
-                farthestNode = distance.first;
-                maxDistance = distance.second;
-            }
-        }
-
-        // Mark the farthest node as a landmark
-        graph.landmarks.push_back(farthestNode);
-        cout << "Landmark " << i << ": " << farthestNode << endl;
-        isLandmark[farthestNode] = true;
-    }
-}
-
-// build the landmark distance table  
-void buildLandmarkTable(Graph& graph) {
-    int n = graph.map.size();
-    int m = graph.landmarks.size();
-    graph.landmark_distance.resize(n, vector<int>(m, INF));
-
-    unsigned int counter = 0;
-    unsigned int progression = 0;
-    unsigned int progression_backup = 0;
-
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            graph.landmark_distance[i][j] = dijkstra(graph, i)[graph.landmarks[j]];
-        }
-        counter++;
-        progression = counter * 100 / CSV_LINES;
-        if (progression != progression_backup) {
-            cout << "\rLoading the CSV file into memory ... " << progression << " %" << flush;
-            progression_backup = progression;
-        }
-    }
-}
- */
 #endif

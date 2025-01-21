@@ -51,16 +51,16 @@ void loadGraphFromBinary(const string& filename, Graph& graph) {
 
 void loadGraph(Graph& graph, Files& files, bool force = false) {
 
-    if (!force) {cout << "Loading the graph from the backup " << files.backup << " ..." << flush;}
-    ifstream binaryFile(files.backup, ios::binary);
+    if (!force) {cout << "Loading the graph from the backup " << files.map_backup << " ..." << flush;}
+    ifstream binaryFile(files.map_backup, ios::binary);
     if (binaryFile.is_open() && !force) {
         binaryFile.close();
-        loadGraphFromBinary(files.backup, graph);
+        loadGraphFromBinary(files.map_backup, graph);
         cout << "Done !" << endl;
         return;
     }
 
-    if(!force){cout << "\nThe backup " << files.backup << " was not found. \nSearching for " <<  files.dataset << " ..." << endl;}
+    if(!force){cout << "\nThe backup " << files.map_backup << " was not found. \nSearching for " <<  files.dataset << " ..." << endl;}
 
     // Load the CSV file in the graph
     fstream csv_map(files.dataset);
@@ -108,7 +108,7 @@ void loadGraph(Graph& graph, Files& files, bool force = false) {
     graph.loaded = true;
 
     // Save the graph to a binary file for future use
-    saveGraphToBinary(files.backup, graph.map);
+    saveGraphToBinary(files.map_backup, graph.map);
     cout << "\nGraph saved to binary backup." << endl;
     
 }

@@ -10,6 +10,9 @@ struct Graph {
     // map[node] stores the list of neighbors of the node and their weights as {neighbor, weight}
     vector<vector<int_pair>> map;
 
+    // connexions[node] stores the list of neighbors of the node
+    vector<vector<int>> connexions;
+
     // the list of the landmarks picked
     vector<int> landmarks;
 
@@ -28,7 +31,8 @@ struct Graph {
 struct Files {
     string folder_path;
     string dataset;
-    string backup;
+    string map_backup;
+    string landmarks_backup;
     string output;
 };
 
@@ -36,8 +40,16 @@ struct Files {
 void GraphMemoryUsage(Graph& graph) {
 
     size_t totalSize = 0;
+    // map size
     for (const auto& neighbors : graph.map) {
         totalSize += sizeof(neighbors) + (neighbors.size() * sizeof(int_pair));
+    }
+    // landmarks size 
+    totalSize += graph.landmarks.size() * sizeof(int);
+
+    // landmark_distance size
+    for (const auto& distances : graph.landmark_distance) {
+        totalSize += sizeof(distances) + (distances.size() * sizeof(int));
     }
 
     // Adapt the division by 1024 acording to the size of the graph (from Byte to GB) in 2 digit precision
