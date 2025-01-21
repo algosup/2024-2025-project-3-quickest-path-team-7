@@ -13,15 +13,19 @@ vector<int> shortestPaths(Graph& graph, int source) {
     priority_queue<int_pair, vector<int_pair>, greater<>> pq;
 
     // Preload the source node's neighbors
-    for (const auto& [neighbor, weight] : graph.map[source]) {
-        distances[neighbor] = weight;
-        pq.push({weight, neighbor});
-    }
+    for (int_pair neighbor_weight_pair : graph.map[source]) {
+    int neighbor = neighbor_weight_pair.first;
+    int weight = neighbor_weight_pair.second;
+    distances[neighbor] = weight;
+    pq.push({weight, neighbor});
+}
 
     pq.push({0, source});
 
     while (!pq.empty()) {
-        auto [currentDist, currentNode] = pq.top();
+        int_pair top = pq.top();
+        int currentDist = top.first;
+        int currentNode = top.second;
         pq.pop();
 
         // If the popped distance is greater than the recorded distance, skip processing
@@ -30,7 +34,9 @@ vector<int> shortestPaths(Graph& graph, int source) {
         }
 
         // Relax all edges of the current node
-        for (const auto& [neighbor, weight] : graph.map[currentNode]) {
+        for (int_pair neighbor_weight_pair : graph.map[currentNode]) {
+            int neighbor = neighbor_weight_pair.first;
+            int weight = neighbor_weight_pair.second;
             int newDist = currentDist + weight;
             if (newDist < distances[neighbor]) {
                 distances[neighbor] = newDist;
