@@ -58,6 +58,7 @@ void find_path(Graph& graph, Path& path_data) {
     current_node.weight = 0;
     current_node.estimated_distance = estimate_distance(graph, path_data.start, path_data.end);
     visited[current_node.id] = true;
+    path_data.path.push_back({current_node.id, current_node.weight});
 
     cout << "Estimation: " << formatWithSpaces(current_node.estimated_distance) << endl;
 
@@ -73,7 +74,7 @@ void find_path(Graph& graph, Path& path_data) {
                 Node neighbor;
                 neighbor.id = node.first;
                 neighbor.weight = node.second;
-                neighbor.estimated_distance = estimate_distance(graph, neighbor.id, path_data.end);
+                neighbor.estimated_distance = /* neighbor.weight + */ estimate_distance(graph, neighbor.id, path_data.end);
 
                 pq.push(neighbor);
                 visited[neighbor.id] = true;
