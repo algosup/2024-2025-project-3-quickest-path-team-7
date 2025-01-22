@@ -6,12 +6,15 @@ int main () {
     Files files;
     Path path_data;
     Timer timer;
+    Astar astar_structs;
 
     takeFolderInput(files);
 
     loadGraph(graph, files);
 
     loadLandmarks(graph, files);
+
+    preBuildAstarStructs(astar_structs, graph);
 
     //mapToConnexions(graph);
 
@@ -29,7 +32,7 @@ int main () {
 
         start_timer(timer);
 
-        find_path(graph, path_data);
+        find_path(graph, path_data, astar_structs);
 
         stop_timer(timer);
         path_data.calculation_time = timer.time;
@@ -48,7 +51,7 @@ int main () {
         cout <<   "Calculation Time : "   << formatWithSpaces(path_data.calculation_time)   << " ms" << endl;
 
         // Save the path nodes to a CSV file
-        savePathToCSV(files, path_data);        
+        savePathToCSV(graph, files, path_data, astar_structs);        
 
     }
 

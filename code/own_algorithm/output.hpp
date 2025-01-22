@@ -14,19 +14,35 @@ struct Path {
     vector<int_pair> path;
 };
 
+
+struct Node {
+    int id;
+    int weight;
+    int estimated_cost;
+
+    // Make the first Node in a priority queue the one with the smallest estimated distance
+    bool operator<(const Node& other) const {
+        return estimated_cost > other.estimated_cost;
+    }
+};
+
+struct Astar {
+    vector<int> cost_from_start;
+    vector<int_pair> node_before;
+    vector<bool> checked;
+    priority_queue<Node> pq;
+};
+
+
 struct Graph {
 
     bool loaded = false;
-
     // map[node] stores the list of neighbors of the node and their weights as {neighbor, weight}
     vector<vector<int_pair>> map;
-
     // connexions[node] stores the list of neighbors of the node
     vector<vector<int>> connexions;
-
     // the list of the landmarks picked
     vector<int> landmarks;
-
     // The landmark distance table
     vector<vector<int>> landmark_distance;
     // Considering landmark_index is the index of the landmark in the landmarks vector :
@@ -86,7 +102,14 @@ string formatWithSpaces(long number) {
     return numStr;
 }
 
-void savePathToCSV(Files& files, Path& path_data) {
+void preBuildAstarStructs(Astar& astar_structs, Graph& graph) {
+    int n = graph.map.size();
+    astar_structs.cost_from_start.resize(n, INF);
+    astar_structs.node_before.resize(n);
+    astar_structs.checked.resize(n, false);
+}
+
+void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar) {
 
     ofstream file(files.output);
     if (!file.is_open()) {
@@ -113,8 +136,20 @@ void savePathToCSV(Files& files, Path& path_data) {
     // reset the path_data
     path_data.path.clear();
     path_data.distance = 0;
+    path_data.calculation_time = 0;
+    path_data.estimated_distance = 0;
+
+    // reset the Astar struct
+    astar.cost_from_start.clear();
+    astar.node_before.clear();
+    astar.checked.clear();
+    while (!astar.pq.empty()) {
+        astar.pq.pop();
+    }
+    preBuildAstarStructs(astar, graph);
 
 }
+
 
 
 #endif

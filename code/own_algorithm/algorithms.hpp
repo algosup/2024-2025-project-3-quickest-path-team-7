@@ -23,26 +23,7 @@ int estimate_distance(Graph& graph, int source, int destination) {
 
 }
 
-struct Node {
-    int id;
-    int weight;
-    int estimated_cost;
 
-    // Make the first Node in a priority queue the one with the smallest estimated distance
-    bool operator<(const Node& other) const {
-        return estimated_cost > other.estimated_cost;
-    }
-};
-
-void printPQ(priority_queue<Node> pq) {
-    cout << "\nPriority Queue: " << endl;
-    while (!pq.empty()) {
-        Node top = pq.top();
-        cout << "estim: " << top.estimated_cost << "            id: " << top.id << endl;
-        pq.pop();
-    }
-    cout << endl;
-}
 
 void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
     int current_node = path_data.end;
@@ -55,15 +36,7 @@ void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
 }
 
 // A* derived algorithm to find the shortest path between two nodes
-void find_path(Graph& graph, Path& path_data) {
-
-    int n = graph.map.size();
-
-    vector<int>         cost_from_start(n, INF);
-    vector<int_pair>    node_before(n);
-    vector<bool>        checked(n, false);
-    // Min-heap priority queue: (estimated distance, {node, weight})
-    priority_queue<Node> pq;
+void find_path(Graph& graph, Path& path_data, Astar& astar) {
 
     int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
     path_data.estimated_distance = start_to_end_estimation;
@@ -75,26 +48,26 @@ void find_path(Graph& graph, Path& path_data) {
     current_node.estimated_cost = start_to_end_estimation;
 
     // Push the first node to the priority queue
-    pq.push(current_node);
+    astar.pq.push(current_node);
 
     // Update the costs
-    cost_from_start[current_node.id] = current_node.weight;
+    astar.cost_from_start[current_node.id] = current_node.weight;
     
-    while (!pq.empty()) {
+    while (!astar.pq.empty()) {
 
         // Load the node with the smallest estimated cost
-        Node current_node = pq.top();
+        Node current_node = astar.pq.top();
 
         // Check if we reached the destination
         if(current_node.id == path_data.end) {
-            reconstruct_path(node_before, path_data);
+            reconstruct_path(astar.node_before, path_data);
             return;
         }
 
         // Remove the node from the priority queue
-        pq.pop();
+        astar.pq.pop();
         // Prevent revisiting the node
-        checked[current_node.id] = true;
+        astar.checked[current_node.id] = true;
 
         // For each neighbor of the current node
         for (int_pair node : graph.map[current_node.id]) {
@@ -104,20 +77,20 @@ void find_path(Graph& graph, Path& path_data) {
             neighbor.weight = node.second;
 
             // We measure the cost from the start to the neighbor through this current node
-            int local_cost_from_start = cost_from_start[current_node.id] + neighbor.weight;
+            int local_cost_from_start = astar.cost_from_start[current_node.id] + neighbor.weight;
             
             // If this measure is better than the previous one, we update the better path to this node, thus the costs
-            if(cost_from_start[neighbor.id] > local_cost_from_start) {
+            if(astar.cost_from_start[neighbor.id] > local_cost_from_start) {
                 // If not already checked, (thus already in the priority queue)
-                if (!checked[neighbor.id]) {
+                if (!astar.checked[neighbor.id]) {
                     // Update the node access
-                    node_before[neighbor.id] = {current_node.id, neighbor.weight};
+                    astar.node_before[neighbor.id] = {current_node.id, neighbor.weight};
                     // Update the costs
-                    cost_from_start[neighbor.id] = local_cost_from_start;
+                    astar.cost_from_start[neighbor.id] = local_cost_from_start;
                     int estimated_distance_to_end = estimate_distance(graph, neighbor.id, path_data.end);
                     neighbor.estimated_cost = local_cost_from_start + estimated_distance_to_end;
                     // And finally, push the neighbor to the priority queue
-                    pq.push(neighbor);
+                    astar.pq.push(neighbor);
                 }
             }
         }
