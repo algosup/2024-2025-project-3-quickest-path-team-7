@@ -442,29 +442,9 @@ This project will use a single `GET` request method to handle all queries, ensur
         </pre>
       </td>
     </tr>
-    <tr>
-      <td><strong>200 OK</strong></td>
-      <td>Identical landmarks</td>
-      <td>The source and destination are the same. The system indicates the landmarks are identical.</td>
-      <td>
-        <strong>JSON:</strong>
-        <pre>
-{
-  "message": "Source and destination are identical.",
-  "landmark": "123"
-}
-        </pre>
-        <strong>XML:</strong>
-        <pre>
-&lt;response&gt;
-  &lt;message&gt;Source and destination are identical.&lt;/message&gt;
-  &lt;landmark&gt;123&lt;/landmark&gt;
-&lt;/response&gt;
-        </pre>
-      </td>
-    </tr>
   </tbody>
 </table>
+
 
 
 
@@ -484,7 +464,7 @@ The API returns appropriate error codes with descriptive messages in the request
     <tr>
       <td><b>400 Bad Request</b></td>
       <td>Malformed request or missing parameters</td>
-      <td>The input query is missing required parameters or is incorrectly formatted.</td>
+      <td>The input query is missing required parameters, is incorrectly formatted, or contains identical source and destination landmarks</td>
       <td>
         <b>JSON:</b>
         <pre>
