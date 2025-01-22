@@ -49,22 +49,24 @@ void find_path(Graph& graph, Path& path_data) {
     
     // Exclusion list TESTER UNE HASH TABLE
     vector<bool> visited(graph.map.size(), false);
+    vector<bool> dead_end(graph.map.size(), false);
     bool all_visited = false;
+    bool all_dead_end = false;
 
     Node current_node;
     current_node.id = path_data.start;
     current_node.weight = 0;
     current_node.estimated_distance = estimate_distance(graph, path_data.start, path_data.end);
+    visited[current_node.id] = true;
 
-    cout << "\nPath lenght estimation : " << current_node.estimated_distance << "\n" << endl; 
+    cout << "Estimation: " << formatWithSpaces(current_node.estimated_distance) << endl;
 
     while (current_node.id != path_data.end) {
 
         // Min-heap priority queue: (estimated distance, node) to automatically sort the connected nodes of the current_node
         priority_queue<Node> pq;
-        
+        all_visited = true;
         for (int_pair node : graph.map[current_node.id]) {
-            all_visited = true;
             if (!visited[node.first]) { 
                 all_visited = false;
 
@@ -80,11 +82,21 @@ void find_path(Graph& graph, Path& path_data) {
         }
 
         if (all_visited) {
-            cout << "Faced a Q 2 sac on Node " << current_node.id << endl;
-            return;
+            // So we go back to the last node and mark its other neighbors as unvisited
+            dead_end[current_node.id] = true;
+            path_data.path.pop_back();
+            path_data.distance -= current_node.weight;
+            current_node.id = path_data.path.back().first;
+            for (int_pair node : graph.map[current_node.id]) {
+                // Of course the current dead node is kept as visited
+                if (!dead_end[node.first]) {
+                    visited[node.first] = false;
+                }
+            }
+            
+            continue;
         }
-        
-        printPQ(pq);
+        //printPQ(pq);
 
         current_node = pq.top();
         path_data.path.push_back({current_node.id, current_node.weight});
