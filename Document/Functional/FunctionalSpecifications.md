@@ -99,20 +99,71 @@ External project reviewers have been appointed by the project owner to review ou
 ---
 
 ## 1.5 Milestones
-| Milestone                      | Date       |
-|--------------------------------|------------|
-| First Weekly Report            | 01/10/2025 |
-| Functional Specifications (v1) | 01/20/2025 |
-| Second Weekly Report           | 01/17/2025 |
-| Technical Specifications (v1)  | 01/31/2025 |
-| Proof of Concept (POC)         | 01/25/2025 |
-| MVP (Minimum Viable Product)   | 01/30/2025 |
-| Test Plan                      | 02/03/2025 |
-| User Manual                    | 02/03/2025 |
-| Final Code                     | 02/03/2025 |
-| Final Presentation             | 02/07/2025 |
-| Project Post-Mortem            | 02/13/2025 |
+```mermaid
+---
+displayMode: wide
+---
+gantt
+    title Team 7 - Project Timeline
+    dateFormat  YYYY-MM-DD
 
+    section Weeks
+    Week 1  :2025-01-06, 5d
+    WE      :crit, 2025-01-11, 2d
+    Week 2  :2025-01-13, 5d
+    WE      :crit, 2025-01-18, 2d
+    Week 3  :2025-01-20, 5d
+    WE      :crit, 2025-01-25, 2d
+    Week 4  :2025-01-27, 5d
+    WE      :crit, 2025-02-01, 2d
+    Week 5  :2025-02-03, 5d
+    WE      :crit, 2025-02-08, 2d
+    Week 6  :2025-02-10, 5d
+    End     :crit, 2025-02-14, 1d
+
+    section Documents
+        Functional Specifications           :2025-01-06, 32d
+        Func Specs deadline  :crit, milestone, 2025-02-07, 1d
+        Functional Specifications v1        :crit, milestone, 2025-01-20, 1d
+        Technical Specifications            :2025-01-06, 32d
+        Tech Specs Deadline                 :crit, milestone, 2025-02-07, 1d
+        Technical Specifications v1         :crit, milestone, 2025-01-27, 1d
+        Test Plan                           :2025-01-06, 32d
+        Test Plan Deadline                  :crit, milestone, 2025-02-07, 1d
+        Test Plan v1                        :crit, milestone, 2025-01-27, 1d
+        User Manual                         :2025-01-06, 32d
+        User Manual Deadline                :crit, milestone, 2025-02-07, 1d
+        User Manual v1                        :crit, milestone, 2025-01-27, 1d
+        Project Post-Mortem                 :milestone, 2025-02-14, 1d
+
+    section Development
+        Operating Components                :2025-01-06, 5d
+        Pathfinding Algorithm               :2025-01-11, 9d
+        REST API                            :2025-01-20, 9d
+        Data Validation Logic               :2025-01-20, 7d
+        Format Handlers (JSON/XML)          :2025-01-27, 4d
+        Error Handling                      :2025-01-31, 3d
+        Optimization                        :2025-02-02, 4d
+        MVP                                 :milestone, 2025-02-03, 1d
+        Alpha                               :milestone, 2025-02-07, 1d
+        Final Code Deadline                 :crit, milestone, 2025-02-07, 1d
+
+    section Testing
+        Test Case Implementation            :2025-01-25, 10d
+        Test Execution                      :2025-02-04, 5d
+
+    section Final Presentation
+        Slideshow                           :2025-02-04, 5d
+        Rehearsals                          :2025-02-04, 10d
+        Oral Exam                           :crit, milestone, 2025-02-14, 1d
+
+    section Meetings
+        Report Week 1                       :milestone, 2025-01-12, 1d
+        Report Week 2                       :milestone, 2025-01-19, 1d
+        Report Week 3                       :milestone, 2025-01-26, 1d
+        Report Week 4                       :milestone, 2025-02-02, 1d
+        Report Week 5                       :milestone, 2025-02-09, 1d
+```
 ---
 
 ## 1.6 Terms, Acronyms, and Definitions
