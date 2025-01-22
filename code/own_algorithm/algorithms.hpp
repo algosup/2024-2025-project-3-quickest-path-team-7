@@ -26,11 +26,11 @@ int estimate_distance(Graph& graph, int source, int destination) {
 struct Node {
     int id;
     int weight;
-    int estimated_distance;
+    int estimated_cost;
 
     // Make the first Node in a priority queue the one with the smallest estimated distance
     bool operator<(const Node& other) const {
-        return estimated_distance > other.estimated_distance;
+        return estimated_cost > other.estimated_cost;
     }
 };
 
@@ -38,73 +38,90 @@ void printPQ(priority_queue<Node> pq) {
     cout << "\nPriority Queue: " << endl;
     while (!pq.empty()) {
         Node top = pq.top();
-        cout << "estim: " << top.estimated_distance << "            id: " << top.id << endl;
+        cout << "estim: " << top.estimated_cost << "            id: " << top.id << endl;
         pq.pop();
     }
     cout << endl;
 }
 
+void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
+    int current_node = path_data.end;
+    while (current_node != path_data.start) {
+        path_data.path.insert(path_data.path.begin(), {current_node, node_before[current_node].second});
+        path_data.distance += node_before[current_node].second;
+        current_node = node_before[current_node].first;
+    }
+    path_data.path.insert(path_data.path.begin(), {current_node, 0});
+}
+
 // A* derived algorithm to find the shortest path between two nodes
 void find_path(Graph& graph, Path& path_data) {
-    
-    // Exclusion list TESTER UNE HASH TABLE
-    vector<bool> visited(graph.map.size(), false);
-    vector<bool> dead_end(graph.map.size(), false);
-    bool all_visited = false;
-    bool all_dead_end = false;
 
+    int n = graph.map.size();
+
+    vector<int>         cost_from_start(n, INF);
+    vector<int_pair>    node_before(n);
+    vector<bool>        checked(n, false);
+    // Min-heap priority queue: (estimated distance, {node, weight})
+    priority_queue<Node> pq;
+
+    int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
+    path_data.estimated_distance = start_to_end_estimation;
+
+    // Fill the first node data
     Node current_node;
     current_node.id = path_data.start;
     current_node.weight = 0;
-    current_node.estimated_distance = estimate_distance(graph, path_data.start, path_data.end);
-    visited[current_node.id] = true;
-    path_data.path.push_back({current_node.id, current_node.weight});
+    current_node.estimated_cost = start_to_end_estimation;
 
-    cout << "Estimation: " << formatWithSpaces(current_node.estimated_distance) << endl;
+    // Push the first node to the priority queue
+    pq.push(current_node);
 
-    while (current_node.id != path_data.end) {
+    // Update the costs
+    cost_from_start[current_node.id] = current_node.weight;
+    
+    while (!pq.empty()) {
 
-        // Min-heap priority queue: (estimated distance, node) to automatically sort the connected nodes of the current_node
-        priority_queue<Node> pq;
-        all_visited = true;
-        for (int_pair node : graph.map[current_node.id]) {
-            if (!visited[node.first]) { 
-                all_visited = false;
+        // Load the node with the smallest estimated cost
+        Node current_node = pq.top();
 
-                Node neighbor;
-                neighbor.id = node.first;
-                neighbor.weight = node.second;
-                neighbor.estimated_distance = /* neighbor.weight + */ estimate_distance(graph, neighbor.id, path_data.end);
-
-                pq.push(neighbor);
-                visited[neighbor.id] = true;
-
-            }
+        // Check if we reached the destination
+        if(current_node.id == path_data.end) {
+            reconstruct_path(node_before, path_data);
+            return;
         }
 
-        if (all_visited) {
-            // So we go back to the last node and mark its other neighbors as unvisited
-            dead_end[current_node.id] = true;
-            path_data.path.pop_back();
-            path_data.distance -= current_node.weight;
-            current_node.id = path_data.path.back().first;
-            for (int_pair node : graph.map[current_node.id]) {
-                // Of course the current dead node is kept as visited
-                if (!dead_end[node.first]) {
-                    visited[node.first] = false;
+        // Remove the node from the priority queue
+        pq.pop();
+        // Prevent revisiting the node
+        checked[current_node.id] = true;
+
+        // For each neighbor of the current node
+        for (int_pair node : graph.map[current_node.id]) {
+
+            Node neighbor;
+            neighbor.id = node.first;
+            neighbor.weight = node.second;
+
+            // We measure the cost from the start to the neighbor through this current node
+            int local_cost_from_start = cost_from_start[current_node.id] + neighbor.weight;
+            
+            // If this measure is better than the previous one, we update the better path to this node, thus the costs
+            if(cost_from_start[neighbor.id] > local_cost_from_start) {
+                // If not already checked, (thus already in the priority queue)
+                if (!checked[neighbor.id]) {
+                    // Update the node access
+                    node_before[neighbor.id] = {current_node.id, neighbor.weight};
+                    // Update the costs
+                    cost_from_start[neighbor.id] = local_cost_from_start;
+                    int estimated_distance_to_end = estimate_distance(graph, neighbor.id, path_data.end);
+                    neighbor.estimated_cost = local_cost_from_start + estimated_distance_to_end;
+                    // And finally, push the neighbor to the priority queue
+                    pq.push(neighbor);
                 }
             }
-            
-            continue;
         }
-        //printPQ(pq);
-
-        current_node = pq.top();
-        path_data.path.push_back({current_node.id, current_node.weight});
-        path_data.distance += current_node.weight;
-
     }
-    return;
 }
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i

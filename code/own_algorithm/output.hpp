@@ -9,6 +9,7 @@ struct Path {
     int end;
     int distance;
     int calculation_time;
+    int estimated_distance;
     // The path is stored as a vector of pairs {node, weight}
     vector<int_pair> path;
 };
@@ -97,6 +98,7 @@ void savePathToCSV(Files& files, Path& path_data) {
     << "A-star Algorithm, "     << "using " << LANDMARKS_QTY << " landmarks"
     << "\nStart Node, "         << formatWithSpaces(path_data.start) 
     << "\nEnd Node, "           << formatWithSpaces(path_data.end) 
+    << "\nEstimated Distance, " << formatWithSpaces(path_data.estimated_distance)
     << "\nPath lenght, "        << formatWithSpaces(path_data.distance) 
     << "\nNumber of nodes, "    << formatWithSpaces(path_data.path.size() - 1)
     << "\nCalculation time, "   << formatWithSpaces(path_data.calculation_time)      << " ms"
