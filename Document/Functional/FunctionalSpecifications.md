@@ -149,12 +149,12 @@ gantt
         Final Code Deadline                 :crit, milestone, 2025-02-07, 1d
 
     section Testing
-        Test Case Implementation            :2025-01-25, 10d
-        Test Execution                      :2025-02-04, 5d
+        Test Case Implementation            :2025-01-23, 10d
+        Test Execution                      :2025-02-02, 5d
 
     section Final Presentation
-        Slideshow                           :2025-02-04, 5d
-        Rehearsals                          :2025-02-04, 10d
+        Slideshow                           :2025-02-03, 5d
+        Rehearsals                          :2025-02-03, 11d
         Oral Exam                           :crit, milestone, 2025-02-14, 1d
 
     section Meetings
