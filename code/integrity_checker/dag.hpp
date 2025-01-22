@@ -22,9 +22,48 @@ bool dfs(int node, vector<vector<int>>& graph, vector<int>& visited) {
     return false;
 }
 
-void buildDag() {
+void loadDAG(vector<vector<int>>& dag, bool force = false) 
+{
 
-    vector<vector<int>> dag;
+    fstream csv_map(DATASET);
+
+    unsigned int counter = 0;
+    unsigned int progression = 0;
+    unsigned int progression_backup = 0;
+
+    string line;
+
+    while (getline(csv_map, line)) {
+
+
+        stringstream nodeString(line);
+        string node_cell;
+        vector<int> nodeData;
+        while (getline(nodeString, node_cell, ',')) {
+            nodeData.push_back(stoi(node_cell));
+        }
+
+        // CSV format is: node1, node2, distance
+        if (nodeData.size() == 3) {
+            int node1 = nodeData[0];
+            int node2 = nodeData[1];
+            int distance = nodeData[2];
+            dag[node1] = {node2, distance};
+        }
+
+        counter++;
+        progression = counter * 100 / CSV_LINES;
+        if (progression != progression_backup) {
+            cout << "\rLoading the CSV file into memory ... " << progression << " %" << flush;
+            progression_backup = progression;
+        }
+    }
+
+    csv_map.close();
+
+}
+
+void buildDag(vector<vector<int>>& dag) {
 
     loadDAG(dag);
 
@@ -37,7 +76,7 @@ void buildDag() {
         if (visited[i] == 0) {  // If the node is not visited
             if (dfs(i, dag, visited)) {
                 cout << "The graph contains a cycle!" << endl;
-                return 0;
+                return;
             }
         }
     }

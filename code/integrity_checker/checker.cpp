@@ -2,12 +2,13 @@
 
 int main() {
 
+    vector<vector<int>> dag;
     Graph graph;
 
     cout << "\nInitialization\n" << endl;
 
     // Build a DAG from CSV
-
+    buildDag(dag);
     // Check if the DAG is acyclic
 
     // Delete the DAG
