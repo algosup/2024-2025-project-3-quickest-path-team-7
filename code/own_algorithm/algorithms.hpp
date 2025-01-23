@@ -35,14 +35,14 @@ void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
 // A* derived algorithm to find the shortest path between two nodes
 void find_path(Graph& graph, Path& path_data, Astar& astar) {
 
-    int start_to_end_estimation = WEIGHT * estimate_distance(graph, path_data.start, path_data.end);
+    int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
     path_data.estimated_distance = start_to_end_estimation;
 
     // Fill the first node data
     Node current_node;
     current_node.id = path_data.start;
     current_node.weight = 0;
-    current_node.estimated_cost = start_to_end_estimation;
+    current_node.estimated_cost = WEIGHT * start_to_end_estimation;
 
     // Push the first node to the priority queue
     astar.pq.push(current_node);
