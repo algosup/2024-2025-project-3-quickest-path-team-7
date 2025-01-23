@@ -27,6 +27,7 @@ struct Node {
 };
 
 struct Astar {
+    int iterations = 0;
     vector<int> cost_from_start;
     vector<int_pair> node_before;
     vector<bool> checked;
@@ -143,6 +144,7 @@ void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar) {
     astar.cost_from_start.clear();
     astar.node_before.clear();
     astar.checked.clear();
+    astar.iterations = 0;
     while (!astar.pq.empty()) {
         astar.pq.pop();
     }

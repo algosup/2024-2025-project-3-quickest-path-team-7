@@ -15,7 +15,7 @@ void start_timer(Timer& timer) {
 
 void stop_timer(Timer& timer) {
     timer.end_time = chrono::high_resolution_clock::now();
-    timer.time = chrono::duration_cast<chrono::milliseconds>(timer.end_time - timer.start_time).count();
+    timer.time = chrono::duration_cast<chrono::microseconds>(timer.end_time - timer.start_time).count();
 }
 
 #endif

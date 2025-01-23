@@ -4,8 +4,9 @@
 #define CSV_LINES           28854312
 #define NODE_MAX_VALUE      23947347
 
-#define ROOT                5
+#define ROOT                1
 #define LANDMARKS_QTY       30
+#define WEIGHT              1.1
 
 #define MAP_BACKUP          "map-backup.bin"
 #define LANDMARKS_BACKUP    "landmarks-backup"

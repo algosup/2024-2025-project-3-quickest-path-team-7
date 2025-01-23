@@ -20,10 +20,7 @@ int estimate_distance(Graph& graph, int source, int destination) {
     }
 
     return estimation;
-
 }
-
-
 
 void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
     int current_node = path_data.end;
@@ -38,7 +35,7 @@ void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
 // A* derived algorithm to find the shortest path between two nodes
 void find_path(Graph& graph, Path& path_data, Astar& astar) {
 
-    int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
+    int start_to_end_estimation = WEIGHT * estimate_distance(graph, path_data.start, path_data.end);
     path_data.estimated_distance = start_to_end_estimation;
 
     // Fill the first node data
@@ -54,6 +51,8 @@ void find_path(Graph& graph, Path& path_data, Astar& astar) {
     astar.cost_from_start[current_node.id] = current_node.weight;
     
     while (!astar.pq.empty()) {
+
+        astar.iterations++;
 
         // Load the node with the smallest estimated cost
         Node current_node = astar.pq.top();
@@ -87,7 +86,7 @@ void find_path(Graph& graph, Path& path_data, Astar& astar) {
                     astar.node_before[neighbor.id] = {current_node.id, neighbor.weight};
                     // Update the costs
                     astar.cost_from_start[neighbor.id] = local_cost_from_start;
-                    int estimated_distance_to_end = estimate_distance(graph, neighbor.id, path_data.end);
+                    int estimated_distance_to_end = WEIGHT * estimate_distance(graph, neighbor.id, path_data.end);
                     neighbor.estimated_cost = local_cost_from_start + estimated_distance_to_end;
                     // And finally, push the neighbor to the priority queue
                     astar.pq.push(neighbor);
