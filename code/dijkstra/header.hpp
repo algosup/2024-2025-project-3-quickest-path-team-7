@@ -41,10 +41,11 @@ It is able to detect if there is no path between the two nodes.
 #define DATASET "USA-roads.csv"
 #define OUTPUT "shortest-path.csv"
 
+#define FORCE_BREAK_EARLY true
+
 #define ASK_FOLDER false
 // if true, the program will ask, if wanted, for a different folder path than the working directory 
 // for input and output files
-
 
 #include <iostream>
 #include <vector>

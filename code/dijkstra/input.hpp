@@ -26,6 +26,12 @@ int takeUserInput(PathData& path_data, Graph& graph, Files& files, bool& break_e
     }
 
     // Ask the user if they want to break early the dijkstra algorithm
+
+    if (FORCE_BREAK_EARLY) {
+        break_early = true;
+        return 0;
+    }
+
     char c = 'x';
     while (c!='y' && c!='n') {
         cout << "Break early (y/n)? ";
@@ -46,9 +52,15 @@ int takeUserInput(PathData& path_data, Graph& graph, Files& files, bool& break_e
 
 void askComparison(int precise_distance)
 {
-    int  heuristic_distance;
+    
+    string input;
     cout << "\nEnter the distance to compare: " << flush;
-    cin >> heuristic_distance;
+    cin.ignore();
+    getline(cin, input);
+    // Remove spaces between digits from input
+    input.erase(remove(input.begin(), input.end(), ' '), input.end());
+    // Convert to integer
+    int heuristic_distance = stoi(input);
 
     if (0 <= heuristic_distance <= precise_distance) {
         // Calculate how many percents more the heuristic distance is compared to the precise distance
@@ -63,9 +75,9 @@ void askComparison(int precise_distance)
 void takeFolderInput(Files& files, bool ask_folder) {
 
     if (ask_folder){
-        cout << "Do you want to change the folder for input/output files ? (y/n)" << flush;
         char c = 'x';
         while (c!='y' && c!='n') {
+            cout << "Do you want to change the folder for input/output files ? (y/n)" << flush;
             cin >> c;
             if (c == 'y') {
                 cout << "\nPlease provide the folder path: ";
@@ -73,15 +85,15 @@ void takeFolderInput(Files& files, bool ask_folder) {
                 files.dataset = files.folder_path + "/" + DATASET;
                 files.output = files.folder_path + "/" + OUTPUT;
                 files.backup = files.folder_path + "/" + BACKUP;
-            } else {
-                if (c == 'n') {
-                    files.folder_path = "";
-                    files.dataset = DATASET;
-                    files.output = OUTPUT;
-                    files.backup = BACKUP;
-                } else {
-                    cout << "Invalid input. Please try again." << endl;
-                }
+            }
+            if (c == 'n') {
+                files.folder_path = "";
+                files.dataset = DATASET;
+                files.output = OUTPUT;
+                files.backup = BACKUP;
+            } 
+            if (c != 'y' && c != 'n') {
+                cout << "Invalid input. Please try again." << endl;
             }
         }
     } else {

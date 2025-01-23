@@ -125,7 +125,7 @@ void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar) {
     << "\nEstimated Distance, " << formatWithSpaces(path_data.estimated_distance)
     << "\nPath lenght, "        << formatWithSpaces(path_data.distance) 
     << "\nNumber of nodes, "    << formatWithSpaces(path_data.path.size() - 1)
-    << "\nCalculation time, "   << formatWithSpaces(path_data.calculation_time)      << " ms"
+    << "\nCalculation time, "   << formatWithSpaces(path_data.calculation_time)      << " " << TIME_UNIT_STR
     << "\n\nNode,"              << " Weight\n";
 
     for (int_pair node : path_data.path) {
