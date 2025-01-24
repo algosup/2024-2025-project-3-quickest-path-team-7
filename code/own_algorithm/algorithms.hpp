@@ -31,69 +31,53 @@ void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
     path_data.path.insert(path_data.path.begin(), {current_node, 0});
 }
 
+
 // A* derived algorithm to find the shortest path between two nodes
 void find_path(Graph& graph, Path& path_data, Astar& astar) {
 
     int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
     path_data.estimated_distance = start_to_end_estimation;
+    start_to_end_estimation *= WEIGHT;
 
-    // Fill the first node data
-    Node current_node;
-    current_node.id = path_data.start;
-    current_node.weight = 0;
-    current_node.estimated_cost = WEIGHT * start_to_end_estimation;
-
-    // Push the first node to the priority queue
+    Node current_node = {path_data.start, 0, start_to_end_estimation};
     astar.pq.push(current_node);
-
-    // Update the costs
-    astar.cost_from_start[current_node.id] = current_node.weight;
+    astar.cost_from_start[current_node.id] = 0;
 
     while (!astar.pq.empty()) {
+        current_node = astar.pq.top();
+        astar.pq.pop();
 
-        astar.iterations++;
-
-        // Load the node with the smallest estimated cost
-        Node current_node = astar.pq.top();
-
-        // Check if we reached the destination
-        if(current_node.id == path_data.end) {
+        if (current_node.id == path_data.end) {
             reconstruct_path(astar.node_before, path_data);
             return;
         }
 
-        // Remove the node from the priority queue
-        astar.pq.pop();
-        // Prevent revisiting the node
+        if (astar.checked[current_node.id]) continue;
         astar.checked[current_node.id] = true;
 
-        // For each neighbor of the current node
-        for (int_pair node : graph.map[current_node.id]) {
+        // Parallelize neighbor exploration
+        const auto& neighbors = graph.map[current_node.id];
+        #pragma omp parallel for
+        for (size_t i = 0; i < neighbors.size(); ++i) {
+            int neighbor_id = neighbors[i].first;
+            int weight = neighbors[i].second;
 
-            Node neighbor;
-            neighbor.id = node.first;
-            neighbor.weight = node.second;
+            if (astar.checked[neighbor_id]) continue;
 
-            // We measure the cost from the start to the neighbor through this current node
-            int local_cost_from_start = astar.cost_from_start[current_node.id] + neighbor.weight;
+            int local_cost = astar.cost_from_start[current_node.id] + weight;
+            if (local_cost < astar.cost_from_start[neighbor_id]) {
+                astar.node_before[neighbor_id] = {current_node.id, weight};
+                astar.cost_from_start[neighbor_id] = local_cost;
 
-            // If this measure is better than the previous one, we update the better path to this node, thus the costs
-            if(astar.cost_from_start[neighbor.id] > local_cost_from_start) {
-                // If not already checked, (thus already in the priority queue)
-                if (!astar.checked[neighbor.id]) {
-                    // Update the node access
-                    astar.node_before[neighbor.id] = {current_node.id, neighbor.weight};
-                    // Update the costs
-                    astar.cost_from_start[neighbor.id] = local_cost_from_start;
-                    int estimated_distance_to_end = WEIGHT * estimate_distance(graph, neighbor.id, path_data.end);
-                    neighbor.estimated_cost = local_cost_from_start + estimated_distance_to_end;
-                    // And finally, push the neighbor to the priority queue
-                    astar.pq.push(neighbor);
-                }
+                int estimated_cost = local_cost + WEIGHT * estimate_distance(graph, neighbor_id, path_data.end);
+                Node neighbor = {neighbor_id, weight, estimated_cost};
+                #pragma omp critical
+                astar.pq.push(neighbor);
             }
         }
     }
-}
+} 
+
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i
 vector<int> shortestPaths(Graph& graph, int source) {
