@@ -18,7 +18,6 @@ int estimate_distance(Graph& graph, int source, int destination) {
         // Keep only the maximum of these estimations
         estimation = max(estimation, diff);
     }
-
     return estimation;
 }
 
@@ -49,7 +48,7 @@ void find_path(Graph& graph, Path& path_data, Astar& astar) {
 
     // Update the costs
     astar.cost_from_start[current_node.id] = current_node.weight;
-    
+
     while (!astar.pq.empty()) {
 
         astar.iterations++;
@@ -77,7 +76,7 @@ void find_path(Graph& graph, Path& path_data, Astar& astar) {
 
             // We measure the cost from the start to the neighbor through this current node
             int local_cost_from_start = astar.cost_from_start[current_node.id] + neighbor.weight;
-            
+
             // If this measure is better than the previous one, we update the better path to this node, thus the costs
             if(astar.cost_from_start[neighbor.id] > local_cost_from_start) {
                 // If not already checked, (thus already in the priority queue)

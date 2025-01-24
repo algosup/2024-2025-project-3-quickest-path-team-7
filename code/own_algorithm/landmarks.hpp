@@ -4,25 +4,6 @@
 #include "header.hpp"
 
 
-// Function to remove the weight from the graph to free memory
-// The graph is now a list of connexions
-void mapToConnexions(Graph& graph){
-    cout << "Transferring map to single connexions ..." << endl;
-    int graph_size = graph.map.size();
-    int temp_node;
-    graph.connexions.resize(graph_size);
-    for (int node = 0; node < graph_size; ++node){
-        for (int sub_node = 0; sub_node < graph.map[node].size(); ++sub_node ){
-            temp_node = graph.map[node][sub_node].first;
-            graph.connexions[node].push_back(temp_node);
-        }
-    graph.map[node].clear();
-    }
-    graph.map.clear();
-    graph.map.shrink_to_fit();
-    cout << "Map cleared" << endl;
-}
-
 // Function to reverse the landmark_distance table indexes for faster access
 // From landmark_distance[landmark_index][node] to landmark_distance[node][landmark_index]
 void reverseLandmarkTableIndexes(Graph& graph) {

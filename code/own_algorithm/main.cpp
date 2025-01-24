@@ -16,8 +16,6 @@ int main () {
 
     preBuildAstarStructs(astar_structs, graph);
 
-    //mapToConnexions(graph);
-
     while (true)
     {
 

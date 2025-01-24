@@ -4,7 +4,6 @@
 #include "header.hpp"
 
 struct Path {
-
     int start;
     int end;
     int distance;
@@ -40,8 +39,6 @@ struct Graph {
     bool loaded = false;
     // map[node] stores the list of neighbors of the node and their weights as {neighbor, weight}
     vector<vector<int_pair>> map;
-    // connexions[node] stores the list of neighbors of the node
-    vector<vector<int>> connexions;
     // the list of the landmarks picked
     vector<int> landmarks;
     // The landmark distance table
@@ -53,7 +50,6 @@ struct Graph {
     // At the end of the prepreocessing, we reverse the access : 
     // the distances are stored as: landmark_distance[node][landmark_index] = distance
     // For a faster access as A* iterates on the landmarks for a given node
-
 };
 
 struct Files {
