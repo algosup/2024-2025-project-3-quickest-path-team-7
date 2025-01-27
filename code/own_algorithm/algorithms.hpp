@@ -44,6 +44,7 @@ void find_path(Graph& graph, Path& path_data, Astar& astar) {
     astar.cost_from_start[current_node.id] = 0;
 
     while (!astar.pq.empty()) {
+        astar.iterations++;
         current_node = astar.pq.top();
         astar.pq.pop();
 

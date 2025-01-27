@@ -46,6 +46,7 @@ int main () {
         cout <<   "Estimated Distance : " << formatWithSpaces(path_data.estimated_distance) << endl;
         cout <<   "Percentage Error   : "  << formatWithSpaces((path_data.distance - path_data.estimated_distance) * 100 / path_data.estimated_distance) << "%" << endl;
         cout <<   "Number of edges    : "   << formatWithSpaces(path_data.path.size() - 1) << endl;
+        cout <<   "Number of iterations: " << formatWithSpaces(astar_structs.iterations) << endl;
         cout <<   "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
 
         // Save the path nodes to a CSV file

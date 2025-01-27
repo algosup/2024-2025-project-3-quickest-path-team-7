@@ -30,6 +30,7 @@ struct Astar {
     vector<int_pair> node_before;
     vector<bool> checked;
     priority_queue<Node> pq;
+    int iterations;
 };
 
 
@@ -139,6 +140,7 @@ void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar) {
     astar.cost_from_start.clear();
     astar.node_before.clear();
     astar.checked.clear();
+    astar.iterations = 0;
     while (!astar.pq.empty()) {
         astar.pq.pop();
     }
