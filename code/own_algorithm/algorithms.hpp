@@ -52,13 +52,21 @@ void reconstruct_bidirectional_path(const vector<int_pair>& node_before_forward,
 
 // Function for forward search (Thread 1)
 void forward_search(Graph& graph, Astar& astar1, int end) {
-    while (!astar1.pq.empty() && meeting_found == false) {
+    bool already_met = false;
+    { 
+        lock_guard<mutex> lock(meeting_mutex);
+        already_met = meeting_found;
+    }
+    while (!astar1.pq.empty() && !already_met) {
         Node current = astar1.pq.top();
         astar1.pq.pop();
+        astar1.iterations++;
+        //cout << "forward current : " << current.id << endl;
 
         // Early termination: If this node is visited by backward search
         {
             lock_guard<mutex> lock(visited_mutex);
+            lock_guard<mutex> lock2(meeting_mutex);
             if (visited_backward[current.id]) {
                 best_path_cost.store(min(best_path_cost.load(), current.estimated_cost));
                 meeting_found = true;
@@ -96,13 +104,22 @@ void forward_search(Graph& graph, Astar& astar1, int end) {
 
 // Function for backward search (Thread 2)
 void backward_search(Graph& graph, Astar& astar2, int start) {
-    while (!astar2.pq.empty() || meeting_found == false) {
+    bool already_met = false;
+    { 
+        lock_guard<mutex> lock(meeting_mutex);
+        already_met = meeting_found;
+    }
+    while (!astar2.pq.empty() && !already_met) {
         Node current = astar2.pq.top();
         astar2.pq.pop();
+        astar2.iterations++;
+
+        //cout << "backward current : " << current.id << endl;
 
         // Early termination: If this node is visited by forward search
         {
             lock_guard<mutex> lock(visited_mutex);
+            lock_guard<mutex> lock2(meeting_mutex);
             if (visited_forward[current.id]) {
                 best_path_cost.store(min(best_path_cost.load(), current.estimated_cost));
                 meeting_found = true;
@@ -168,6 +185,9 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
     // Wait for both threads to finish
     forward_thread.join();
     backward_thread.join();
+
+    cout << "Forward iterations: " << astar1.iterations << endl;
+    cout << "Backward iterations: " << astar2.iterations << endl;
 
     // Find the meeting node
     int meeting_node = -1;

@@ -30,6 +30,7 @@ struct Astar {
     vector<int_pair> node_before;
     vector<bool> checked;
     priority_queue<Node> pq;
+    int iterations = 0;  
 };
 
 
@@ -110,6 +111,9 @@ string formatWithSpaces(long number) {
 void preBuildAstarStructs(Astar& astar1, Astar& astar2, Graph& graph) {
 
     int map_size = graph.map.size();
+
+    astar1.iterations = 0;
+    astar2.iterations = 0;
 
     // Empty then Initialize best path cost
     best_path_cost.store(INT_MAX);
