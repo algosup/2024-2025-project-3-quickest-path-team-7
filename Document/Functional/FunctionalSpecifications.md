@@ -12,7 +12,7 @@
 
 **Created on:** January 6<sup>th</sup>, 2025
 
-**Last updated:** January 21<sup>th</sup>, 2025
+**Last updated:** January 27<sup>th</sup>, 2025
 
 ---
 ---
@@ -68,7 +68,7 @@ This document defines the functional specifications of the Quickest Path project
 ---
 ## 1.1.1 Targeted audience
 - Software developers
-- Logistic compagnies 
+- Logistic companies 
 
 ## 1.2 Project Team
 | Role              | Description                                                                                                                                                                | Name                                                                 |
@@ -574,37 +574,6 @@ The API returns appropriate error codes with descriptive messages in the request
       </td>
     </tr>
     <tr>
-      <td><b>404 Not Found</b></td>
-      <td>No valid path found</td>
-      <td>No valid path exists between the <code>source</code> and <code>destination</code> due to disconnected graph components or missing data.</td>
-      <td>
-        <b>JSON:</b>
-        <pre>
-{
-  "status": "No valid path found.",
-  "details": {
-    "source": "123",
-    "destination": "456",
-    "resolution": "Verify connectivity in the dataset.",
-    "documentation": "https://example.com/docs#paths"
-  }
-}
-        </pre>
-        <b>XML:</b>
-        <pre>
-&lt;status&gt;
-  &lt;message&gt;No valid path found.&lt;/message&gt;
-  &lt;details&gt;
-    &lt;source&gt;123&lt;/source&gt;
-    &lt;destination&gt;456&lt;/destination&gt;
-    &lt;resolution&gt;Verify connectivity in the dataset.&lt;/resolution&gt;
-    &lt;documentation&gt;https://example.com/docs#paths&lt;/documentation&gt;
-  &lt;/details&gt;
-&lt;/status&gt;
-        </pre>
-      </td>
-    </tr>
-    <tr>
       <td><b>405 Method Not Allowed</b></td>
       <td>Unsupported HTTP method</td>
       <td>A method other than <code>GET</code> (e.g., <code>POST</code>) is used to access the API.</td>
@@ -639,8 +608,39 @@ The API returns appropriate error codes with descriptive messages in the request
         </pre>
       </td>
     </tr>
+    <tr>
+      <td><b>500 Internal Server Error</b></td>
+      <td>Unexpected server issue</td>
+      <td>The server encountered an error that prevents it from fulfilling the request.</td>
+      <td>
+        <b>JSON:</b>
+        <pre>
+{
+  "status": "Internal Server Error",
+  "details": {
+    "error": "Unexpected exception occurred.",
+    "resolution": "Check server logs for detailed error information.",
+    "documentation": "https://example.com/docs#error-handling"
+  }
+}
+        </pre>
+        <b>XML:</b>
+        <pre>
+&lt;status&gt;
+  &lt;message&gt;Internal Server Error&lt;/message&gt;
+  &lt;details&gt;
+    &lt;error&gt;Unexpected exception occurred.&lt;/error&gt;
+    &lt;resolution&gt;Check server logs for detailed error information.&lt;/resolution&gt;
+    &lt;documentation&gt;https://example.com/docs#error-handling&lt;/documentation&gt;
+  &lt;/details&gt;
+&lt;/status&gt;
+        </pre>
+      </td>
+    </tr>
   </tbody>
 </table>
+
+
 
 
 ## 2.3 Data Validation
@@ -668,7 +668,6 @@ The validation process consists of three key stages:
 - Parse the `USA-roads.csv` file.
 - Construct the graph using:
   - **Adjacency List**: A space-efficient representation for large datasets.
-  - **Adjacency Matrix**: Easier to implement but less space-efficient.
 
 **Output**:
 - A directed graph ready for validation.
@@ -774,7 +773,7 @@ This table summarizes the key steps in the process flow and their corresponding 
 
 ```mermaid
 graph TD
-  A["User Input:<br>Send request to<br>http://localhost:8080/quickest-path"]
+  A["User Input:<br>Send request to<br>API"]
   A --> B{"Is method<br>GET?"}
   B -->|"No"| C["Return 405<br>Method Not Allowed"]
   B -->|"Yes"| D["Process<br>request"]
@@ -783,22 +782,18 @@ graph TD
   E -->|"Yes"| G{"Are source and<br>destination found?"}
   G -->|"No"| H["Return 404<br>Not Found"]
   G -->|"Yes"| I{"Are source and<br>destination identical?"}
-  I -->|"Yes"| J["Return 200 OK:<br>Identical landmarks"]
+  I -->|"Yes"| F["Return 400<br>Bad Request"]
   I -->|"No"| K["Run pathfinding<br>algorithm"]
-  K --> L{"Is a valid<br>path found?"}
-  L -->|"No"| M["Return 404<br>Not Found"]
-  L -->|"Yes"| N["Format response"]
+  K --> L{"Error during<br>pathfinding?"}
+  L -->|"Yes"| M["Return 500<br>Internal Server Error"]
+  L -->|"No"| N["Format response"]
   N --> O{"Requested<br>format?"}
   O -->|"JSON"| P["Return JSON<br>response"]
   O -->|"XML"| Q["Return XML<br>response"]
-  P --> R["Send 200 OK<br>response with path"]
+  P --> R["Return 200 OK<br>response with path <br> and time"]
   Q --> R
-  J --> R
+
 ```
-
-
-
-
 
 
 
