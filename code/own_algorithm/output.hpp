@@ -61,10 +61,12 @@ struct Files {
 
 // Global variables for shared data
 atomic<int> best_path_cost(INT_MAX);   // Current shortest path cost
-mutex visited_mutex;                  // Mutex for accessing visited sets
+mutex visited_mutex;              
+mutex meeting_mutex;
 
 vector<bool> visited_forward;         // Forward visited set
 vector<bool> visited_backward;        // Backward visited set
+bool meeting_found = false;           // Meeting node found flag
 
 // Function to calculate then display the memory usage of the graph
 void GraphMemoryUsage(Graph& graph) {
@@ -131,6 +133,9 @@ void preBuildAstarStructs(Astar& astar1, Astar& astar2, Graph& graph) {
     // Reset mutex
     if (visited_mutex.try_lock()) {
         visited_mutex.unlock();
+    }
+    if (meeting_mutex.try_lock()) {
+        meeting_mutex.unlock();
     }
 
     // Empty the priority queues

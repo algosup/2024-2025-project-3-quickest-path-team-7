@@ -52,7 +52,7 @@ void reconstruct_bidirectional_path(const vector<int_pair>& node_before_forward,
 
 // Function for forward search (Thread 1)
 void forward_search(Graph& graph, Astar& astar1, int end) {
-    while (!astar1.pq.empty()) {
+    while (!astar1.pq.empty() && meeting_found == false) {
         Node current = astar1.pq.top();
         astar1.pq.pop();
 
@@ -61,7 +61,8 @@ void forward_search(Graph& graph, Astar& astar1, int end) {
             lock_guard<mutex> lock(visited_mutex);
             if (visited_backward[current.id]) {
                 best_path_cost.store(min(best_path_cost.load(), current.estimated_cost));
-                cout << "Forward search found meeting node: " << current.id << endl;
+                meeting_found = true;
+                cout << "\n\n                                        Forward search found meeting node: " << current.id << endl;
                 return;
             }
         }
@@ -95,17 +96,17 @@ void forward_search(Graph& graph, Astar& astar1, int end) {
 
 // Function for backward search (Thread 2)
 void backward_search(Graph& graph, Astar& astar2, int start) {
-    while (!astar2.pq.empty()) {
+    while (!astar2.pq.empty() || meeting_found == false) {
         Node current = astar2.pq.top();
         astar2.pq.pop();
-
 
         // Early termination: If this node is visited by forward search
         {
             lock_guard<mutex> lock(visited_mutex);
             if (visited_forward[current.id]) {
                 best_path_cost.store(min(best_path_cost.load(), current.estimated_cost));
-                cout << "Backward search found meeting node: " << current.id << endl;
+                meeting_found = true;
+                cout << "\n\n                                        Backward search found meeting node: " << current.id << endl;
                 return;
             }
         }
