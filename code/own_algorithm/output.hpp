@@ -59,6 +59,13 @@ struct Files {
     string output;
 };
 
+// Global variables for shared data
+atomic<int> best_path_cost(INT_MAX);   // Current shortest path cost
+mutex visited_mutex;                  // Mutex for accessing visited sets
+
+vector<bool> visited_forward;         // Forward visited set
+vector<bool> visited_backward;        // Backward visited set
+
 // Function to calculate then display the memory usage of the graph
 void GraphMemoryUsage(Graph& graph) {
 
@@ -98,14 +105,44 @@ string formatWithSpaces(long number) {
     return numStr;
 }
 
-void preBuildAstarStructs(Astar& astar_structs, Graph& graph) {
-    int n = graph.map.size();
-    astar_structs.cost_from_start.resize(n, INF);
-    astar_structs.node_before.resize(n);
-    astar_structs.checked.resize(n, false);
+void preBuildAstarStructs(Astar& astar1, Astar& astar2, Graph& graph) {
+
+    int map_size = graph.map.size();
+
+    // Empty then Initialize best path cost
+    best_path_cost.store(INT_MAX);
+
+    // Reset vectors
+    visited_forward.clear();
+    visited_backward.clear();
+    astar1.node_before.clear();
+    astar2.node_before.clear();
+    astar1.cost_from_start.clear();
+    astar2.cost_from_start.clear();    
+
+    // Initialize vectors
+    visited_forward.resize(map_size, false);
+    visited_backward.resize(map_size, false);
+    astar1.node_before.resize(map_size, {-1, 0}); // {previous_node, weight}
+    astar2.node_before.resize(map_size, {-1, 0}); // {previous_node, weight}
+    astar1.cost_from_start.resize(map_size, INT_MAX);
+    astar2.cost_from_start.resize(map_size, INT_MAX);
+    
+    // Reset mutex
+    if (visited_mutex.try_lock()) {
+        visited_mutex.unlock();
+    }
+
+    // Empty the priority queues
+    while (!astar1.pq.empty()) {
+        astar1.pq.pop();
+    }
+    while (!astar2.pq.empty()) {
+        astar2.pq.pop();
+    }
 }
 
-void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar) {
+void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar1, Astar& astar2) {
 
     ofstream file(files.output);
     if (!file.is_open()) {
@@ -135,14 +172,8 @@ void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar) {
     path_data.calculation_time = 0;
     path_data.estimated_distance = 0;
 
-    // reset the Astar struct
-    astar.cost_from_start.clear();
-    astar.node_before.clear();
-    astar.checked.clear();
-    while (!astar.pq.empty()) {
-        astar.pq.pop();
-    }
-    preBuildAstarStructs(astar, graph);
+    // Reset the data structures for the next path
+    preBuildAstarStructs(astar1, astar2, graph);
 
 }
 
