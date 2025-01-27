@@ -14,7 +14,7 @@ int main() {
     // Delete the DAG
 
     // Load Csv data in memory as graph eventually from a backup
-    buildGraph(graph);
+    //buildGraph(graph);
 
     // Check if all the paths are existing
 
