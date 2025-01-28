@@ -9,6 +9,10 @@ bool dfs(int node, vector<vector<int>>& dag, vector<int>& visited) {
     visited[node] = 1;  // Mark the node as visiting
 
     // Explore all neighbors
+    if (dag[node].empty()) {
+        visited[node] = 2;  // Mark the node as fully processed
+        return false;
+    }
     for (int neighbor : dag[node]) {
         if (visited[neighbor] == 1) {  // A cycle is detected
             return true;
@@ -68,13 +72,24 @@ void buildDag(vector<vector<int>>& dag) {
     cout << "DAG loaded" << endl;
     // To track the state of the nodes during DFS (0 = unvisited, 1 = visiting, 2 = visited)
     int n = dag.size();
+    unsigned int counter = 0;
+    unsigned int progression = 0;
+    unsigned int progression_backup = 0;
     vector<int> visited(n, 0);  // 0 = unvisited, 1 = visiting, 2 = visited
 
     // Check for cycles in the graph
     for (int i = 0; i < n; ++i) {
+        counter++;
+        progression = counter * 100 / CSV_LINES;
+        if (progression != progression_backup) {
+            cout << "\rLoading the CSV file into memory ... " << progression << " %" << flush;
+            progression_backup = progression;
+        }
         if (visited[i] == 0) {  // If the node is not visited
             if (dfs(i, dag, visited)) {
                 cout << "The graph contains a cycle!" << endl;
+                visited.clear();
+                vector<int> visited(dag.size(), 0);
                 return;
             }
         }
