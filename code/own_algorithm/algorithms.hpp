@@ -8,39 +8,33 @@ int estimate_distance(Graph& graph, int source, int destination) {
     int estimation = 0;
     // For each landmark : "
     for (int i = 0; i < graph.landmarks.size(); i++) {
-        int landmark = graph.landmarks[i];
-        // Get the distance between the source and the landmark
-        int source_distance = graph.landmark_distance[source][i];
-        // Get the distance between the destination and the landmark
-        int destination_distance = graph.landmark_distance[destination][i];
         // Take the absolute value of the difference between these two distances
-        int diff = abs(source_distance - destination_distance);
+        int diff = abs(graph.landmark_distance[source][i] - graph.landmark_distance[destination][i]);
         // Keep only the maximum of these estimations
-        estimation = max(estimation, diff);
+        if (diff > estimation) {
+            estimation = diff;
+        }
     }
     return estimation;
 }
 
 // Function to reconstruct the path from the forward and backward visited nodes
-void reconstruct_bidirectional_path(const vector<int_pair>& node_before_forward, 
-                                    const vector<int_pair>& node_before_backward, 
-                                    int meeting_node, 
-                                    Path& path_data) {
+void reconstruct_bidirectional_path(Astar& astar1, Astar& astar2, Path& path_data) {
     // Reconstruct path from start to meeting node
     vector<int_pair> forward_path;
     int current_node = meeting_node;
     while (current_node != -1) {
-        forward_path.insert(forward_path.begin(), {current_node, node_before_forward[current_node].second});
-        current_node = node_before_forward[current_node].first;
+        forward_path.insert(forward_path.begin(), {current_node, astar1.node_before[current_node].second});
+        current_node = astar1.node_before[current_node].first;
     }
 
     // Reconstruct path from meeting node to end
     vector<int_pair> backward_path;
     current_node = meeting_node;
     while (current_node != -1) {
-        current_node = node_before_backward[current_node].first;
+        current_node = astar2.node_before[current_node].first;
         if (current_node != -1) { // Skip the meeting node itself
-            backward_path.push_back({current_node, node_before_backward[current_node].second});
+            backward_path.push_back({current_node, astar2.node_before[current_node].second});
         }
     }
 
@@ -52,7 +46,8 @@ void reconstruct_bidirectional_path(const vector<int_pair>& node_before_forward,
 // Function for forward search (Thread 1)
 void forward_search(Graph& graph, Astar& astar1, int end) {
     bool push = false;
-    while (!astar1.pq.empty() && !meeting_found) {
+    bool brother_visited = false;
+    while (!astar1.pq.empty() && !meeting_found.load()) {
         
         Node current = astar1.pq.top();
         astar1.pq.pop();
@@ -61,35 +56,34 @@ void forward_search(Graph& graph, Astar& astar1, int end) {
         // Early termination: If this node is visited by backward search
         {
             lock_guard<mutex> lock(visited_mutex);
-            if (visited_backward[current.id]) {
-                meeting_node.store(current.id);
-                meeting_found.store(true);
-                return;
-            }
+            brother_visited = visited_backward[current.id];
+        }
+        if (brother_visited) {
+            meeting_node.store(current.id);
+            meeting_found.store(true);
+            return;
         }
 
         // Explore neighbors
         for (auto neighbor : graph.map[current.id]) {
-            int neighbor_id = neighbor.first;
-            int edge_cost = neighbor.second;
 
-            int local_cost_from_start = astar1.cost_from_start[current.id] + edge_cost;
+            int local_cost_from_start = astar1.cost_from_start[current.id] + neighbor.second;
 
             // Update visited set and push to priority queue
-            if (local_cost_from_start < astar1.cost_from_start[neighbor_id]){
+            if (local_cost_from_start < astar1.cost_from_start[neighbor.first]){
                 {
                     lock_guard<mutex> lock(visited_mutex);
-                    if (!visited_forward[neighbor_id]) {
+                    if (!visited_forward[neighbor.first]) {
                         // Mark node as visited
-                        visited_forward[neighbor_id] = true;
+                        visited_forward[neighbor.first] = true;
                         push = true;
                     }
                 } 
                 if (push) {
                     // Update node_before and cost_from_start
-                    astar1.node_before[neighbor_id] = {current.id, edge_cost};
-                    astar1.cost_from_start[neighbor_id] = local_cost_from_start;
-                    astar1.pq.push({neighbor_id, edge_cost, local_cost_from_start + estimate_distance(graph, neighbor_id, end)});
+                    astar1.node_before[neighbor.first] = {current.id, neighbor.second};
+                    astar1.cost_from_start[neighbor.first] = local_cost_from_start;
+                    astar1.pq.push({neighbor.first, neighbor.second, local_cost_from_start + estimate_distance(graph, neighbor.first, end)});
                 }
             }
         }
@@ -99,7 +93,8 @@ void forward_search(Graph& graph, Astar& astar1, int end) {
 // Function for backward search (Thread 2)
 void backward_search(Graph& graph, Astar& astar2, int start) {
     bool push = false;
-    while (!astar2.pq.empty() && !meeting_found) {
+    bool brother_visited = false;
+    while (!astar2.pq.empty() && !meeting_found.load()) {
         
         Node current = astar2.pq.top();
         astar2.pq.pop();
@@ -108,35 +103,34 @@ void backward_search(Graph& graph, Astar& astar2, int start) {
         // Early termination: If this node is visited by forward search
         {
             lock_guard<mutex> lock(visited_mutex);
-            if (visited_forward[current.id]) {
-                meeting_node.store(current.id);
-                meeting_found.store(true);
-                return;
-            }
+            brother_visited = visited_forward[current.id];
+        }
+        if (brother_visited) {
+            meeting_node.store(current.id);
+            meeting_found.store(true);
+            return;
         }
 
         // Explore neighbors
         for (auto neighbor : graph.map[current.id]) {
-            int neighbor_id = neighbor.first;
-            int edge_cost = neighbor.second;
 
-            int local_cost_from_start = astar2.cost_from_start[current.id] + edge_cost;
+            int local_cost_from_start = astar2.cost_from_start[current.id] + neighbor.second;
 
             // Update visited set and push to priority queue
-            if (local_cost_from_start < astar2.cost_from_start[neighbor_id]){
+            if (local_cost_from_start < astar2.cost_from_start[neighbor.first]){
                 {
                     lock_guard<mutex> lock(visited_mutex);
-                    if (!visited_backward[neighbor_id]) {
+                    if (!visited_backward[neighbor.first]) {
                         // Mark node as visited
-                        visited_backward[neighbor_id] = true;
+                        visited_backward[neighbor.first] = true;
                         push = true;
                     }
                 } 
                 if (push) {
                     // Update node_before and cost_from_start
-                    astar2.node_before[neighbor_id] = {current.id, edge_cost};
-                    astar2.cost_from_start[neighbor_id] = local_cost_from_start;
-                    astar2.pq.push({neighbor_id, edge_cost, local_cost_from_start + estimate_distance(graph, neighbor_id, start)});
+                    astar2.node_before[neighbor.first] = {current.id, neighbor.second};
+                    astar2.cost_from_start[neighbor.first] = local_cost_from_start;
+                    astar2.pq.push({neighbor.first, neighbor.second, local_cost_from_start + estimate_distance(graph, neighbor.first, start)});
                 }
             }
         }
@@ -147,11 +141,12 @@ void backward_search(Graph& graph, Astar& astar2, int start) {
 void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
 
     path_data.estimated_distance = estimate_distance(graph, path_data.start, path_data.end);;
-    int end_to_start_estimation = path_data.estimated_distance * WEIGHT;
-
+    
     // Initialize priority queues
-    astar1.pq.push({path_data.start, 0, end_to_start_estimation});
-    astar2.pq.push({path_data.end, 0, end_to_start_estimation});
+    astar1.pq.push({path_data.start, 0, path_data.estimated_distance});
+    astar2.pq.push({path_data.end, 0, path_data.estimated_distance});
+
+    path_data.estimated_distance /= heuristic_weight;
 
     // Initialize visited sets
     visited_forward[path_data.start] = true;
@@ -173,7 +168,7 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
     
     if (meeting_node != 0) {
         // Reconstruct the path
-        reconstruct_bidirectional_path(astar1.node_before, astar2.node_before, meeting_node, path_data);
+        reconstruct_bidirectional_path(astar1, astar2, path_data);
     } else {
         // No path found
         path_data.path.clear();

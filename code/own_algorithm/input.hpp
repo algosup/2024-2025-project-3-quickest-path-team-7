@@ -46,12 +46,52 @@ void takeFolderInput(Files& files) {
 
 int takeUserInput(Graph& graph, Path& path) {
 
+    string input;
     // Ask and check for the start and end nodes to calculate the shortest path
     cout << "\n\nEnter the start node: ";
-    cin >> path.start;
+    cin >> input;
    
-    if (path.start == STOP) {
+    if (input == "exit") {
         return STOP; // Stop the program
+    }
+
+    if (input == "fast") {
+        cout << "Using predefined nodes 1 and 2." << endl;
+        path.start = 1;
+        path.end = 2;
+        return 0;
+    }
+
+    if (input == "med") {
+        cout << "Using predefined nodes 8 and 1200000." << endl;
+        path.start = 8;
+        path.end = 1200000;
+        return 0;
+    }
+
+    if (input == "long") {
+        cout << "Using predefined nodes 1471291 and 9597648." << endl;
+        path.start = 1471291;
+        path.end = 9597648;
+        return 0;
+    }
+
+    if (input == "weight") {
+        cout << "Enter the weight: ";
+        cin >> heuristic_weight;
+        cout << "Weight set to " << heuristic_weight << endl;
+        return 0;
+    }
+
+    // try to convert into an int, if it can't, it returns invalid node
+    try {
+        path.start = stoi(input);
+    } catch (const invalid_argument& e) {
+        cout << "Invalid expression. Please try again." << endl;
+        return INVALID_NODE; // Invalid node
+    } catch (const out_of_range& e) {
+        cout << "Invalid expression. Please try again." << endl;
+        return INVALID_NODE; // Invalid node
     }
 
     if (path.start <= 0 || path.start > NODE_MAX_VALUE || path.start >= graph.map.size() || graph.map[path.start].empty()) 
@@ -59,6 +99,8 @@ int takeUserInput(Graph& graph, Path& path) {
         cout << "Invalid node. Please try again." << endl;
         return INVALID_NODE; // Invalid node
     }
+
+
     cout << "Enter the end node: ";
     cin >> path.end;
     if (path.end <= 0 || path.end > NODE_MAX_VALUE || path.end >= graph.map.size() || graph.map[path.end].empty())

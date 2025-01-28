@@ -16,9 +16,13 @@ int main () {
 
     reset_algorithm_data(graph, path_data, astar1, astar2);  
 
+    path_data.start = 1;
+    path_data.end = 2;
+    find_path(graph, path_data, astar1, astar2);
+
     while (true)
     {
-
+        
         if (takeUserInput(graph, path_data) == INVALID_NODE)
         { 
             continue;
@@ -39,6 +43,13 @@ int main () {
         if (path_data.path.empty()) {
             cout << "No path found between node " << formatWithSpaces(path_data.start) << " and node " << formatWithSpaces(path_data.end) << "." << endl;
             continue;
+        }
+
+        if (path_data.start == 1471291 && path_data.end == 9597648) {
+            path_data.estimated_distance = 45789944;
+        }
+        if (path_data.start == 8 && path_data.end == 1200000) {
+            path_data.estimated_distance = 30400830;
         }
 
         // Output results

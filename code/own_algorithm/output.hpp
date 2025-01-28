@@ -70,6 +70,8 @@ mutex visited_mutex;
 vector<bool> visited_forward;         // Forward visited set
 vector<bool> visited_backward;        // Backward visited set
 
+float heuristic_weight = WEIGHT;
+
 // Function to calculate then display the memory usage of the graph
 void GraphMemoryUsage(Graph& graph) {
 
@@ -113,6 +115,7 @@ void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& a
 
     int map_size = graph.map.size();
 
+    // initialize the ints
     astar1.iterations = 0;
     astar2.iterations = 0;
 
