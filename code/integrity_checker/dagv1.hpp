@@ -14,7 +14,6 @@ bool dfs(int node, vector<vector<int>>& dag, vector<int>& visited) {
         return false;
     }
     for (int neighbor : dag[node]) {
-        cout << neighbor << endl;
         if (visited[neighbor] == 1) {  // A cycle is detected
             return true;
         }
@@ -79,9 +78,7 @@ void buildDag(vector<vector<int>>& dag) {
     vector<int> visited(n, 0);  // 0 = unvisited, 1 = visiting, 2 = visited
 
     // Check for cycles in the graph
-    bool asCicle = false;
     for (int i = 0; i < n; ++i) {
-        cout << i << endl;
         counter++;
         progression = counter * 100 / CSV_LINES;
         if (progression != progression_backup) {
@@ -93,19 +90,12 @@ void buildDag(vector<vector<int>>& dag) {
                 cout << "The graph contains a cycle!" << endl;
                 visited.clear();
                 vector<int> visited(dag.size(), 0);
-                asCicle = true;
-                break;
+                return;
             }
         }
     }
-    if (asCicle == true) 
-        {
-        cout << "The graph isn't acyclic (DAG)." << endl;
-        }
-    if (asCicle == false) 
-        {
-        cout << "The graph is acyclic (DAG)." << endl;
-        }
+
+    cout << "The graph is acyclic (DAG)." << endl;
     //cin.get();
     dag.clear();
     dag.shrink_to_fit();
