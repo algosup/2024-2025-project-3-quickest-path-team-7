@@ -41,6 +41,7 @@
 		- [Data Integrity Verification](#data-integrity-verification)
 			- [Validation Pipeline](#validation-pipeline)
 			- [Implementation Notes](#implementation-notes)
+		- [Directed Cycle Check (DAG Verification)](#directed-cycle-check-dag-verification)
 		- [Error Recovery](#error-recovery)
 		- [Input Sanitization (Post-Load)](#input-sanitization-post-load)
 		- [Metrics Collection](#metrics-collection)
@@ -571,13 +572,14 @@ Key parsing rules:
 ### Data Integrity Verification
 
 #### Validation Pipeline
-| Step                     | Technique               | Purpose                                  |
-|--------------------------|-------------------------|------------------------------------------|
-| **1. File Sanity Check** | File size and line count | Reject empty or malformed CSV files.     |
-| **2. Basic Syntax**      | Per-line regex `^\d+,\d+,\d+$` | Filter malformed lines (logged).         |
-| **3. Value Constraints** | Range checks            | Ensure `Time > 0` and node IDs ≥ 0.      |
-| **4. Connectivity**      | **Union-Find (Disjoint Set)** | Track connected components incrementally during CSV load (replaces BFS for scalability). |
-| **5. Anomaly Detection** | Statistical sampling    | Check 0.1% of nodes for [self-loops](#glossary) or isolated landmarks. |
+| Step                             | Technique                             | Purpose                                                                                           |
+|----------------------------------|---------------------------------------|---------------------------------------------------------------------------------------------------|
+| **1. File Sanity Check**         | File size and line count              | Reject empty or malformed CSV files.                                                              |
+| **2. Basic Syntax**              | Per-line regex `^\d+,\d+,\d+$`        | Filter malformed lines (logged).                                                                  |
+| **3. Value Constraints**         | Range checks                           | Ensure `Time > 0` and node IDs ≥ 0.                                                               |
+| **4. Directed Cycle Check**    | Topological sort or DFS-based cycle detection | Verify that the CSV, when interpreted as directed edges, contains no cycles. If a directed cycle exists, the data is invalid. |
+| **5. Connectivity**              | Union-Find (disjoint set) or BFS       | Track connected components (undirected interpretation) to ensure no isolated subgraphs.           |
+| **6. Anomaly Detection**         | Statistical sampling                   | Check 0.1% of nodes for self-loops or isolated landmarks.                                         |
 
 #### Implementation Notes
 - **Union-Find for Connectivity**:  
@@ -613,6 +615,26 @@ Key parsing rules:
 	 - **Two-Pass Approach**:
 		- First Pass: Count edges per node to preallocate offsets.
 		- Second Pass: Populate edges using parallel insertion (if threadsafe).
+
+### Directed Cycle Check (DAG Verification)
+
+Before treating edges as undirected for BFS or Union-Find connectivity, we must confirm the CSV data forms a Directed Acyclic Graph (DAG). Concretely:
+
+1. **Interpret Edges as Directed**  
+   Each line in `USA-roads.csv` (e.g., `A,B,Time`) is treated as one directed edge from `A` to `B`.  
+   > **Note**: We do *not* currently interpret it as bidirectional in this step.
+
+2. **Detect Cycles**  
+   - **Option A**: Perform a topological sort (e.g., Kahn’s Algorithm) on the directed edges and check for leftover nodes with unsatisfied dependencies. If any node cannot be processed, a cycle exists.  
+   - **Option B**: Use a DFS-based cycle detection (maintaining recursion stacks to mark visited nodes).
+
+   If any directed cycle is found, the CSV fails the validation; we reject or log an error.
+
+3. **Reinterpret as Undirected**  
+   Once no directed cycle is detected, reinterpret each `A -> B` entry as a bidirectional edge (`A ↔ B`). Then proceed with BFS or Union-Find to check connectivity (ensuring no subgraphs remain isolated).
+
+By combining **Directed Cycle Check** and **Connectivity** checks, we satisfy the client’s requirement:  
+> “The file must form a DAG (no cycle) and also be fully connected once direction is ignored.”  
 
 ### Error Recovery
 
