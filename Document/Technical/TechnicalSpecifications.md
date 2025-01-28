@@ -1,41 +1,135 @@
 # Technical Specifications Document
 
 # Table of Contents
-- [Executive Summary](#executive-summary)
-- [Project Overview](#project-overview)
-- [System Requirements](#system-requirements)
-	- [Programming Language](#programming-language)
-	- [Dependencies](#dependencies)
-- [System Architecture](#system-architecture)
-- [Core Algorithms](#core-algorithms)
-	- [Bidirectional Dijkstra](#bidirectional-dijkstra)
-	- [Potential A* Extension](#potential-a-extension)
-- [Data Handling](#data-handling)
-	- [Input Format](#input-format)
-	- [Data Integrity Verification](#data-integrity-verification)
-- [Multi-Threading Strategy](#multi-threading-strategy)
-- [Approximation Heuristics](#approximation-heuristics)
-- [REST API Specifications](#rest-api-specifications)
-	- [Endpoint: GET /path](#endpoint-get-path)
-- [Time and Space Complexity](#time-and-space-complexity)
-- [Error Handling](#error-handling)
-- [Scalability Considerations](#scalability-considerations)
-- [C++23 Features Used](#c23-features-used)
-- [How to Re-Implement the Project](#how-to-re-implement-the-project)
-- [Code Examples](#code-examples)
-	- [Planned Improvements](#planned-improvements)
-- [Contributors](#contributors)
-- [License](#license)
-- [Additional Implementation Considerations](#additional-implementation-considerations)
-- [Revision History](#revision-history)
-- [Glossary](#glossary)
+- [Technical Specifications Document](#technical-specifications-document)
+- [Table of Contents](#table-of-contents)
+	- [Executive Summary](#executive-summary)
+	- [Project Overview](#project-overview)
+	- [System Requirements](#system-requirements)
+		- [Programming Language](#programming-language)
+		- [Dependencies](#dependencies)
+		- [Hardware](#hardware)
+		- [Security](#security)
+		- [Platform Compatibility](#platform-compatibility)
+	- [System Architecture](#system-architecture)
+		- [Overview](#overview)
+		- [Component Details](#component-details)
+			- [Data Loader \& Validator](#data-loader--validator)
+			- [Pathfinding Engine](#pathfinding-engine)
+			- [HTTP Server](#http-server)
+			- [Response Formatter](#response-formatter)
+		- [Key Optimizations](#key-optimizations)
+		- [Query Handling Flow](#query-handling-flow)
+	- [Core Algorithms](#core-algorithms)
+		- [Bidirectional Dijkstra](#bidirectional-dijkstra)
+			- [Algorithm Overview](#algorithm-overview)
+			- [Key Optimizations](#key-optimizations-1)
+			- [Pseudocode](#pseudocode)
+		- [Approximation Heuristics](#approximation-heuristics)
+			- [Early Termination in Bidirectional Dijkstra](#early-termination-in-bidirectional-dijkstra)
+			- [A\* with Bounded Heuristics](#a-with-bounded-heuristics)
+			- [Precomputation for Approximate Paths (CH Lite)](#precomputation-for-approximate-paths-ch-lite)
+			- [Validation of Approximation](#validation-of-approximation)
+			- [Comparison of Strategies](#comparison-of-strategies)
+		- [Bidirectional A\* Extension](#bidirectional-a-extension)
+			- [Admissible Heuristic](#admissible-heuristic)
+			- [Priority Adjustment](#priority-adjustment)
+		- [Complexity Analysis](#complexity-analysis)
+		- [Example Implementation Snippet](#example-implementation-snippet)
+	- [Data Handling](#data-handling)
+		- [Input Format](#input-format)
+		- [Data Integrity Verification](#data-integrity-verification)
+			- [Validation Pipeline](#validation-pipeline)
+			- [Implementation Notes](#implementation-notes)
+		- [Error Recovery](#error-recovery)
+		- [Input Sanitization (Post-Load)](#input-sanitization-post-load)
+		- [Metrics Collection](#metrics-collection)
+	- [Multi-Threading Strategy](#multi-threading-strategy)
+		- [Concurrency Model](#concurrency-model)
+		- [Implementation Steps](#implementation-steps)
+		- [Load Balancing](#load-balancing)
+		- [Thread Safety](#thread-safety)
+		- [Error Handling](#error-handling)
+		- [Performance Validation](#performance-validation)
+		- [Key C++23 Features Used](#key-c23-features-used)
+	- [REST API Specifications](#rest-api-specifications)
+		- [Endpoint: `GET /path`](#endpoint-get-path)
+	- [Time and Space Complexity](#time-and-space-complexity)
+		- [Algorithmic Complexities](#algorithmic-complexities)
+		- [Real-World Considerations](#real-world-considerations)
+		- [Key Takeaways](#key-takeaways)
+	- [Error Handling](#error-handling-1)
+		- [HTTP Status Codes \& Responses](#http-status-codes--responses)
+		- [Input Validation](#input-validation)
+		- [Security \& Abuse Prevention](#security--abuse-prevention)
+		- [Data Validation Failures](#data-validation-failures)
+		- [Server-Side Errors](#server-side-errors)
+		- [Logging Strategy](#logging-strategy)
+		- [Client Examples](#client-examples)
+	- [Scalability Considerations](#scalability-considerations)
+		- [Memory Efficiency](#memory-efficiency)
+		- [Computational Scalability](#computational-scalability)
+		- [Concurrency \& Distributed Systems](#concurrency--distributed-systems)
+		- [Caching Strategies](#caching-strategies)
+		- [Performance Benchmarks](#performance-benchmarks)
+		- [Real-World Testing](#real-world-testing)
+		- [Failover \& Redundancy](#failover--redundancy)
+	- [C++23 Features Used](#c23-features-used)
+		- [Deducing `this` (P0847R7)](#deducing-this-p0847r7)
+		- [`std::mdspan` (P0009R18)](#stdmdspan-p0009r18)
+		- [`if consteval` (P1938R3)](#if-consteval-p1938r3)
+		- [`[[assume]]` Attribute (P1774R8)](#assume-attribute-p1774r8)
+		- [`std::expected` (P0323R12)](#stdexpected-p0323r12)
+		- [`std::print` (P2093R14)](#stdprint-p2093r14)
+		- [Rationale for Excluded Features](#rationale-for-excluded-features)
+		- [Compiler Requirements](#compiler-requirements)
+	- [How to Re-Implement the Project](#how-to-re-implement-the-project)
+		- [System Prerequisites](#system-prerequisites)
+		- [Folder Structure](#folder-structure)
+		- [Build Instructions](#build-instructions)
+			- [Using CMake (recommended):](#using-cmake-recommended)
+			- [Using Make (alternative):](#using-make-alternative)
+		- [Data Loading \& Validation](#data-loading--validation)
+			- [Key Optimizations for Large Datasets:](#key-optimizations-for-large-datasets)
+			- [Example Loader Initialization:](#example-loader-initialization)
+		- [Core Algorithm Implementation](#core-algorithm-implementation)
+			- [Bidirectional Dijkstra Pseudocode:](#bidirectional-dijkstra-pseudocode)
+		- [HTTP Server Setup](#http-server-setup)
+			- [Concurrency Additions:](#concurrency-additions)
+		- [Testing \& Validation](#testing--validation)
+			- [Automated Tests:](#automated-tests)
+		- [Deployment \& Monitoring](#deployment--monitoring)
+			- [Docker Support (optional):](#docker-support-optional)
+			- [Logging:](#logging)
+		- [Troubleshooting](#troubleshooting)
+	- [Code Examples](#code-examples)
+		- [Data Validation](#data-validation)
+		- [Pathfinder](#pathfinder)
+		- [Server Implementation](#server-implementation)
+		- [Planned Improvements](#planned-improvements)
+	- [Contributors](#contributors)
+	- [License](#license)
+	- [Additional Implementation Considerations](#additional-implementation-considerations)
+		- [Security](#security-1)
+			- [Network Exposure](#network-exposure)
+			- [Input Validation](#input-validation-1)
+			- [Rate Limiting](#rate-limiting)
+			- [CORS Headers (For Web Browser Clients)](#cors-headers-for-web-browser-clients)
+		- [Logging and Monitoring](#logging-and-monitoring)
+		- [Performance Optimization](#performance-optimization)
+		- [Testing and Validation](#testing-and-validation)
+		- [Deployment and Maintenance](#deployment-and-maintenance)
+		- [Compliance and Ethics](#compliance-and-ethics)
+		- [Documentation](#documentation)
+		- [Disaster Recovery](#disaster-recovery)
+	- [Glossary](#glossary)
 
 ## Executive Summary
 
 **Key Objectives**:  
 - Load and validate a 24M-node road network within 60 seconds.  
-- Respond to pathfinding requests in ≤ 1 second (99th percentile) on a 16GB RAM/4-core CPU laptop.  
-- Serve results via a REST API with JSON/XML support.  
+- Respond to [pathfinding](#glossary) requests in ≤ 1 second (99th percentile) on a 8GB RAM/4-core CPU laptop.  
+- Serve results via a [REST](#glossary) API with [JSON](#glossary)/[XML](#glossary) support.  
 - Allow approximate paths with ≤ 10% deviation from optimal when enabled.  
 
 **Why C++23?**:  
@@ -44,19 +138,19 @@ The language’s zero-cost abstractions (e.g., `std::priority_queue`), determini
 ## Project Overview
 
 The system must:  
-1. Ingest a CSV file (`USA-roads.csv`) with 24+ million nodes and bidirectional edges.  
+1. Ingest a [CSV](#glossary) file (`USA-roads.csv`) with 24+ million nodes and bidirectional edges.  
 2. Validate data integrity:  
    - **Statistical Sampling**: Verify connectivity for 0.1% of randomly selected nodes.  
-   - **Union-Find**: Detect disconnected components during CSV parsing.  
+   - **[Union-Find](#glossary)**: Detect disconnected components during CSV parsing.  
    - **Anomaly Detection**: Reject edges where `src == dst`.  
 3. Return exact or approximate (≤ 1.1× optimal cost) paths via REST API:  
    - **Exact Mode**: `/path?src=...&dst=...&format=json`  
    - **Approximate Mode**: `/path?src=...&dst=...&approximate=true`  
 4. Adhere to REST conventions:  
-   - `200 OK`: Valid path found.  
+   - `200 OK`: Valid [path](#glossary) found.  
    - `404 Not Found`: No path exists.  
    - `400 Bad Request`: Invalid parameters.  
-5. Scale to 100+ concurrent queries using thread pooling.  between any two landmarks.
+5. Scale to 100+ concurrent queries using [thread pooling](#glossary).  between any two [landmarks](#glossary).
 
 ## System Requirements
 
@@ -72,15 +166,15 @@ The system must:
 ### Dependencies
 - **Standard Libraries**: C++ STL only (no Boost, `libcurl`, or other third-party libraries).  
 - **Platform-Specific Code**:  
-  - **Unix/Linux**: `<sys/socket.h>` for HTTP server sockets.  
+  - **Unix/Linux**: `<sys/socket.h>` for [HTTP](#glossary) server sockets.  
   - **Windows**: Not natively supported; consider Winsock2 (`<winsock2.h>`) with porting effort.  
 - **Optional Libraries**:  
   - For JSON/XML parsing, `nlohmann/json` or `pugixml` can be integrated if permitted, but the reference implementation avoids them.  
 
 ### Hardware
-- **Memory**: ≥32GB RAM (24M nodes require ~4GB for adjacency lists, plus OS/algorithm overhead).  
+- **Memory**: ≥8GB RAM (24M nodes require ~4GB for [adjacency lists](#glossary), plus OS/algorithm overhead).  
 - **Storage**: 10GB free space (for CSV, binaries, and runtime caches).  
-- **CPU**: Quad-core processor (4 threads recommended for concurrent pathfinding and HTTP handling).  
+- **CPU**: At least quad-core processor (4 threads recommended for concurrent pathfinding and HTTP handling).  
 
 ### Security
 - **Input Validation**: Reject non-integer `src`/`dst` values or IDs outside the node range.  
@@ -88,7 +182,7 @@ The system must:
 - **Data Sanitization**: Sanitize CSV input to prevent malformed edges or integer overflows.  
 
 ### Platform Compatibility
-- **Primary Target**: Linux/macOS (due to BSD socket dependencies).  
+- **Primary Target**: Linux/macOS (due to [BSD socket](#glossary) dependencies).  
 - **Windows**: Requires Winsock2 and POSIX compatibility layer (e.g., WSL or Cygwin).  
 - **Testing**: Validated on Ubuntu 22.04 (GCC 13), macOS Ventura (Clang 16), and Windows 11 (WSL2).  
 
@@ -97,7 +191,7 @@ The system must:
 ### Overview
 The system is divided into four components designed for high concurrency and memory efficiency:
 1. **Data Loader & Validator** - Parses CSV data into a compressed graph structure and validates connectivity.
-2. **Pathfinding Engine** - Computes shortest paths using Bidirectional Dijkstra with optional approximations.
+2. **Pathfinding Engine** - Computes shortest paths using [Bidirectional Dijkstra](#glossary) with optional approximations.
 3. **HTTP Server** - Handles concurrent client requests via a thread pool.
 4. **Response Formatter** - Serializes results into JSON/XML.
 
@@ -146,28 +240,28 @@ flowchart LR
 
 ### Component Details
 
-#### 1. Data Loader & Validator
+#### Data Loader & Validator
 - **CSV Parser**  
   - First pass: Determines max node ID and edge count.  
   - Second pass: Builds CSR graph (`vector<int> offsets` + `vector<Edge>`).  
 - **Validation**  
   - **Union-Find**: Tracks connectivity during edge insertion (O(α(n)) per edge).  
-  - **Sampling**: Post-load BFS on 0.1% of random nodes to estimate reachability.  
+  - **Sampling**: Post-load [BFS](#glossary) on 0.1% of random nodes to estimate reachability.  
 
-#### 2. Pathfinding Engine
+#### Pathfinding Engine
 - **Bidirectional Dijkstra**  
   - Terminates when forward/backward searches intersect.  
   - Early pruning of paths exceeding `1.1 × best_known_cost` (10% error bound).  
 - **Concurrency**: Stateless, thread-safe access to immutable graph.  
 
-#### 3. HTTP Server
+#### HTTP Server
 - **Thread Pool**: 4 worker threads process requests in parallel.  
 - **Request Parsing**:  
   - Validates `src`/`dst` as integers within graph bounds.  
   - Supports `format=json` or `format=xml`.  
 - **LRU Cache**: Optional 10,000-entry cache for frequent queries.  
 
-#### 4. Response Formatter
+#### Response Formatter
 - **JSON**: Manual string construction (e.g., `{"path": [100,200], "time": 450}`).  
 - **XML**: Escapes special characters (`<` → `&lt;`).  
 - **Performance**: Precomputes `Content-Length` headers.  
@@ -192,25 +286,29 @@ flowchart LR
 
 ## Core Algorithms
 
-### Bidirectional Dijkstra 
+### Bidirectional Dijkstra
 
 #### Algorithm Overview
+
 Bidirectional Dijkstra improves upon standard Dijkstra by running two simultaneous searches:
-- **Forward Search**: From source node `src` using original edge directions.
-- **Backward Search**: From target node `dst` using reversed edges.
-- **Termination**: When the intersection of settled nodes in both searches contains the optimal path.
+
+- **Forward Search**: From the source node (`src`) using the original edge directions.
+- **Backward Search**: From the target node (`dst`) using reversed edges.
+- **Termination**: Ends when settled nodes from both searches intersect, indicating an optimal path has been found.
 
 #### Key Optimizations
+
 1. **Early Termination**  
 	Stop when the sum of the smallest forward and backward tentative distances exceeds the current best path cost.
 
 2. **Alternating Frontiers**  
-	Process one node per iteration from the smaller priority queue to balance computational effort.
+	Process one node per iteration from the smaller [priority queue](#glossary) to balance computational effort.
 
 3. **Path Reconstruction**  
-	Track parent pointers in both directions to rebuild the path once the optimal midpoint is found.
+	Track parent pointers in both directions to rebuild the path once the midpoint is discovered.
 
-#### Pseudocode 
+#### Pseudocode
+
 ```plaintext
 function bidirectional_dijkstra(src, dst, adj, reverse_adj):
 	 forward_dist = {node: ∞ for all nodes}
@@ -220,7 +318,7 @@ function bidirectional_dijkstra(src, dst, adj, reverse_adj):
 	 forward_parent, backward_parent = {}, {}
 	 best_path_cost = ∞
 	 meeting_node = null
-	 
+
 	 forward_pq = PriorityQueue()
 	 backward_pq = PriorityQueue()
 	 forward_pq.insert(src, 0)
@@ -254,46 +352,133 @@ function bidirectional_dijkstra(src, dst, adj, reverse_adj):
 	 return reconstruct_path(meeting_node, forward_parent, backward_parent)
 ```
 
-### Approximation Heuristics
+### [Approximation Heuristics](#glossary)
 
-#### Bounded Suboptimality
-To allow up to 10% deviation from the optimal path:
+To meet the requirement that computed paths do not exceed the true shortest path by more than 10%, the following strategies are proposed. These heuristics reduce search times while bounding error.
+
+#### Early Termination in Bidirectional Dijkstra
+
+**Mechanism**:  
+Track the best candidate path cost (`best_cost`) during the bidirectional search. During expansions, prune paths where:
+
+```
+forward_cost + backward_cost > 1.10 × best_cost
+```
+
+Terminate the search once the combined cost of the next candidate nodes in both frontiers exceeds the threshold.
+
+**Implementation Example**:
+
 ```cpp
-// During queue processing:
-if (current_cost > 1.1 * best_known_cost) {
-	 prune_this_branch(); // Skip further expansions
+// During bidirectional search
+int best_cost = INF;
+while (!forward_pq.empty() && !backward_pq.empty()) {
+	 // Expand from the queue with the smaller top cost
+	 if (forward_pq.top().cost <= backward_pq.top().cost) {
+		  auto [u, f_cost] = forward_pq.top();
+		  forward_pq.pop();
+
+		  // Early termination check
+		  if (f_cost + backward_dist[u] > 1.10 * best_cost) {
+				break;
+		  }
+
+		  // ... process neighbors ...
+	 } else {
+		  // Similar logic for backward search
+	 }
+
+	 // Update best_cost when a meeting node is found
+	 if (meeting_node_exists) {
+		  int total_cost = forward_dist[u] + backward_dist[u];
+		  if (total_cost < best_cost) {
+				best_cost = total_cost;
+		  }
+	 }
 }
 ```
+
+**Advantages**:
+- Guarantees ≤10% error with minimal code changes.
+- Reduces search space significantly.
+
+#### [A*](#glossary) with Bounded Heuristics
+
+**Admissible Heuristic**:  
+For road networks, use the Euclidean distance between nodes (scaled by speed) as a heuristic. For up to 10% suboptimality:
+
+```
+h(u, v) = α × (Euclidean distance between u and v)    where α ≤ 1.10
+```
+
+**Integration with Bidirectional Dijkstra**:
+- Replace standard Dijkstra’s priority queues with A* priority: `f(u) = g(u) + h(u)`.
+- Adjust `α` dynamically based on sampling if error edges above 10%.
+
+**Trade-offs**:
+- Requires geospatial node coordinates or precomputed distances (e.g., landmark-based heuristics).
+- Typically accelerates queries, especially for long-distance paths.
+
+#### Precomputation for Approximate Paths (CH Lite)
+
+**[Contraction Hierarchies](#glossary) (CH) Lite**:
+- **Preprocessing**: Identify “highway” nodes and create shortcuts.
+- **Query**: Bidirectional Dijkstra mostly travels via shortcuts.
+- **Overhead**: ~15% additional memory, but can reduce query time by 50–80%.
+
+#### Validation of Approximation
+
+1. **Sampling**: Generate random `(src, dst)` pairs.
+2. **Exact vs. Approx**: Compute both and compare costs.
+3. **Error Bound**: Confirm `approx_cost ≤ 1.10 × exact_cost`.
+
+If the error >10% in too many samples, tighten the approximation parameters (e.g., reduce `α` or prune earlier).
+
+#### Comparison of Strategies
+
+| Method                  | Error Bound | Preprocessing | Memory Overhead | Query Speed  |
+|-------------------------|-------------|---------------|-----------------|--------------|
+| Early Termination       | ≤10%        | None          | None            | 1–2× faster  |
+| A* w/ Bounded Heuristic | ≤10%        | None          | Low             | 2–5× faster  |
+| Contraction Hierarchies | 0% (exact)  | High          | 15–20%          | 10–100× faster|
+
+**Recommendation**: For minimal code changes, use Early Termination. A* or CH can be added if geospatial data or preprocessing time is acceptable.
 
 ### Bidirectional A* Extension
 
 #### Admissible Heuristic
-Use straight-line distance (Euclidean) between nodes if coordinates are available:
+
+If coordinates are available:
+
 ```cpp
 double heuristic(int node, int target) {
 	 return euclidean_distance(node, target) / max_road_speed;
 }
 ```
 
+Apply this to both forward and backward searches.
+
 #### Priority Adjustment
-Modify priority queues to use distance + heuristic:
-- Forward queue: `forward_dist[u] + heuristic(u, dst)`
-- Backward queue: `backward_dist[v] + heuristic(v, src)`
+
+- **Forward Queue**: `forward_dist[u] + heuristic(u, dst)`
+- **Backward Queue**: `backward_dist[v] + heuristic(v, src)`
+
+This approach further reduces exploration if the heuristic is well-chosen.
 
 ### Complexity Analysis
 
-| Algorithm               | Time Complexity | Space Complexity | Notes                                |
-|-------------------------|-----------------|------------------|--------------------------------------|
-| Bidirectional Dijkstra  | O(b^(d/2))      | O(V + E)         | b = branching factor, d = path depth |
-| Bidirectional A*        | O(b^(ε·d/2))    | O(V + E)         | ε = heuristic quality (ε < 1)        |
-| Approximate Dijkstra    | O((V + E) log V)| O(V + E)         | With 10% error bound                 |
+| Algorithm               | Time Complexity | Space Complexity | Notes                                      |
+|-------------------------|-----------------|------------------|--------------------------------------------|
+| Bidirectional Dijkstra  | O(b^(d/2))      | O(V + E)         | b = branching factor, d = path depth       |
+| Bidirectional A*        | O(b^(ε·d/2))    | O(V + E)         | ε = heuristic quality (0 < ε < 1)          |
+| Approximate Dijkstra    | O((V + E) log V)| O(V + E)         | Up to 10% error bound (early pruning)      |
 
-### C++ Implementation Snippet
+### Example Implementation Snippet
 
 ```cpp
 bool Pathfinder::bidirectionalDijkstra(int src, int dst, std::vector<int>& path) {
-	 auto& adj = adjacencyList_; // Forward adjacency list
-	 auto reverse_adj = buildReverseAdjacency(); // Precomputed reversed edges
+	 auto& adj = adjacencyList_;              // Forward adjacency
+	 auto reverse_adj = buildReverseAdjacency(); // Precomputed reverse edges
 
 	 std::priority_queue<PQNode> forward_pq, backward_pq;
 	 std::vector<int> forward_dist(adj.size(), INF), backward_dist(adj.size(), INF);
@@ -308,10 +493,10 @@ bool Pathfinder::bidirectionalDijkstra(int src, int dst, std::vector<int>& path)
 	 int meeting_node = -1;
 
 	 while (!forward_pq.empty() && !backward_pq.empty()) {
-		  // Process forward search
-		  auto [u, u_dist] = forward_pq.top();
+		  // Forward expansion
+		  auto [u, cost_u] = forward_pq.top();
 		  forward_pq.pop();
-		  if (u_dist > forward_dist[u]) continue;
+		  if (cost_u > forward_dist[u]) continue;
 
 		  for (const Edge& e : adj[u]) {
 				if (forward_dist[e.to] > forward_dist[u] + e.cost) {
@@ -327,20 +512,38 @@ bool Pathfinder::bidirectionalDijkstra(int src, int dst, std::vector<int>& path)
 				meeting_node = u;
 		  }
 
-		  // Repeat similarly for backward search...
+		  // Backward expansion
+		  auto [v, cost_v] = backward_pq.top();
+		  backward_pq.pop();
+		  if (cost_v > backward_dist[v]) continue;
 
-		  // Early termination
+		  for (const Edge& e : reverse_adj[v]) {
+				if (backward_dist[e.to] > backward_dist[v] + e.cost) {
+					 backward_dist[e.to] = backward_dist[v] + e.cost;
+					 backward_parent[e.to] = v;
+					 backward_pq.emplace(e.to, backward_dist[e.to]);
+				}
+		  }
+
+		  if (forward_dist[v] != INF && forward_dist[v] + backward_dist[v] < best_cost) {
+				best_cost = forward_dist[v] + backward_dist[v];
+				meeting_node = v;
+		  }
+
+		  // Early termination (approximation or exact)
 		  if (!forward_pq.empty() && !backward_pq.empty()) {
-				int current_lower_bound = forward_pq.top().second + backward_pq.top().second;
-				if (best_cost <= current_lower_bound) break;
+				int lower_bound = forward_pq.top().second + backward_pq.top().second;
+				if (best_cost <= lower_bound) {
+					 break;
+				}
 		  }
 	 }
 
-	 // Reconstruct path from meeting_node using forward_parent/backward_parent
-	 // ...
+	 // TODO: Reconstruct path from meeting_node via forward_parent and backward_parent
 	 return (meeting_node != -1);
 }
 ```
+
 
 ## Data Handling
 
@@ -374,7 +577,7 @@ Key parsing rules:
 | **2. Basic Syntax**      | Per-line regex `^\d+,\d+,\d+$` | Filter malformed lines (logged).         |
 | **3. Value Constraints** | Range checks            | Ensure `Time > 0` and node IDs ≥ 0.      |
 | **4. Connectivity**      | **Union-Find (Disjoint Set)** | Track connected components incrementally during CSV load (replaces BFS for scalability). |
-| **5. Anomaly Detection** | Statistical sampling    | Check 0.1% of nodes for self-loops or isolated landmarks. |
+| **5. Anomaly Detection** | Statistical sampling    | Check 0.1% of nodes for [self-loops](#glossary) or isolated landmarks. |
 
 #### Implementation Notes
 - **Union-Find for Connectivity**:  
@@ -509,127 +712,6 @@ To ensure responsiveness under concurrent load, the system employs a thread pool
 - `std::atomic<std::shared_ptr>` for safe shutdown signaling.
 - `std::latch` (if using C++23) for coordinated thread initialization.
 
-## Approximation Heuristics
-
-To meet the requirement that computed paths do not exceed the true shortest path by more than 10%, the following strategies are proposed. These balance performance and accuracy while bounding error explicitly.
-
-### 1. Early Termination in Bidirectional Dijkstra
-
-**Mechanism:**
-
-Track the best candidate path cost (`best_cost`) during bidirectional search. During priority queue expansions, prune paths where:
-
-```
-forward_cost + backward_cost > 1.10 × best_cost
-```
-
-Terminate the search once the combined cost of the next candidate nodes in both frontiers exceeds this threshold.
-
-**Implementation Example:**
-
-```cpp
-// During bidirectional search
-int best_cost = INF;
-while (!forward_pq.empty() && !backward_pq.empty()) {
-	// Expand smaller frontier first
-	if (forward_pq.top().cost <= backward_pq.top().cost) {
-		auto [u, f_cost] = forward_pq.top();
-		forward_pq.pop();
-
-		// Early termination check
-		if (f_cost + backward_dist[u] > 1.10 * best_cost) {
-			break;
-		}
-
-		// ... process neighbors ...
-	} else {
-		// Similar logic for backward search
-	}
-
-	// Update best_cost when a meeting node is found
-	if (meeting_node_exists) {
-		int total_cost = forward_dist[u] + backward_dist[u];
-		if (total_cost < best_cost) {
-			best_cost = total_cost;
-		}
-	}
-}
-```
-
-**Advantages:**
-
-- Guarantees ≤10% error with minimal code changes.
-- Reduces search space by up to 40% in practice.
-
-### 2. A* with Bounded Heuristics
-
-**Admissible Heuristic:**
-
-For road networks, use the Euclidean distance between nodes (scaled by a speed factor) as a heuristic. To allow bounded suboptimality:
-
-```
-h(u, v) = α × (Euclidean distance between u and v)
-```
-
-where `α ≤ 1.10` ensures heuristic never overestimates by more than 10%.
-
-**Integration with Bidirectional Dijkstra:**
-
-- Replace Dijkstra’s priority queues with A*’s `f(u) = g(u) + h(u)` for forward/backward searches.
-- Adjust `α` dynamically based on observed error during validation.
-
-**Trade-offs:**
-
-- Requires geospatial node coordinates (not provided in the current CSV).
-- If coordinates are unavailable, use precomputed landmark distances (ALT heuristic).
-
-### 3. Precomputation for Approximate Paths
-
-**Contraction Hierarchies (CH) Lite:**
-
-**Preprocessing:**
-
-- Identify "highway" nodes (highly connected) and contract them, creating shortcuts.
-- Store shortcuts in the adjacency list.
-
-**Query:**
-
-- Bidirectional Dijkstra traverses shortcuts, skipping lower-tier nodes.
-
-**Error Bounding:**
-
-- Shortcuts are guaranteed not to underestimate the true shortest path.
-- Overhead: Adds ~15% memory but reduces query time by 50–80%.
-
-### 4. Validation of Approximation
-
-**Sampling-Based Testing:**
-
-- Generate 1,000 random (src, dst) pairs.
-- Compute exact vs. approximate paths.
-- Validate:
-
-```
-approximate_cost ≤ 1.10 × exact_cost
-```
-
-**Dynamic Adjustment:**
-
-- If samples exceed 10% error, reduce the termination threshold (e.g., 1.08 × best_cost) or tighten `α`.
-
-### Comparison of Strategies
-
-| Method                    | Error Bound | Preprocessing | Memory Overhead | Query Speed |
-|---------------------------|-------------|---------------|-----------------|-------------|
-| Early Termination         | ≤10%        | None          | None            | 1–2× faster |
-| A* with Bounded Heuristic | ≤10%        | None          | Low             | 2–5× faster |
-| Contraction Hierarchies   | 0% (exact)  | High          | 15–20%          | 10–100× faster |
-
-**Recommendation:**
-
-For minimal code changes, Early Termination is prioritized in the reference implementation. A* or CH can be added if geospatial data or precomputation is feasible.
-
-
 ## REST API Specifications
 
 ### Endpoint: `GET /path`
@@ -743,7 +825,7 @@ An OpenAPI 3.0 specification will be provided at `/openapi.yaml` for automated c
 |---------------------------|-----------------------|------------------------|-----------------------------------------------------------------------|
 | **Bidirectional Dijkstra** | `O((V + E) log V)`    | `O(V + E)`             | - Forward/backward searches reduce runtime by ~50% vs unidirectional.|
 | **Approximation (10% bound)** | `O(k log k)`       | `O(V + E)`             | - `k` = nodes expanded before exceeding 1.1× best path cost.          |
-| **Connectivity Check**     | `O(V + E)`           | `O(V)`                 | - BFS/DFS impractical for 24M nodes. Use **Union-Find** during CSV load instead. |
+| **Connectivity Check**     | `O(V + E)`           | `O(V)`                 | - BFS/[DFS](#glossary) impractical for 24M nodes. Use **Union-Find** during CSV load instead. |
 | **Cycle Check**            | `O(V + E)`           | `O(V)`                 | - Detects invalid self-loops only (road networks inherently cyclical).|
 | **HTTP Request Handling**  | `O(1)` per request   | `O(1)` per thread      | - Parsing/formatting negligible; concurrency limited by thread pool. |
 
@@ -773,7 +855,7 @@ An OpenAPI 3.0 specification will be provided at `/openapi.yaml` for automated c
 
 ## Error Handling
 
-### 1. HTTP Status Codes & Responses
+### HTTP Status Codes & Responses
 All errors return standard HTTP status codes and machine-readable details in the requested format (JSON/XML). Responses include:
 - `error_code`: A unique identifier for programmatic handling.
 - `message`: Human-readable error description.
@@ -789,28 +871,28 @@ All errors return standard HTTP status codes and machine-readable details in the
 | CSV file not found/corrupted          | 500 Internal Server Error | ```xml <error><code>DATA_LOAD_FAILURE</code><message>Failed to load USA-roads.csv</message></error>``` |
 | Server out of memory                  | 500 Internal Server Error | ```json {"error_code": "OUT_OF_MEMORY", "message": "Insufficient RAM to load graph"}``` |
 
-### 2. Input Validation
+### Input Validation
 - **Type Checking**: Reject non-integer `src`/`dst` values (e.g., `src=abc`).
 - **Range Checks**: Ensure `src`/`dst` are ≥ 0 and ≤ maximum node ID from the dataset.
 - **Format Enforcement**: Only allow `format=json` or `format=xml` (case-insensitive).
 
-### 3. Security & Abuse Prevention
+### Security & Abuse Prevention
 - **Input Sanitization**: Strip illegal characters from query parameters.
 - **Rate Limiting** (Optional): Reject >10 requests/second from a single IP if deployed beyond localhost.
 - **Request Size Limits**: Close connections if HTTP headers exceed 8KB.
 
-### 4. Data Validation Failures
+### Data Validation Failures
 - **Malformed CSV Lines**: Log line number + content, skip invalid entries during loading.
 - **Disconnected Graph**: Fail fast during initialization with error:  
 	```terminal
 	[FATAL] Graph validation failed: 45% nodes unreachable from node 0
 	```
 
-### 5. Server-Side Errors
+### Server-Side Errors
 - **Memory Allocation Failures**: Catch `std::bad_alloc` exceptions and respond with 500 Out of Memory.
 - **Socket Errors**: Gracefully handle port conflicts (e.g., Address already in use).
 
-### 6. Logging Strategy
+### Logging Strategy
 
 | Log Level | Scenario Example                              | Log Format (Structured JSON)                                                                 |
 |-----------|-----------------------------------------------|----------------------------------------------------------------------------------------------|
@@ -818,7 +900,7 @@ All errors return standard HTTP status codes and machine-readable details in the
 | ERROR     | BFS validation found disconnected component   | ```json {"level": "error", "msg": "Graph validation failed", "unreachable_nodes": 12000000}```|
 | FATAL     | Failed to bind to port 8080                   | ```json {"level": "fatal", "msg": "Port 8080 unavailable", "errno": 98}```                   |
 
-### 7. Client Examples
+### Client Examples
 
 **Error Request:**
 ```bash
@@ -850,15 +932,15 @@ Content-Type: application/xml
 
 ## Scalability Considerations
 
-### 1. **Memory Efficiency**  
+### Memory Efficiency
 - **Adjacency List Optimization**:  
   - Use `std::vector<uint32_t>` with bit-packing for edge storage (e.g., store `to_node` and `cost` in 32/64 bits).  
-  - For 24M nodes and ~50M bidirectional edges, compressed sparse row (CSR) formats reduce memory usage by ~40% compared to traditional adjacency lists.  
+  - For 24M nodes and ~50M bidirectional edges, compressed sparse row (CSR) formats reduce [memory usage](#glossary) by ~40% compared to traditional adjacency lists.  
 
 - **Out-of-Core Processing**:  
   - If RAM is insufficient, partition the graph into regions and use memory-mapped files to load subsets on demand.  
 
-### 2. **Computational Scalability**  
+### Computational Scalability 
 - **Precomputation Techniques**:  
   - **Contraction Hierarchies (CH)**:  
     - Precompute shortcuts for "highway" nodes to accelerate bidirectional searches (queries in milliseconds for continental-scale networks).  
@@ -869,7 +951,7 @@ Content-Type: application/xml
   - **Bounded Relaxation**: Terminate Bidirectional Dijkstra early if the best candidate path is within 10% of the current frontier’s minimum cost.  
   - **Hierarchical Graph Partitioning**: Limit searches to highway-like edges for long-distance queries, falling back to exact local searches.  
 
-### 3. **Concurrency & Distributed Systems**  
+### Concurrency & Distributed Systems  
 - **Thread Pool Design**:  
   - Use a fixed-size thread pool (`std::jthread` in C++20/23) to handle HTTP requests concurrently.  
   - **Read-Only Shared Data**: No locks needed for graph access; ensure thread-safe logging via `std::mutex` or atomic operations.  
@@ -878,25 +960,25 @@ Content-Type: application/xml
   - **Graph Partitioning**: Split the road network geographically (e.g., by state or latitude/longitude) across multiple servers.  
   - **Load Balancer**: Route queries to the partition holding the source/destination region (requires pre-partitioned metadata).  
 
-### 4. **Caching Strategies**  
+### Caching Strategies  
 - **Query Caching**:  
   - Cache frequently requested `(src, dst)` pairs with LRU eviction (e.g., `std::unordered_map` + timestamp tracking).  
 - **Landmark Precomputation**:  
   - Cache paths between major landmarks (e.g., NYC to LA) to accelerate common long-distance queries.  
 
-### 5. **Performance Benchmarks**  
+### Performance Benchmarks  
 | Scenario                | Baseline (Bidirectional Dijkstra) | With CH Precomputation | Approximation (10% Bound) |  
 |-------------------------|------------------------------------|-------------------------|----------------------------|  
 | Continental Scale       | 850 ms                             | 12 ms                   | 95 ms                       |  
 | Regional Scale (1M nodes)| 120 ms                             | 5 ms                    | 20 ms                       |  
 
-### 6. **Real-World Testing**  
+### Real-World Testing  
 - **Load Testing**:  
   - Simulate 1,000+ concurrent requests (e.g., using `wrk` or Locust) to validate the 1-second SLA under load.  
 - **Memory Profiling**:  
   - Use `valgrind` or `heaptrack` to identify memory hotspots (e.g., adjacency list resizing).  
 
-### 7. **Failover & Redundancy**  
+### Failover & Redundancy  
 - **Graceful Degradation**:  
   - Return approximate paths if precomputed data is unavailable (e.g., CH shortcuts not loaded).  
 - **Checkpointing**:  
@@ -907,7 +989,7 @@ Content-Type: application/xml
 
 The project leverages modern C++23 to improve code safety, readability, and performance. Below are key features and their justifications:
 
-### 1. **Deducing `this` (P0847R7)**
+### Deducing `this` (P0847R7)
    - **Usage**: Simplifies CRTP (Curiously Recurring Template Pattern) in helper classes (e.g., comparator utilities).
    - **Example**:
      ```cpp
@@ -925,7 +1007,7 @@ The project leverages modern C++23 to improve code safety, readability, and perf
      ```
    - **Benefit**: Reduces boilerplate in template-heavy graph algorithms.
 
-### 2. **`std::mdspan` (P0009R18)**
+### `std::mdspan` (P0009R18)
    - **Usage**: For adjacency list representation of large graphs (24M+ nodes).
    - **Example**:
      ```cpp
@@ -935,7 +1017,7 @@ The project leverages modern C++23 to improve code safety, readability, and perf
      ```
    - **Benefit**: Enables efficient multi-dimensional access without copying data.
 
-### 3. **`if consteval` (P1938R3)**
+### `if consteval` (P1938R3)
    - **Usage**: Compile-time validation of graph invariants during testing.
    - **Example**:
      ```cpp
@@ -948,7 +1030,7 @@ The project leverages modern C++23 to improve code safety, readability, and perf
      ```
    - **Benefit**: Catches data structure errors during compilation for critical checks.
 
-### 4. **`[[assume]]` Attribute (P1774R8)**
+### `[[assume]]` Attribute (P1774R8)
    - **Usage**: Guides compiler optimizations in performance-critical loops.
    - **Example**:
      ```cpp
@@ -959,7 +1041,7 @@ The project leverages modern C++23 to improve code safety, readability, and perf
      ```
    - **Benefit**: Improves Dijkstra loop performance by ~5-15% in benchmarks.
 
-### 5. **`std::expected` (P0323R12)**
+### `std::expected` (P0323R12)
    - **Usage**: Error handling in CSV parsing and HTTP request processing.
    - **Example**:
      ```cpp
@@ -970,7 +1052,7 @@ The project leverages modern C++23 to improve code safety, readability, and perf
      ```
    - **Benefit**: Replaces exception-heavy code with explicit error paths.
 
-### 6. **`std::print` (P2093R14)**
+### `std::print` (P2093R14)
    - **Usage**: Debug logging in the HTTP server (if enabled).
    - **Example**:
      ```cpp
@@ -994,16 +1076,16 @@ This selective adoption of C++23 ensures forward compatibility while avoiding bl
 
 Below is a step-by-step guide to rebuild the solution from scratch, including optimizations for large datasets and modern tooling:
 
-### 1. System Prerequisites
+### System Prerequisites
 
 - **Compiler**: GCC 13+ or Clang 16+ (C++23 support required).
-- **RAM**: ≥16GB (for 24M-node graphs).
+- **RAM**: ≥8GB (for 24M-node graphs).
 - **OS**: Linux/macOS (tested on Ubuntu 22.04 LTS and macOS Ventura).
 - **Tools**:
 	- cmake ≥3.20 (recommended) or make.
 	- curl (for testing).
 
-### 2. Folder Structure
+### Folder Structure
 
 ```bash
 .
@@ -1024,7 +1106,7 @@ Below is a step-by-step guide to rebuild the solution from scratch, including op
 		└── benchmark.sh        # Performance testing
 ```
 
-### 3. Build Instructions
+### Build Instructions
 
 #### Using CMake (recommended):
 
@@ -1049,7 +1131,7 @@ clean:
 	rm -f src/*.o pathfinder
 ```
 
-### 4. Data Loading & Validation
+### Data Loading & Validation
 
 #### Key Optimizations for Large Datasets:
 
@@ -1080,7 +1162,7 @@ void DataLoader::loadCSV(const std::string& filename) {
 }
 ```
 
-### 5. Core Algorithm Implementation
+### Core Algorithm Implementation
 
 #### Bidirectional Dijkstra Pseudocode:
 
@@ -1128,7 +1210,7 @@ bool Pathfinder::bidirectionalDijkstra(int src, int dst, std::vector<int>& path)
 }
 ```
 
-### 6. HTTP Server Setup
+### HTTP Server Setup
 
 #### Concurrency Additions:
 
@@ -1158,7 +1240,7 @@ void Server::start(int port, int thread_count = 4) {
 - Validate `src` and `dst` are integers within node ID range.
 - Reject requests with malformed query parameters (e.g., non-numeric IDs).
 
-### 7. Testing & Validation
+### Testing & Validation
 
 #### Automated Tests:
 
@@ -1181,7 +1263,7 @@ TEST(ConnectivityTest, FullyConnectedGraph) {
 siege -c 100 -t 30S "http://localhost:8080/path?src=100&dst=50000&format=json"
 ```
 
-### 8. Deployment & Monitoring
+### Deployment & Monitoring
 
 #### Docker Support (optional):
 
@@ -1203,7 +1285,7 @@ Add spdlog or similar for structured logs:
 spdlog::info("Server started on port {}", port);
 ```
 
-### 9. Troubleshooting
+### Troubleshooting
 
 | Issue                  | Solution                                                                 |
 |------------------------|--------------------------------------------------------------------------|
@@ -1215,10 +1297,14 @@ spdlog::info("Server started on port {}", port);
 
 ## Code Examples
 
-Below are sample implementations of the core components. They illustrate a minimalistic approach but can be expanded as needed.
+Below are concise implementations of the core components, demonstrating a minimal but functional approach. Each subsection contains a header (`.hpp`) and source (`.cpp`) example. Where relevant, consider adding unit tests, logging, or concurrency features as outlined in the “Planned Improvements” section below.
 
+---
+
+### Data Validation
+
+**Header** (`data_validation.hpp`):
 ```cpp
-// data_validation.hpp
 #ifndef DATA_VALIDATION_HPP
 #define DATA_VALIDATION_HPP
 
@@ -1226,258 +1312,247 @@ Below are sample implementations of the core components. They illustrate a minim
 #include <string>
 
 struct Edge {
-	 int to;
-	 int cost;
+	int to;
+	int cost;
 };
 
 class DataValidation {
 public:
-	 bool loadCSV(const std::string& filename);
-	 const std::vector<std::vector<Edge>>& getAdjacencyList() const {
-		  return adjacencyList_;
-	 }
+	bool loadCSV(const std::string& filename);
+	const std::vector<std::vector<Edge>>& getAdjacencyList() const {
+		return adjacencyList_;
+	}
 private:
-	 std::vector<std::vector<Edge>> adjacencyList_;
-	 // Additional validation helpers here
+	std::vector<std::vector<Edge>> adjacencyList_;
 };
 
 #endif // DATA_VALIDATION_HPP
 ```
 
+**Source** (`data_validation.cpp`):
 ```cpp
-// data_validation.cpp
 #include "data_validation.hpp"
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 bool DataValidation::loadCSV(const std::string& filename) {
-	 std::ifstream infile(filename);
-	 if (!infile.is_open()) {
-		  return false;
-	 }
+	std::ifstream infile(filename);
+	if (!infile.is_open()) {
+		return false;
+	}
 
-	 // First pass: find max ID
-	 int maxID = 0;
-	 {
-		  std::string line;
-		  while (std::getline(infile, line)) {
-				std::stringstream ss(line);
-				int a, b, cost;
-				char comma;
-				if (!(ss >> a >> comma >> b >> comma >> cost)) {
-					 // ignore malformed line or handle error
-					 continue;
-				}
-				if (a > maxID) maxID = a;
-				if (b > maxID) maxID = b;
-		  }
-	 }
-
-	 // Prepare adjacency
-	 adjacencyList_.resize(maxID + 1);
-
-	 // Reset file pointer
-	 infile.clear();
-	 infile.seekg(0, std::ios::beg);
-
-	 // Second pass: build adjacency
-	 std::string line;
-	 while (std::getline(infile, line)) {
-		  std::stringstream ss(line);
-		  int a, b, cost;
-		  char comma;
-		  if (!(ss >> a >> comma >> b >> comma >> cost)) {
+	// First pass: find max ID for sizing adjacencyList_
+	int maxID = 0;
+	{
+		std::string line;
+		while (std::getline(infile, line)) {
+			std::stringstream ss(line);
+			int a, b, cost;
+			char comma;
+			if (!(ss >> a >> comma >> b >> comma >> cost)) {
+				// Malformed line; could log or skip
 				continue;
-		  }
-		  adjacencyList_[a].push_back({b, cost});
-		  adjacencyList_[b].push_back({a, cost});
-	 }
+			}
+			if (a > maxID) maxID = a;
+			if (b > maxID) maxID = b;
+		}
+	}
 
-	 // Optional: checks like connectivity and naive cycle checks
-	 // ...
+	// Prepare adjacency
+	adjacencyList_.resize(maxID + 1);
 
-	 return true;
+	// Reset to start of file
+	infile.clear();
+	infile.seekg(0, std::ios::beg);
+
+	// Second pass: populate adjacency
+	std::string line;
+	while (std::getline(infile, line)) {
+		std::stringstream ss(line);
+		int a, b, cost;
+		char comma;
+		if (!(ss >> a >> comma >> b >> comma >> cost)) {
+			// Malformed line; skip
+			continue;
+		}
+		adjacencyList_[a].push_back({b, cost});
+		adjacencyList_[b].push_back({a, cost});
+	}
+
+	// (Optional) Perform additional validation, e.g., union-find checks
+
+	return true;
 }
 ```
 
+### Pathfinder
+
+**Header** (`pathfinder.hpp`):
 ```cpp
-// pathfinder.hpp
 #ifndef PATHFINDER_HPP
 #define PATHFINDER_HPP
 
 #include <vector>
-#include <optional>
-#include <utility>
 #include <queue>
-#include <algorithm>
 #include "data_validation.hpp"
 
 class Pathfinder {
 public:
-	 explicit Pathfinder(const std::vector<std::vector<Edge>>& adjList);
-	 bool bidirectionalDijkstra(int src, int dst, std::vector<int>& pathOut);
+	explicit Pathfinder(const std::vector<std::vector<Edge>>& adjList);
+	bool bidirectionalDijkstra(int src, int dst, std::vector<int>& pathOut);
 
 private:
-	 const std::vector<std::vector<Edge>>& adjacencyList_;
+	const std::vector<std::vector<Edge>>& adjacencyList_;
 };
 
 #endif // PATHFINDER_HPP
 ```
 
+**Source** (`pathfinder.cpp`):
 ```cpp
-// pathfinder.cpp
 #include "pathfinder.hpp"
 #include <limits>
 
 Pathfinder::Pathfinder(const std::vector<std::vector<Edge>>& adjList)
-	 : adjacencyList_(adjList) {}
+	: adjacencyList_(adjList) {}
 
 bool Pathfinder::bidirectionalDijkstra(int src, int dst, std::vector<int>& pathOut) {
-	 if (src < 0 || src >= (int)adjacencyList_.size()) return false;
-	 if (dst < 0 || dst >= (int)adjacencyList_.size()) return false;
+	// Validate node IDs
+	if (src < 0 || src >= (int)adjacencyList_.size()) return false;
+	if (dst < 0 || dst >= (int)adjacencyList_.size()) return false;
 
-	 // Basic bidirectional Dijkstra (omitting details for brevity).
-	 // In practice, implement forward and backward Dijkstra,
-	 // then meet in the middle and reconstruct pathOut.
-	 // For demonstration, let's pretend we have a direct path:
+	// For demonstration, return a trivial path (direct if possible).
+	// Replace with actual bidirectional Dijkstra logic.
+	pathOut.clear();
+	pathOut.push_back(src);
+	if (src != dst)
+		pathOut.push_back(dst);
 
-	 pathOut.clear();
-	 pathOut.push_back(src);
-	 if (src != dst)
-		  pathOut.push_back(dst);
-
-	 return true;
+	return true;
 }
 ```
 
+### Server Implementation
+
+**Header** (`server.hpp`):
 ```cpp
-// server.hpp
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
 #include "pathfinder.hpp"
 
 /**
- * The Server class is responsible for:
- *  - Listening on a specified port
+ * The Server class handles:
+ *  - Binding/listening on a specified port
  *  - Accepting incoming connections
- *  - Reading client requests
- *  - Interacting with the Pathfinder object for route logic (if necessary)
+ *  - Parsing client requests
+ *  - Using Pathfinder to compute routes
  *  - Sending HTTP responses back to the client
- *
- * Planned improvements include:
- *  - Concurrency (thread pool)
- *  - Logging with a proper logging framework
- *  - Graceful shutdown via signal handling
- *  - Robust HTTP request parsing for more complex operations
  */
 class Server {
 public:
-	 explicit Server(Pathfinder& pathfinder);
-	 void run(int port);
+	explicit Server(Pathfinder& pathfinder);
+	void run(int port);
 
 private:
-	 Pathfinder& pathfinder_;
-
-	 // Example helper if concurrency is implemented:
-	 // void handleClient(int client_socket);
+	Pathfinder& pathfinder_;
 };
 
 #endif // SERVER_HPP
 ```
 
+**Source** (`server.cpp`):
 ```cpp
-// server.cpp
 #include "server.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <iostream>
 #include <cstring>
-#include <sstream>
 
-Server::Server(Pathfinder& pathfinder) : pathfinder_(pathfinder) {}
+Server::Server(Pathfinder& pathfinder)
+	: pathfinder_(pathfinder) {}
 
 void Server::run(int port) {
-	 // Potential: Setup a signal handler for graceful shutdown
-	 // signal(SIGINT, signalHandlerFunction);
+	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (server_fd < 0) {
+		perror("Socket creation failed");
+		return;
+	}
 
-	 int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	 if (server_fd < 0) {
-		  perror("Socket creation failed");
-		  exit(EXIT_FAILURE);
-	 }
+	int opt = 1;
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+		perror("Set socket options failed");
+		close(server_fd);
+		return;
+	}
 
-	 int opt = 1;
-	 if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-		  perror("Set socket options failed");
-		  close(server_fd);
-		  exit(EXIT_FAILURE);
-	 }
+	sockaddr_in address{};
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_port = htons(port);
 
-	 struct sockaddr_in address;
-	 std::memset(&address, 0, sizeof(address));
-	 address.sin_family = AF_INET;
-	 address.sin_addr.s_addr = INADDR_ANY;
-	 address.sin_port = htons(port);
+	if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
+		perror("Bind failed");
+		close(server_fd);
+		return;
+	}
 
-	 if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
-		  perror("Bind failed");
-		  close(server_fd);
-		  exit(EXIT_FAILURE);
-	 }
+	if (listen(server_fd, 3) < 0) {
+		perror("Listen failed");
+		close(server_fd);
+		return;
+	}
 
-	 if (listen(server_fd, 3) < 0) {
-		  perror("Listen failed");
-		  close(server_fd);
-		  exit(EXIT_FAILURE);
-	 }
+	std::cout << "Server listening on port " << port << "..." << std::endl;
 
-	 std::cout << "Server listening on port " << port << "..." << std::endl;
+	while (true) {
+		socklen_t addrlen = sizeof(address);
+		int new_socket = accept(server_fd, (struct sockaddr*)&address, &addrlen);
+		if (new_socket < 0) {
+			perror("Accept failed");
+			continue;
+		}
 
-	 while (true) {
-		  socklen_t addrlen = sizeof(address);
-		  int new_socket = accept(server_fd, (struct sockaddr*)&address, &addrlen);
-		  if (new_socket < 0) {
-				perror("Accept failed");
-				continue;
-		  }
+		// Simplistic single-thread approach:
+		char buffer[1024] = {0};
+		ssize_t bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
+		if (bytes_read < 0) {
+			perror("Read from client failed");
+			close(new_socket);
+			continue;
+		}
 
-		  // Concurrency example (not shown):
-		  // std::thread(&Server::handleClient, this, new_socket).detach();
+		// Very basic response (a real implementation would parse buffer)
+		std::string response =
+			"HTTP/1.1 200 OK\r\n"
+			"Content-Type: application/json\r\n"
+			"Connection: close\r\n"
+			"\r\n"
+			"{ \"message\": \"Server is running\" }";
 
-		  char buffer[1024] = {0};
-		  ssize_t bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
-		  if (bytes_read < 0) {
-				perror("Read from client failed");
-				close(new_socket);
-				continue;
-		  }
+		if (send(new_socket, response.c_str(), response.size(), 0) < 0) {
+			perror("Send to client failed");
+		}
 
-		  // Minimal HTTP parsing and response
-		  std::string response =
-				"HTTP/1.1 200 OK\r\n"
-				"Content-Type: application/json\r\n"
-				"Connection: close\r\n"
-				"\r\n"
-				"{ \"message\": \"Server is running\" }";
+		close(new_socket);
+	}
 
-		  ssize_t bytes_sent = send(new_socket, response.c_str(), response.size(), 0);
-		  if (bytes_sent < 0) {
-				perror("Send to client failed");
-				close(new_socket);
-				continue;
-		  }
-
-		  close(new_socket);
-	 }
-
-	 close(server_fd);
+	close(server_fd);
 }
 ```
 
-## 15. Contributors
+### Planned Improvements
+
+- **Thread Pooling**: Replace the single-thread loop with a worker pool (e.g., using `std::jthread`) for handling multiple client connections concurrently.
+- **Advanced Logging**: Integrate a logging framework (e.g., spdlog) to manage structured logs and log levels.
+- **Graceful Shutdown**: Implement signal handling (SIGTERM, SIGINT) to close sockets gracefully and flush logs.
+- **REST Parsing**: Introduce a proper HTTP request parser for complex query parameters and error handling.
+- **Performance Optimization**: Expand from a trivial pathfinding approach to a true bidirectional Dijkstra (plus A* or approximation as needed).
+
+
+## Contributors
 
 - Guillaume Deramchi - Technical Lead
 - Benoît De Keyn - Software Engineer
@@ -1487,26 +1562,151 @@ void Server::run(int port) {
 - Elone Dellile - Project Manager
 - Pierre Gorin - Quality Assurance
 
-## 16. License
+## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-## 17. Additional Implementation Considerations
+## Additional Implementation Considerations
 
-### 17.1. Security
-- **Network Exposure**:  
-  - If deployed beyond localhost, enforce firewall rules (e.g., `iptables`) to restrict access to trusted IP ranges.  
-  - **TLS Encryption**: Use OpenSSL or similar libraries to enable HTTPS for secure communication.  
-- **Input Sanitization**:  
-  - Validate `src` and `dst` parameters to ensure they are integers within valid node ID ranges (e.g., `0 ≤ ID ≤ max_node_id`).  
-  - Reject requests with non-integer parameters or SQL-like injection patterns (e.g., `DROP TABLE`).  
-- **Rate Limiting**:  
-  - Implement a token bucket or sliding window algorithm to prevent denial-of-service (DoS) attacks.  
-  - Return `429 Too Many Requests` for clients exceeding query thresholds.  
-- **CORS Headers**:  
-  - If the API is accessed via web browsers, explicitly set `Access-Control-Allow-Origin` to trusted domains.  
+### Security
 
-### 17.2. Logging and Monitoring
+Ensuring robust security for this system involves both code-level safeguards and environmental configuration. Below are recommended practices and minimal examples to illustrate how to tighten access and prevent misuse.
+
+---
+
+#### Network Exposure
+
+- **Localhost Binding**  
+	By default, the server binds to `127.0.0.1` (localhost). This prevents external connections unless explicitly opened by firewall rules.  
+	```cpp
+	// Example of binding to localhost only:
+	sockaddr_in address;
+	std::memset(&address, 0, sizeof(address));
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = inet_addr("127.0.0.1"); // localhost only
+	address.sin_port = htons(port);
+	```
+
+- **Firewall Configuration**  
+	If you need external access, restrict it to known trusted IPs. For instance, on Linux with iptables:
+	```bash
+	# Allow incoming traffic on port 8080 only from a trusted subnet (e.g., 192.168.1.0/24)
+	sudo iptables -A INPUT -p tcp -s 192.168.1.0/24 --dport 8080 -j ACCEPT
+	# Reject all other inbound connections on port 8080
+	sudo iptables -A INPUT -p tcp --dport 8080 -j REJECT
+	```
+
+- **TLS Encryption (Optional)**  
+	Use OpenSSL or a similar library to wrap socket operations in TLS. This is especially important if traffic crosses untrusted networks:
+	```bash
+	# Example of generating a self-signed certificate (development only)
+	openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+		-keyout server.key -out server.crt -subj "/CN=localhost"
+	```
+	In production, obtain and install certificates from a trusted Certificate Authority.
+
+#### Input Validation
+
+- **Type Checking**  
+	Reject parameters that are non-numeric or out of valid range. For example:
+	```cpp
+	int parseIntParam(const std::string& param) {
+			for (char c : param) {
+					if (!std::isdigit(static_cast<unsigned char>(c))) {
+							throw std::invalid_argument("Non-numeric parameter detected");
+					}
+			}
+			int value = std::stoi(param);
+			if (value < 0 || value >= max_node_id_) {
+					throw std::out_of_range("Parameter out of valid node range");
+			}
+			return value;
+	}
+	```
+	This ensures requests with `src=abc` or invalid node IDs (e.g., `999999999`) are promptly rejected.
+
+- **SQL/Command Injection**  
+	While the core system does not rely on SQL, it’s crucial to sanitize any input that could invoke external scripts or commands (e.g., system calls, logging, or shell operations). Avoid string concatenation when forming commands; use parameterized APIs when possible.
+
+- **Reject Suspicious Patterns**  
+	If you log parameters or use them in dynamic queries, filter or escape special characters that could lead to injection attacks:
+	```cpp
+	std::string sanitize(const std::string& input) {
+			// Example: remove semicolons or quotes
+			std::string safe;
+			for (char c : input) {
+					if (c != ';' && c != '"') safe.push_back(c);
+			}
+			return safe;
+	}
+	```
+
+#### Rate Limiting
+
+To prevent DoS (denial-of-service) from high request rates:
+
+- **Token Bucket (C++ Example)**:
+	```cpp
+	class RateLimiter {
+	public:
+			RateLimiter(size_t max_tokens, double refill_per_second)
+				: max_tokens_(max_tokens),
+					tokens_(max_tokens),
+					refill_per_second_(refill_per_second),
+					last_refill_time_(std::chrono::steady_clock::now()) {}
+
+			bool allowRequest() {
+					auto now = std::chrono::steady_clock::now();
+					double seconds_since_last = std::chrono::duration<double>(now - last_refill_time_).count();
+
+					// Refill tokens
+					double refill = seconds_since_last * refill_per_second_;
+					tokens_ = std::min<double>(max_tokens_, tokens_ + refill);
+
+					last_refill_time_ = now;
+
+					if (tokens_ >= 1.0) {
+							tokens_ -= 1.0;
+							return true;
+					}
+					return false;
+			}
+	private:
+			const double max_tokens_;
+			double tokens_;
+			const double refill_per_second_;
+			std::chrono::steady_clock::time_point last_refill_time_;
+	};
+	```
+	Usage in request handling:
+	```cpp
+	if (!rateLimiter.allowRequest()) {
+			// HTTP 429 Too Many Requests
+			sendErrorResponse(client_socket, 429, "Rate limit exceeded");
+			return;
+	}
+	```
+
+- **Firewall Rate Limiting (Alternative)**:
+	```bash
+	# Limit new connections on port 8080 to 10 per minute
+	sudo iptables -A INPUT -p tcp --dport 8080 -m limit --limit 10/minute -j ACCEPT
+	```
+
+#### CORS Headers (For Web Browser Clients)
+
+If the server is accessed by frontend applications in browsers, add headers to control cross-origin requests:
+```cpp
+// Example snippet during HTTP response generation
+std::string response_headers =
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Type: application/json\r\n"
+		"Access-Control-Allow-Origin: https://mytrustedapp.example\r\n"
+		"Connection: close\r\n\r\n";
+```
+Caution: Use `Access-Control-Allow-Origin: *` only if you trust all domains (e.g., internal APIs). For public APIs, restrict to known origins or implement a stricter CORS policy.
+
+### Logging and Monitoring
 - **Structured Logging**:  
   - Use lightweight libraries like [spdlog](https://github.com/gabime/spdlog) (if permitted) or custom loggers with timestamps, log levels, and request IDs.  
   - Log critical events:  
@@ -1519,7 +1719,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 - **Alerting**:  
   - Trigger alerts for sustained high CPU/memory usage or repeated failed validations.  
 
-### 17.3. Performance Optimization
+### Performance Optimization
 - **Caching**:  
   - Cache frequently requested routes (e.g., LRU cache) with TTL expiration to reduce recomputation.  
   - Use `std::unordered_map` or a concurrent cache library for thread-safe access.  
@@ -1529,7 +1729,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 - **Connection Pooling**:  
   - Reuse HTTP server worker threads to avoid the overhead of creating new threads per request.  
 
-### 17.4. Testing and Validation
+### Testing and Validation
 - **Unit Tests**:  
   - Validate core algorithms (e.g., Bidirectional Dijkstra) with synthetic graphs (e.g., grid networks, known shortest paths).  
 - **Integration Tests**:  
@@ -1539,7 +1739,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 - **Dataset Verification**:  
   - Cross-check a subset of edges against open-source road networks (e.g., OpenStreetMap) for consistency.  
 
-### 17.5. Deployment and Maintenance
+### Deployment and Maintenance
 - **Containerization**:  
   - Package the server in a Docker image with a minimal base (e.g., Alpine Linux) for portability.  
 - **Configuration Management**:  
@@ -1549,7 +1749,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 - **Rollback Strategy**:  
   - Maintain previous stable binaries to quickly revert during deployment failures.  
 
-### 17.6. Compliance and Ethics
+### Compliance and Ethics
 - **Data Privacy**:  
   - If road data includes sensitive attributes (e.g., traffic cameras), anonymize node IDs in logs/responses.  
 - **GDPR Compliance**:  
@@ -1557,7 +1757,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 - **Accessibility**:  
   - Ensure API responses include descriptive error messages for developers (e.g., `"Invalid src: must be ≤ 24,000,000"`).  
 
-### 17.7. Documentation
+### Documentation
 - **Inline Comments**:  
   - Use Doxygen-style comments for public APIs (e.g., `@param`, `@return`).  
 - **API Documentation**:  
@@ -1565,45 +1765,82 @@ This project is licensed under the MIT License. See the LICENSE file for details
 - **Runbook**:  
   - Document steps for disaster recovery (e.g., corrupted CSV, server crash).  
 
-### 17.8. Disaster Recovery
+### Disaster Recovery
 - **Backup Strategy**:  
   - Periodically snapshot validated adjacency lists to disk for fast recovery.  
 - **Failover**:  
   - Deploy redundant server instances behind a load balancer (e.g., NGINX) for high availability.  
 
-## Revision History
-
-| Version | Date       | Description of Changes                          | Author    |
-|---------|------------|--------------------------------------------------|-----------|
-| 1.0     | 2025-01-15 | Initial version (includes core implementation). | Tech Lead |
-| 1.1     | 2025-01-16 | Added Executive Summary, Security & Logging info.| Tech Lead |
-
 ## Glossary
 
-- **Adjacency List:** A data structure in which each node (landmark) has a list of nodes to which it is directly connected, along with the cost or time to reach them.
-- **Approximation Heuristic:** A technique that finds a path that is not guaranteed to be strictly optimal but is within a defined percentage (e.g., 10%) of the shortest path.
-- **A* (A-Star):** A pathfinding algorithm that uses heuristics to guide its search towards the goal more efficiently than Dijkstra in many cases.
-- **Back-Edges:** In graph theory, edges that connect a node to an ancestor in a depth-first search (DFS), used here to detect cycles.
-- **BFS (Breadth-First Search):** An algorithm for traversing or searching a graph level by level, starting from a root node.
-- **Bidirectional Dijkstra:** A variant of Dijkstra’s algorithm that simultaneously searches from the start node forward and the end node backward, meeting in the middle to reduce overall computation time.
-- **BSD Sockets:** A programming interface (API) for handling network communication on Unix-like systems.
-- **Contraction Hierarchies (CH):** A precomputation technique to speed up pathfinding queries in large road networks by “contracting” less important nodes.
-- **CSV (Comma-Separated Values):** A simple file format used to store tabular data, where each line is a record, and columns are separated by commas.
-- **Cycle:** In a graph, a path that starts and ends on the same node without repeating edges. For road networks, cycles are common (e.g., blocks or loops).
-- **DFS (Depth-First Search):** An algorithm for traversing a graph by exploring as far as possible along each branch before backtracking.
-- **Dijkstra’s Algorithm:** A classic pathfinding algorithm that calculates the shortest path from a single source to other nodes in a graph with non-negative edge weights.
-- **Edge:** A connection between two nodes (landmarks) in a graph, typically with an associated cost or travel time.
-- **HTTP (Hypertext Transfer Protocol):** The protocol for communication between web clients (browsers, scripts) and servers.
-- **JSON (JavaScript Object Notation):** A data format for representing structured data, often used for transmitting data in web applications.
-- **Landmark:** A node or point of interest in the graph, representing a real-world location or road intersection.
-- **Memory Usage:** The amount of RAM required to store the road network data structures (e.g., adjacency lists) and any auxiliary data.
-- **Naive Cycle Check:** A simple DFS-based approach to detect if the graph has edges that form loops.
-- **Node (Vertex):** A fundamental unit in a graph, representing a location, landmark, or intersection.
-- **Path:** A sequence of connected edges in a graph that leads from a source node to a destination node.
-- **Pathfinding:** The process of finding a route between two nodes in a graph, minimizing some cost (time, distance, etc.).
-- **Priority Queue:** A data structure in which elements are removed based on their priority (e.g., the smallest distance). Commonly used in Dijkstra’s algorithm.
-- **REST (Representational State Transfer):** An architectural style for designing networked applications that typically use HTTP for communication.
-- **Self-Loop:** An edge that starts and ends at the same node. Generally invalid for road networks (unless modeling special cases).
-- **Structured Bindings:** A C++ feature allowing multiple variables to be declared from a tuple-like object, improving code readability.
-- **Thread Pool:** A collection of pre-initialized threads that can be used to execute tasks concurrently, avoiding the overhead of frequent thread creation and destruction.
-- **XML (eXtensible Markup Language):** A markup language used to encode documents in a format that is both human-readable and machine-readable.
+**Adjacency List** [↩︎](#hardware)  
+: A data structure in which each node (landmark) has a list of nodes to which it is directly connected, along with the cost or time to reach them. The project often uses a Compressed Sparse Row (CSR) format to store large adjacency lists efficiently.
+
+**Approximation Heuristic** [↩︎](#approximation-heuristics)  
+: A technique that finds a path not strictly optimal but within a defined percentage (e.g., 10%) of the shortest path, thereby reducing computation time.
+
+**A\* (A-Star)** [↩︎](#a-with-bounded-heuristics)  
+: A pathfinding algorithm that uses heuristics (e.g., Euclidean distance) to guide its search more efficiently than standard Dijkstra in many scenarios.
+
+**BFS (Breadth-First Search)** [↩︎](#data-loader--validator)  
+: An algorithm for traversing or searching a graph level by level. Used here in sampling to verify connectivity (e.g., 0.1% BFS checks).
+
+**Bidirectional Dijkstra** [↩︎](#bidirectional-dijkstra)  
+: A variant of Dijkstra’s algorithm that simultaneously searches forward from the source node and backward from the destination node, meeting in the middle to reduce overall runtime.
+
+**BSD Sockets** [↩︎](#platform-compatibility)  
+: A programming interface (API) for network communication on Unix-like systems, used to implement raw socket connections for the HTTP server.
+
+**Contraction Hierarchies (CH)** [↩︎](#precomputation-for-approximate-paths-ch-lite)  
+: A precomputation method that “contracts” less important nodes to create shortcuts, speeding up queries on large road networks.
+
+**CSV (Comma-Separated Values)** [↩︎](#project-overview) 
+: A file format that stores tabular data with comma delimiters. Here, `USA-roads.csv` provides bidirectional edges for the road network.
+
+**DFS (Depth-First Search)** [↩︎](#glossary)  
+: An algorithm that explores a graph by advancing as far as possible along each path before backtracking. Useful for detecting cycles or checking connectivity.
+
+**Dijkstra’s Algorithm** [↩︎](#core-algorithms)  
+: A classic pathfinding algorithm that calculates the shortest path from a single source to other nodes in a graph with non-negative edge weights.
+
+**Edge** [↩︎](#data-validation)  
+: A connection between two nodes (landmarks), typically with an associated cost or travel time. Each CSV line yields two directed edges in this system.
+
+**HTTP (Hypertext Transfer Protocol)** [↩︎](#dependencies)  
+: The protocol for communication between web clients and servers. The system listens on port 8080 to serve REST endpoints (e.g., `/path`).
+
+**JSON (JavaScript Object Notation)** [↩︎](#executive-summary)  
+: A data format used to represent server responses. Often returned by default if no other format is specified.
+
+**Landmark** [↩︎](#project-overview)  
+: A node or point of interest in the network. Each row in `USA-roads.csv` links two landmark IDs and a travel cost.
+
+**Memory Usage** [↩︎](#memory-efficiency)  
+: The amount of RAM required to store graph data structures (e.g., adjacency lists). For 24M nodes, usage typically ranges around 3.5–4.5 GB.
+
+**Node (Vertex)** [↩︎](#executive-summary)  
+: A fundamental unit in a graph (e.g., a location or intersection). Each node may connect to multiple other nodes via edges.
+
+**Path** [↩︎](#project-overview)  
+: A sequence of edges leading from a source node to a destination node. The system returns exact or approximate paths in response to queries.
+
+**Pathfinding** [↩︎](#executive-summary)  
+: The process of finding routes between nodes in a graph while minimizing some cost (time, distance, etc.).
+
+**Priority Queue** [↩︎](#key-optimizations-1)  
+: A data structure in which elements are removed based on priority (e.g., the smallest tentative distance). Central to Dijkstra’s and A* algorithms.
+
+**REST (Representational State Transfer)** [↩︎](#executive-summary)  
+: An architectural style for networked applications that typically use HTTP. The system offers a RESTful `/path` endpoint supporting JSON or XML.
+
+**Self-Loop** [↩︎](#validation-pipeline)  
+: An edge from a node to itself (i.e., `src == dst`). Such edges are rejected during data validation.
+
+**Thread Pool** [↩︎](#project-overview)  
+: A collection of pre-initialized threads used to handle concurrent tasks, preventing the overhead of frequent thread creation.
+
+**Union-Find** [↩︎](#project-overview)  
+: A disjoint-set data structure used during CSV parsing to track connectivity and detect disconnected components in large graphs.
+
+**XML (eXtensible Markup Language)** [↩︎](#executive-summary)  
+: A markup language for encoding data in a human- and machine-readable way. Provided as an alternative output format to JSON when `format=xml` is requested.
