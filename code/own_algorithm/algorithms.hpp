@@ -30,10 +30,9 @@ void reconstruct_bidirectional_path(const vector<int_pair>& node_before_forward,
     vector<int_pair> forward_path;
     int current_node = meeting_node;
     while (current_node != -1) {
-        forward_path.push_back({current_node, node_before_forward[current_node].second});
+        forward_path.insert(forward_path.begin(), {current_node, node_before_forward[current_node].second});
         current_node = node_before_forward[current_node].first;
     }
-    reverse(forward_path.begin(), forward_path.end());
 
     // Reconstruct path from meeting node to end
     vector<int_pair> backward_path;

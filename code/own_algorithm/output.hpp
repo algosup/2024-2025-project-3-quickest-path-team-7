@@ -133,8 +133,8 @@ void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& a
     visited_backward.resize(map_size, false);
     astar1.node_before.resize(map_size, {-1, 0}); // {previous_node, weight}
     astar2.node_before.resize(map_size, {-1, 0}); // {previous_node, weight}
-    astar1.cost_from_start.resize(map_size, INT_MAX);
-    astar2.cost_from_start.resize(map_size, INT_MAX);
+    astar1.cost_from_start.resize(map_size, INF);
+    astar2.cost_from_start.resize(map_size, INF);
     
     // Reset mutex
     if (visited_mutex.try_lock()) {
