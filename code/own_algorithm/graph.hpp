@@ -121,6 +121,7 @@ void loadGraph(Graph& graph, Files& files, bool force = false) {
         cout << endl;
         buildGraph(graph, files, force);
     }
+    graph.map_size = graph.map.size();
 
 }
 

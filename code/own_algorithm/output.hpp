@@ -37,6 +37,7 @@ struct Astar {
 struct Graph {
 
     bool loaded = false;
+    int map_size;
     // map[node] stores the list of neighbors of the node and their weights as {neighbor, weight}
     vector<vector<int_pair>> map;
     // the list of the landmarks picked
@@ -61,13 +62,13 @@ struct Files {
 };
 
 // Global variables for shared data
-atomic<int_pair> best_path_cost({0,INT_MAX});   // Current shortest path cost {nodeID, cost}
-mutex visited_mutex;              
-mutex meeting_mutex;
+atomic<bool> meeting_found(false);           // Meeting node found flag
+atomic<int> meeting_node(0);                // Meeting node
+
+mutex visited_mutex;
 
 vector<bool> visited_forward;         // Forward visited set
 vector<bool> visited_backward;        // Backward visited set
-bool meeting_found = false;           // Meeting node found flag
 
 // Function to calculate then display the memory usage of the graph
 void GraphMemoryUsage(Graph& graph) {
@@ -115,11 +116,9 @@ void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& a
     astar1.iterations = 0;
     astar2.iterations = 0;
 
-    // Empty then Initialize best path cost
-    best_path_cost.store({0,INT_MAX});
-
-    // Reset meeting flag
-    meeting_found = false;
+    // Empty then Initialize atomics
+    meeting_found.store(false);
+    meeting_node.store(0);
 
     // Reset vectors
     visited_forward.clear();
@@ -140,9 +139,6 @@ void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& a
     // Reset mutex
     if (visited_mutex.try_lock()) {
         visited_mutex.unlock();
-    }
-    if (meeting_mutex.try_lock()) {
-        meeting_mutex.unlock();
     }
 
     // Empty the priority queues
