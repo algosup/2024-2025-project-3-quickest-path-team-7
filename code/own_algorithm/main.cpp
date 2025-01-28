@@ -14,7 +14,7 @@ int main () {
 
     loadLandmarks(graph, files);
 
-    preBuildAstarStructs(astar1, astar2, graph);
+    reset_algorithm_data(graph, path_data, astar1, astar2);  
 
     while (true)
     {
@@ -38,6 +38,7 @@ int main () {
         // If there is no path between the two nodes, output a message
         if (path_data.path.empty()) {
             cout << "No path found between node " << formatWithSpaces(path_data.start) << " and node " << formatWithSpaces(path_data.end) << "." << endl;
+            reset_algorithm_data(graph, path_data, astar1, astar2);  
             continue;
         }
 
@@ -49,7 +50,8 @@ int main () {
         cout <<   "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
 
         // Save the path nodes to a CSV file
-        savePathToCSV(graph, files, path_data, astar1, astar2);        
+        savePathToCSV(graph, files, path_data, astar1, astar2);      
+        reset_algorithm_data(graph, path_data, astar1, astar2);  
 
     }
 

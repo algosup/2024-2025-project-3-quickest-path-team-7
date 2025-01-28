@@ -61,7 +61,7 @@ struct Files {
 };
 
 // Global variables for shared data
-atomic<int> best_path_cost(INT_MAX);   // Current shortest path cost
+atomic<int_pair> best_path_cost({0,INT_MAX});   // Current shortest path cost {nodeID, cost}
 mutex visited_mutex;              
 mutex meeting_mutex;
 
@@ -108,7 +108,7 @@ string formatWithSpaces(long number) {
     return numStr;
 }
 
-void preBuildAstarStructs(Astar& astar1, Astar& astar2, Graph& graph) {
+void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
 
     int map_size = graph.map.size();
 
@@ -116,7 +116,10 @@ void preBuildAstarStructs(Astar& astar1, Astar& astar2, Graph& graph) {
     astar2.iterations = 0;
 
     // Empty then Initialize best path cost
-    best_path_cost.store(INT_MAX);
+    best_path_cost.store({0,INT_MAX});
+
+    // Reset meeting flag
+    meeting_found = false;
 
     // Reset vectors
     visited_forward.clear();
@@ -149,6 +152,12 @@ void preBuildAstarStructs(Astar& astar1, Astar& astar2, Graph& graph) {
     while (!astar2.pq.empty()) {
         astar2.pq.pop();
     }
+
+    // reset the path_data
+    path_data.path.clear();
+    path_data.distance = 0;
+    path_data.calculation_time = 0;
+    path_data.estimated_distance = 0;
 }
 
 void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar1, Astar& astar2) {
@@ -174,15 +183,6 @@ void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar1, A
     }
 
     file.close();
-
-    // reset the path_data
-    path_data.path.clear();
-    path_data.distance = 0;
-    path_data.calculation_time = 0;
-    path_data.estimated_distance = 0;
-
-    // Reset the data structures for the next path
-    preBuildAstarStructs(astar1, astar2, graph);
 
 }
 
