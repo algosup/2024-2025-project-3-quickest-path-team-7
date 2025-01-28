@@ -30,13 +30,14 @@ struct Astar {
     vector<int_pair> node_before;
     vector<bool> checked;
     priority_queue<Node> pq;
-    int iterations;
+    int iterations;  
 };
 
 
 struct Graph {
 
     bool loaded = false;
+    int map_size;
     // map[node] stores the list of neighbors of the node and their weights as {neighbor, weight}
     vector<vector<int_pair>> map;
     // the list of the landmarks picked
@@ -59,6 +60,15 @@ struct Files {
     string landmarks_backup;
     string output;
 };
+
+// Global variables for shared data
+atomic<bool> meeting_found(false);           // Meeting node found flag
+atomic<int> meeting_node(0);                // Meeting node
+
+mutex visited_mutex;
+
+vector<bool> visited_forward;         // Forward visited set
+vector<bool> visited_backward;        // Backward visited set
 
 // Function to calculate then display the memory usage of the graph
 void GraphMemoryUsage(Graph& graph) {
@@ -99,14 +109,54 @@ string formatWithSpaces(long number) {
     return numStr;
 }
 
-void preBuildAstarStructs(Astar& astar_structs, Graph& graph) {
-    int n = graph.map.size();
-    astar_structs.cost_from_start.resize(n, INF);
-    astar_structs.node_before.resize(n);
-    astar_structs.checked.resize(n, false);
+void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
+
+    int map_size = graph.map.size();
+
+    astar1.iterations = 0;
+    astar2.iterations = 0;
+
+    // Empty then Initialize atomics
+    meeting_found.store(false);
+    meeting_node.store(0);
+
+    // Reset vectors
+    visited_forward.clear();
+    visited_backward.clear();
+    astar1.node_before.clear();
+    astar2.node_before.clear();
+    astar1.cost_from_start.clear();
+    astar2.cost_from_start.clear();    
+
+    // Initialize vectors
+    visited_forward.resize(map_size, false);
+    visited_backward.resize(map_size, false);
+    astar1.node_before.resize(map_size, {-1, 0}); // {previous_node, weight}
+    astar2.node_before.resize(map_size, {-1, 0}); // {previous_node, weight}
+    astar1.cost_from_start.resize(map_size, INT_MAX);
+    astar2.cost_from_start.resize(map_size, INT_MAX);
+    
+    // Reset mutex
+    if (visited_mutex.try_lock()) {
+        visited_mutex.unlock();
+    }
+
+    // Empty the priority queues
+    while (!astar1.pq.empty()) {
+        astar1.pq.pop();
+    }
+    while (!astar2.pq.empty()) {
+        astar2.pq.pop();
+    }
+
+    // reset the path_data
+    path_data.path.clear();
+    path_data.distance = 0;
+    path_data.calculation_time = 0;
+    path_data.estimated_distance = 0;
 }
 
-void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar) {
+void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar1, Astar& astar2) {
 
     ofstream file(files.output);
     if (!file.is_open()) {
@@ -129,22 +179,6 @@ void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar) {
     }
 
     file.close();
-
-    // reset the path_data
-    path_data.path.clear();
-    path_data.distance = 0;
-    path_data.calculation_time = 0;
-    path_data.estimated_distance = 0;
-
-    // reset the Astar struct
-    astar.cost_from_start.clear();
-    astar.node_before.clear();
-    astar.checked.clear();
-    astar.iterations = 0;
-    while (!astar.pq.empty()) {
-        astar.pq.pop();
-    }
-    preBuildAstarStructs(astar, graph);
 
 }
 
