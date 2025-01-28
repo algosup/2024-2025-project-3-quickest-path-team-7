@@ -38,7 +38,6 @@ int main () {
         // If there is no path between the two nodes, output a message
         if (path_data.path.empty()) {
             cout << "No path found between node " << formatWithSpaces(path_data.start) << " and node " << formatWithSpaces(path_data.end) << "." << endl;
-            reset_algorithm_data(graph, path_data, astar1, astar2);  
             continue;
         }
 

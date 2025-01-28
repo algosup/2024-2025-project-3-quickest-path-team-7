@@ -58,7 +58,6 @@ void forward_search(Graph& graph, Astar& astar1, int end) {
         Node current = astar1.pq.top();
         astar1.pq.pop();
         astar1.iterations++;
-        //cout << "forward current : " << current.id << endl;
 
         // Early termination: If this node is visited by backward search
         {
@@ -66,7 +65,6 @@ void forward_search(Graph& graph, Astar& astar1, int end) {
             if (visited_backward[current.id]) {
                 meeting_node.store(current.id);
                 meeting_found.store(true);
-                cout << "\n\n                                        Forward search found meeting node: " << current.id << endl;
                 return;
             }
         }
@@ -108,15 +106,12 @@ void backward_search(Graph& graph, Astar& astar2, int start) {
         astar2.pq.pop();
         astar2.iterations++;
 
-        //cout << "backward current : " << current.id << endl;
-
         // Early termination: If this node is visited by forward search
         {
             lock_guard<mutex> lock(visited_mutex);
             if (visited_forward[current.id]) {
                 meeting_node.store(current.id);
                 meeting_found.store(true);
-                cout << "\n\n                                        Backward search found meeting node: " << current.id << endl;
                 return;
             }
         }
@@ -159,8 +154,6 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
     astar1.pq.push({path_data.start, 0, end_to_start_estimation});
     astar2.pq.push({path_data.end, 0, end_to_start_estimation});
 
-    cout << "Starting bidirectional A* search from " << path_data.start << " to " << path_data.end << endl;
-
     // Initialize visited sets
     visited_forward[path_data.start] = true;
     visited_backward[path_data.end] = true;
@@ -184,10 +177,8 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
         reconstruct_bidirectional_path(astar1.node_before, astar2.node_before, meeting_node, path_data);
     } else {
         // No path found
-        cout << "No path found between " << path_data.start << " and " << path_data.end << endl;
         path_data.path.clear();
-        path_data.distance = -1;
-    }
+        reset_algorithm_data(graph, path_data, astar1, astar2);      }
 }
 
 
