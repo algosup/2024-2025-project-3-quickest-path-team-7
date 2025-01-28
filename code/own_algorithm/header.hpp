@@ -5,7 +5,7 @@
 #define NODE_MAX_VALUE      23947347
 
 #define ROOT                1
-#define LANDMARKS_QTY       20
+#define LANDMARKS_QTY       10
 // WEIGHT is the coefficient aplied to the heuristic cost for A star :
 // Using 1 : provides the quickest path, but can take time to calculate
 // Using 1.1 : provides a good balance between speed and accuracy (< 5% longer path)
