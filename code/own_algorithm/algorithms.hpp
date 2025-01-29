@@ -178,19 +178,12 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i
 vector<int> shortestPaths(Graph& graph, int source) {
-    cout << "\n\nAHAHjdsbcsibcislbcisbci\n\n" << endl;
     int n = graph.map_size; // Number of nodes in the graph
     vector<int> distances(n, INF); // Initialize distances to infinity
     distances[source] = 0; // Distance to the source node is 0
 
     // Min-heap priority queue: (distance, node)
     priority_queue<int_pair, vector<int_pair>, greater<>> pq;
-
-    cout << "AHAH";
-    cout << graph.adjacency_start[1] << " - " << graph.adjacency_start[2] << endl;
-    for (size_t i = graph.adjacency_start[1]; i < graph.adjacency_start[2]; i++) {
-        cout << graph.edges[i].id << " : " << graph.edges[i].weight << endl;
-    }
 
     // Preload the source node's neighbors
     for (int i = graph.adjacency_start[source]; i <= graph.adjacency_start[source+1]; i++) {
