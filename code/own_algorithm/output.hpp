@@ -34,23 +34,30 @@ struct Astar {
 };
 
 
-struct Graph {
+// Each edge in the compressed adjacency array
+struct Edge {
+    int id;  
+    int weight;  
+};
 
+// Graph in compressed adjacency form
+struct Graph {
     bool loaded = false;
-    int map_size;
-    // map[node] stores the list of neighbors of the node and their weights as {neighbor, weight}
-    vector<vector<int_pair>> map;
-    // the list of the landmarks picked
-    vector<int> landmarks;
-    // The landmark distance table
-    vector<vector<int>> landmark_distance;
-    // Considering landmark_index is the index of the landmark in the landmarks vector :
-    // To build this table the distance is stored as : landmark_distance[landmark_index][node] = distance 
-    // For a faster build as the preprocessing iterates on the nodes for a given landmark
     
-    // At the end of the prepreocessing, we reverse the access : 
-    // the distances are stored as: landmark_distance[node][landmark_index] = distance
-    // For a faster access as A* iterates on the landmarks for a given node
+    // Number of nodes (1 + max node ID)
+    int map_size;  
+    
+    // For node u:
+    //   edges are stored in [ adjacency_start[u], adjacency_start[u+1] ) inside 'edges'
+    // adjacency_start has length = map_size + 1 
+    vector<int> adjacency_start;  
+    
+    // All edges for all nodes in a single contiguous array
+    vector<Edge> edges;
+
+    // Additional data: landmarks etc.
+    vector<int> landmarks;
+    vector<vector<int>> landmark_distance;
 };
 
 struct Files {
@@ -72,34 +79,6 @@ vector<bool> visited_backward;        // Backward visited set
 
 float heuristic_weight = WEIGHT;
 
-// Function to calculate then display the memory usage of the graph
-void GraphMemoryUsage(Graph& graph) {
-
-    size_t totalSize = 0;
-    // map size
-    for (const auto& neighbors : graph.map) {
-        totalSize += sizeof(neighbors) + (neighbors.size() * sizeof(int_pair));
-    }
-    // landmarks size 
-    totalSize += graph.landmarks.size() * sizeof(int);
-
-    // landmark_distance size
-    for (const auto& distances : graph.landmark_distance) {
-        totalSize += sizeof(distances) + (distances.size() * sizeof(int));
-    }
-
-    // Adapt the division by 1024 acording to the size of the graph (from Byte to GB) in 2 digit precision
-    if (totalSize > 1024 * 1024 * 1024) {
-        cout << "Memory used by the Graph: " << fixed << setprecision(2) << (double)totalSize / (1024 * 1024 * 1024) << " GB" << endl;
-    } else if (totalSize > 1024 * 1024) {
-        cout << "Memory used by the Graph: " << fixed << setprecision(2) << (double)totalSize / (1024 * 1024) << " MB" << endl;
-    } else if (totalSize > 1024) {
-        cout << "Memory used by the Graph: " << fixed << setprecision(2) << (double)totalSize / 1024 << " KB" << endl;
-    } else {
-        cout << "Memory used by the Graph: " << fixed << setprecision(2) << (double)totalSize << " Bytes" << endl;
-    }
-}
-
 // Function to format a number with spaces between each group of three digits
 string formatWithSpaces(long number) {
     string numStr = to_string(number);
@@ -112,8 +91,6 @@ string formatWithSpaces(long number) {
 }
 
 void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
-
-    int map_size = graph.map.size();
 
     // initialize the ints
     astar1.iterations = 0;
@@ -132,12 +109,12 @@ void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& a
     astar2.cost_from_start.clear();    
 
     // Initialize vectors
-    visited_forward.resize(map_size, false);
-    visited_backward.resize(map_size, false);
-    astar1.node_before.resize(map_size, {-1, 0}); // {previous_node, weight}
-    astar2.node_before.resize(map_size, {-1, 0}); // {previous_node, weight}
-    astar1.cost_from_start.resize(map_size, INF);
-    astar2.cost_from_start.resize(map_size, INF);
+    visited_forward.resize(graph.map_size, false);
+    visited_backward.resize(graph.map_size, false);
+    astar1.node_before.resize(graph.map_size, {-1, 0}); // {previous_node, weight}
+    astar2.node_before.resize(graph.map_size, {-1, 0}); // {previous_node, weight}
+    astar1.cost_from_start.resize(graph.map_size, INF);
+    astar2.cost_from_start.resize(graph.map_size, INF);
     
     // Reset mutex
     if (visited_mutex.try_lock()) {

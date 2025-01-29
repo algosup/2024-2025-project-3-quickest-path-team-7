@@ -7,7 +7,7 @@
 // Function to reverse the landmark_distance table indexes for faster access
 // From landmark_distance[landmark_index][node] to landmark_distance[node][landmark_index]
 void reverseLandmarkTableIndexes(Graph& graph) {
-    int n = graph.map.size();
+    int n = graph.map_size;
     int m = graph.landmarks.size();
     vector<vector<int>> reversedLandmarkTable(n, vector<int>(m));
 
@@ -32,7 +32,7 @@ void reverseLandmarkTableIndexes(Graph& graph) {
 void buildLandmarks(Graph& graph) {
 
     int landmarks = 1;
-    int n = graph.map.size();
+    int n = graph.map_size;
     vector<bool> isLandmark(n, false);
     graph.landmark_distance.resize(LANDMARKS_QTY, vector<int>(n));
     int firstLandmark = ROOT;
@@ -96,7 +96,7 @@ void buildLandmarks(Graph& graph) {
 void saveLandmarksToBinary(Graph& graph, Files& files){
     ofstream file(files.landmarks_backup, ios::binary);
 
-    int n = graph.map.size();
+    int n = graph.map_size;
     int m = graph.landmarks.size();
     
     file.write(reinterpret_cast<char*>(&n), sizeof(n));

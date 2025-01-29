@@ -94,7 +94,7 @@ int takeUserInput(Graph& graph, Path& path) {
         return INVALID_NODE; // Invalid node
     }
 
-    if (path.start <= 0 || path.start > NODE_MAX_VALUE || path.start >= graph.map.size() || graph.map[path.start].empty()) 
+    if (path.start <= 0 || path.start > NODE_MAX_VALUE || path.start >= graph.map_size || graph.adjacency_start[path.start]==graph.adjacency_start[path.start+1]) 
     {
         cout << "Invalid node. Please try again." << endl;
         return INVALID_NODE; // Invalid node
@@ -103,7 +103,7 @@ int takeUserInput(Graph& graph, Path& path) {
 
     cout << "Enter the end node: ";
     cin >> path.end;
-    if (path.end <= 0 || path.end > NODE_MAX_VALUE || path.end >= graph.map.size() || graph.map[path.end].empty())
+    if (path.end <= 0 || path.end > NODE_MAX_VALUE || path.end >= graph.map_size || graph.adjacency_start[path.end]==graph.adjacency_start[path.end+1])
     {
         cout << "Invalid node. Please try again." << endl;
         return INVALID_NODE; // Invalid node

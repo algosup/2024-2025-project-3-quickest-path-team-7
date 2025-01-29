@@ -65,25 +65,25 @@ void forward_search(Graph& graph, Astar& astar1, int end) {
         }
 
         // Explore neighbors
-        for (auto neighbor : graph.map[current.id]) {
-
-            int local_cost_from_start = astar1.cost_from_start[current.id] + neighbor.second;
+        for (size_t i = graph.adjacency_start[current.id]; i < graph.adjacency_start[current.id+1]; i++) {
+            Edge neighbor = graph.edges[i];
+            int local_cost_from_start = astar1.cost_from_start[current.id] + neighbor.weight;
 
             // Update visited set and push to priority queue
-            if (local_cost_from_start < astar1.cost_from_start[neighbor.first]){
+            if (local_cost_from_start < astar1.cost_from_start[neighbor.id]){
                 {
                     lock_guard<mutex> lock(visited_mutex);
-                    if (!visited_forward[neighbor.first]) {
+                    if (!visited_forward[neighbor.id]) {
                         // Mark node as visited
-                        visited_forward[neighbor.first] = true;
+                        visited_forward[neighbor.id] = true;
                         push = true;
                     }
                 } 
                 if (push) {
                     // Update node_before and cost_from_start
-                    astar1.node_before[neighbor.first] = {current.id, neighbor.second};
-                    astar1.cost_from_start[neighbor.first] = local_cost_from_start;
-                    astar1.pq.push({neighbor.first, neighbor.second, local_cost_from_start + estimate_distance(graph, neighbor.first, end)});
+                    astar1.node_before[neighbor.id] = {current.id, neighbor.weight};
+                    astar1.cost_from_start[neighbor.id] = local_cost_from_start;
+                    astar1.pq.push({neighbor.id, neighbor.weight, local_cost_from_start + estimate_distance(graph, neighbor.id, end)});
                 }
             }
         }
@@ -112,25 +112,25 @@ void backward_search(Graph& graph, Astar& astar2, int start) {
         }
 
         // Explore neighbors
-        for (auto neighbor : graph.map[current.id]) {
-
-            int local_cost_from_start = astar2.cost_from_start[current.id] + neighbor.second;
+        for (size_t i = graph.adjacency_start[current.id]; i < graph.adjacency_start[current.id+1]; i++) {
+            Edge neighbor = graph.edges[i];
+            int local_cost_from_start = astar2.cost_from_start[current.id] + neighbor.weight;
 
             // Update visited set and push to priority queue
-            if (local_cost_from_start < astar2.cost_from_start[neighbor.first]){
+            if (local_cost_from_start < astar2.cost_from_start[neighbor.id]){
                 {
                     lock_guard<mutex> lock(visited_mutex);
-                    if (!visited_backward[neighbor.first]) {
+                    if (!visited_backward[neighbor.id]) {
                         // Mark node as visited
-                        visited_backward[neighbor.first] = true;
+                        visited_backward[neighbor.id] = true;
                         push = true;
                     }
                 } 
                 if (push) {
                     // Update node_before and cost_from_start
-                    astar2.node_before[neighbor.first] = {current.id, neighbor.second};
-                    astar2.cost_from_start[neighbor.first] = local_cost_from_start;
-                    astar2.pq.push({neighbor.first, neighbor.second, local_cost_from_start + estimate_distance(graph, neighbor.first, start)});
+                    astar2.node_before[neighbor.id] = {current.id, neighbor.weight};
+                    astar2.cost_from_start[neighbor.id] = local_cost_from_start;
+                    astar2.pq.push({neighbor.id, neighbor.weight, local_cost_from_start + estimate_distance(graph, neighbor.id, start)});
                 }
             }
         }
@@ -146,7 +146,7 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
     astar1.pq.push({path_data.start, 0, path_data.estimated_distance});
     astar2.pq.push({path_data.end, 0, path_data.estimated_distance});
 
-    path_data.estimated_distance /= heuristic_weight;
+    //path_data.estimated_distance /= heuristic_weight;
 
     // Initialize visited sets
     visited_forward[path_data.start] = true;
@@ -178,20 +178,26 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i
 vector<int> shortestPaths(Graph& graph, int source) {
-    int n = graph.map.size(); // Number of nodes in the graph
-    vector<int> distances(n, numeric_limits<int>::max()); // Initialize distances to infinity
+    cout << "\n\nAHAHjdsbcsibcislbcisbci\n\n" << endl;
+    int n = graph.map_size; // Number of nodes in the graph
+    vector<int> distances(n, INF); // Initialize distances to infinity
     distances[source] = 0; // Distance to the source node is 0
 
     // Min-heap priority queue: (distance, node)
     priority_queue<int_pair, vector<int_pair>, greater<>> pq;
 
+    cout << "AHAH";
+    cout << graph.adjacency_start[1] << " - " << graph.adjacency_start[2] << endl;
+    for (size_t i = graph.adjacency_start[1]; i < graph.adjacency_start[2]; i++) {
+        cout << graph.edges[i].id << " : " << graph.edges[i].weight << endl;
+    }
+
     // Preload the source node's neighbors
-    for (int_pair neighbor_weight_pair : graph.map[source]) {
-    int neighbor = neighbor_weight_pair.first;
-    int weight = neighbor_weight_pair.second;
-    distances[neighbor] = weight;
-    pq.push({weight, neighbor});
-}
+    for (int i = graph.adjacency_start[source]; i <= graph.adjacency_start[source+1]; i++) {
+        Edge neighbor = graph.edges[i];
+        distances[neighbor.id] = neighbor.weight;
+        pq.push({neighbor.weight, neighbor.id});
+    }
 
     pq.push({0, source});
 
@@ -207,13 +213,13 @@ vector<int> shortestPaths(Graph& graph, int source) {
         }
 
         // Relax all edges of the current node
-        for (int_pair neighbor_weight_pair : graph.map[currentNode]) {
-            int neighbor = neighbor_weight_pair.first;
-            int weight = neighbor_weight_pair.second;
-            int newDist = currentDist + weight;
-            if (newDist < distances[neighbor]) {
-                distances[neighbor] = newDist;
-                pq.push({newDist, neighbor});
+
+        for (int i = graph.adjacency_start[currentNode]; i <= graph.adjacency_start[currentNode+1]; i++) {
+            Edge neighbor = graph.edges[i];
+            int newDist = currentDist + neighbor.weight;
+            if (newDist < distances[neighbor.id]) {
+                distances[neighbor.id] = newDist;
+                pq.push({newDist, neighbor.id});
             }
         }
     }
