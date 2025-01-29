@@ -201,7 +201,7 @@ void buildGraph(Graph& graph, Files& files, bool force = false) {
     cout << "\nGraph saved to binary " << files.map_backup << endl;
 }
 
-void loadGraph(Graph& graph, Files& files, bool force = true) {
+void loadGraph(Graph& graph, Files& files, bool force = false) {
     buildGraph(graph, files, force);
 
     if (!graph.loaded) {

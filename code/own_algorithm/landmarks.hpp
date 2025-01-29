@@ -3,26 +3,6 @@
 
 #include "header.hpp"
 
-
-// Function to reverse the landmark_distance table indexes for faster access
-// From landmark_distance[landmark_index][node] to landmark_distance[node][landmark_index]
-void reverseLandmarkTableIndexes(Graph& graph) {
-    int n = graph.map_size;
-    int m = graph.landmarks.size();
-    vector<vector<int>> reversedLandmarkTable(n, vector<int>(m));
-
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            reversedLandmarkTable[i][j] = graph.landmark_distance[j][i];
-        }
-    }
-    
-    graph.landmark_distance.clear();
-    graph.landmark_distance.shrink_to_fit();
-    graph.landmark_distance = reversedLandmarkTable;
-}
-
-
 // Function to select the landmarks using the farthest selection
 // Beginiing with the root landmark, all the shortest paths to each node are calculated
 // Then, it stores all these distance associated to this landmark
@@ -31,12 +11,10 @@ void reverseLandmarkTableIndexes(Graph& graph) {
 
 void buildLandmarks(Graph& graph) {
 
-    int landmarks = 1;
-    int n = graph.map_size;
-    vector<bool> isLandmark(n, false);
-    graph.landmark_distance.resize(LANDMARKS_QTY, vector<int>(n));
+    vector<bool> isLandmark(graph.map_size, false);
+    vector<int> pathsArray(graph.map_size);
+    graph.landmark_distance.resize(LANDMARKS_QTY*graph.map_size);
     int firstLandmark = ROOT;
-    int sourceNode;
 
     graph.landmarks.push_back(firstLandmark);
     isLandmark[firstLandmark] = true;
@@ -49,8 +27,13 @@ void buildLandmarks(Graph& graph) {
 
         cout << "\rBuilding landmarks (" << landmark+1  << "/" << LANDMARKS_QTY << ") ... " << flush;
 
-        sourceNode = graph.landmarks.back();
-        graph.landmark_distance[landmark] = shortestPaths(graph, sourceNode);
+        int current_landmark = graph.landmarks.back();
+        // get all the shortest paths from the landmark node to all the other nodes
+        pathsArray = shortestPaths(graph, current_landmark);
+        // Store them in landmark_distance[node * LANDMARKS_QTY + landmark]
+        for (int node = 0; node < graph.map_size; ++node) {
+            graph.landmark_distance[node * LANDMARKS_QTY + landmark] = pathsArray[node];
+        }
 
         // Scan the distances from the current landmark to all the nodes
         // to find the farthest node as the next landmark
@@ -60,9 +43,9 @@ void buildLandmarks(Graph& graph) {
         }
 
         // Iterate over all the nodes to find the farthest node from all previous landmarks
-        int farthestNode = -1, maxDistance = -1, maxMinDistance = -1;
+        int farthestNode = -1, maxMinDistance = -1;
         // Fo reach node
-        for (int node = 0; node < n; ++node) {
+        for (int node = 0; node < graph.map_size; ++node) {
             // Skip the nodes already selected as landmark
             if (isLandmark[node]) continue;
             
@@ -70,7 +53,7 @@ void buildLandmarks(Graph& graph) {
             int minDistance = INF;
             for (int prevLandmark = 0; prevLandmark < graph.landmarks.size(); ++prevLandmark) {
                 int landmarkIndex = graph.landmarks[prevLandmark];
-                minDistance = min(minDistance, graph.landmark_distance[prevLandmark][node]);
+                minDistance = min(minDistance, graph.landmark_distance[node * LANDMARKS_QTY + prevLandmark]);
             }
 
             // Update the farthest node based on the maximum of these minimum distances
@@ -88,34 +71,39 @@ void buildLandmarks(Graph& graph) {
     cout << "\rBuilding landmarks (" << LANDMARKS_QTY << "/" << LANDMARKS_QTY << ") ... Done !" << endl;
 
     cout << "\nReversing the landmark table indexes ... " << flush;
-    reverseLandmarkTableIndexes(graph);
 
 }
 
-// Function to save the landmarks to a binary file
-void saveLandmarksToBinary(Graph& graph, Files& files){
+void saveLandmarksToBinary(Graph& graph, Files& files) {
     ofstream file(files.landmarks_backup, ios::binary);
-
-    int n = graph.map_size;
-    int m = graph.landmarks.size();
-    
-    file.write(reinterpret_cast<char*>(&n), sizeof(n));
-    file.write(reinterpret_cast<char*>(&m), sizeof(m));
-
-    file.write(reinterpret_cast<char*>(graph.landmarks.data()), m * sizeof(int));
-
-    for (const vector<int>& distances : graph.landmark_distance) {
-        file.write(reinterpret_cast<const char*>(distances.data()), m * sizeof(int));
+    if (!file.is_open()) {
+        cerr << "Failed to open the file for writing: " << files.landmarks_backup << endl;
+        return;
     }
+
+    // n = number of nodes, m = number of chosen landmarks
+    int n = graph.map_size;
+    int m = (int)graph.landmarks.size();
+
+    // 1) Write n and m
+    file.write(reinterpret_cast<const char*>(&n), sizeof(n));
+    file.write(reinterpret_cast<const char*>(&m), sizeof(m));
+
+    // 2) Write the 'graph.landmarks' array
+    file.write(reinterpret_cast<const char*>(graph.landmarks.data()), m * sizeof(int));
+
+    // 3) Write the single 'graph.landmark_distance' array of size n*m
+    file.write(reinterpret_cast<const char*>(graph.landmark_distance.data()), 
+               (size_t)n * m * sizeof(int));
 
     file.close();
 }
 
-bool loadLandmarksFromBinary(Graph& graph, Files& files){
-    cout << "Loading landmarks from "<< files.landmarks_backup << " ... " << flush;
+bool loadLandmarksFromBinary(Graph& graph, Files& files) {
+    cout << "Loading landmarks from " << files.landmarks_backup << " ... " << flush;
     ifstream file(files.landmarks_backup, ios::binary);
     if (!file.is_open()) {
-        cout << "Backup not found !\n" << endl;
+        cout << "Backup not found!\n" << endl;
         return false;
     }
 
@@ -123,18 +111,19 @@ bool loadLandmarksFromBinary(Graph& graph, Files& files){
     file.read(reinterpret_cast<char*>(&n), sizeof(n));
     file.read(reinterpret_cast<char*>(&m), sizeof(m));
 
+    graph.map_size = n; // might update the map_size if needed
     graph.landmarks.resize(m);
-    graph.landmark_distance.resize(n, vector<int>(m));
+    graph.landmark_distance.resize((size_t)n * m);
 
+    // Read the landmarks array
     file.read(reinterpret_cast<char*>(graph.landmarks.data()), m * sizeof(int));
 
-    for (vector<int>& distances : graph.landmark_distance) {
-        distances.resize(m); // Ensure the vector is properly resized
-        file.read(reinterpret_cast<char*>(distances.data()), m * sizeof(int));
-    }
+    // Read the single distance array
+    file.read(reinterpret_cast<char*>(graph.landmark_distance.data()), 
+              (size_t)n * m * sizeof(int));
 
     file.close();
-    cout << "Done !" << endl;
+    cout << "Done!" << endl;
     return true;
 }
 

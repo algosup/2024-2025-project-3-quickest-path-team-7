@@ -57,7 +57,9 @@ struct Graph {
 
     // Additional data: landmarks etc.
     vector<int> landmarks;
-    vector<vector<int>> landmark_distance;
+    // distances from each landmark to each node
+    // distance = landmark_distance[node * LANDMARK_QTY + landmark_index]
+    vector<int> landmark_distance;
 };
 
 struct Files {

@@ -6,10 +6,12 @@
 // Function to estimate the distance between two nodes using landmarks
 int estimate_distance(Graph& graph, int source, int destination) {
     int estimation = 0;
+    int source_index = source * LANDMARKS_QTY;
+    int destination_index = destination * LANDMARKS_QTY;
     // For each landmark : "
     for (int i = 0; i < graph.landmarks.size(); i++) {
         // Take the absolute value of the difference between these two distances
-        int diff = abs(graph.landmark_distance[source][i] - graph.landmark_distance[destination][i]);
+        int diff = abs(graph.landmark_distance[source_index+i] - graph.landmark_distance[destination_index+i]);
         // Keep only the maximum of these estimations
         if (diff > estimation) {
             estimation = diff;
@@ -178,19 +180,12 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i
 vector<int> shortestPaths(Graph& graph, int source) {
-    cout << "\n\nAHAHjdsbcsibcislbcisbci\n\n" << endl;
     int n = graph.map_size; // Number of nodes in the graph
     vector<int> distances(n, INF); // Initialize distances to infinity
     distances[source] = 0; // Distance to the source node is 0
 
     // Min-heap priority queue: (distance, node)
     priority_queue<int_pair, vector<int_pair>, greater<>> pq;
-
-    cout << "AHAH";
-    cout << graph.adjacency_start[1] << " - " << graph.adjacency_start[2] << endl;
-    for (size_t i = graph.adjacency_start[1]; i < graph.adjacency_start[2]; i++) {
-        cout << graph.edges[i].id << " : " << graph.edges[i].weight << endl;
-    }
 
     // Preload the source node's neighbors
     for (int i = graph.adjacency_start[source]; i <= graph.adjacency_start[source+1]; i++) {
