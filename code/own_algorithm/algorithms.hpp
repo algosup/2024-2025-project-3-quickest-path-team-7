@@ -67,7 +67,7 @@ void forward_search(Graph& graph, Astar& astar1, int end) {
         }
 
         // Explore neighbors
-        for (size_t i = graph.adjacency_start[current.id]; i < graph.adjacency_start[current.id+1]; i++) {
+        for (int i = graph.adjacency_start[current.id]; i < graph.adjacency_start[current.id+1]; i++) {
             Edge neighbor = graph.edges[i];
             int local_cost_from_start = astar1.cost_from_start[current.id] + neighbor.weight;
 
@@ -114,7 +114,7 @@ void backward_search(Graph& graph, Astar& astar2, int start) {
         }
 
         // Explore neighbors
-        for (size_t i = graph.adjacency_start[current.id]; i < graph.adjacency_start[current.id+1]; i++) {
+        for (int i = graph.adjacency_start[current.id]; i < graph.adjacency_start[current.id+1]; i++) {
             Edge neighbor = graph.edges[i];
             int local_cost_from_start = astar2.cost_from_start[current.id] + neighbor.weight;
 
@@ -180,15 +180,14 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i
 vector<int> shortestPaths(Graph& graph, int source) {
-    int n = graph.map_size; // Number of nodes in the graph
-    vector<int> distances(n, INF); // Initialize distances to infinity
+    vector<int> distances(graph.map_size, INF); // Initialize distances to infinity
     distances[source] = 0; // Distance to the source node is 0
 
     // Min-heap priority queue: (distance, node)
     priority_queue<int_pair, vector<int_pair>, greater<>> pq;
 
     // Preload the source node's neighbors
-    for (int i = graph.adjacency_start[source]; i <= graph.adjacency_start[source+1]; i++) {
+    for (int i = graph.adjacency_start[source]; i < graph.adjacency_start[source+1]; i++) {
         Edge neighbor = graph.edges[i];
         distances[neighbor.id] = neighbor.weight;
         pq.push({neighbor.weight, neighbor.id});
@@ -209,7 +208,7 @@ vector<int> shortestPaths(Graph& graph, int source) {
 
         // Relax all edges of the current node
 
-        for (int i = graph.adjacency_start[currentNode]; i <= graph.adjacency_start[currentNode+1]; i++) {
+        for (int i = graph.adjacency_start[currentNode]; i < graph.adjacency_start[currentNode+1]; i++) {
             Edge neighbor = graph.edges[i];
             int newDist = currentDist + neighbor.weight;
             if (newDist < distances[neighbor.id]) {
@@ -219,7 +218,7 @@ vector<int> shortestPaths(Graph& graph, int source) {
         }
     }
 
-    return distances;
+    return distances; 
 }
 
 #endif

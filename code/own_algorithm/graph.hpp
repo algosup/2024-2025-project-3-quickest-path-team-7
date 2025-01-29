@@ -77,9 +77,9 @@ void buildGraphFromCSV(Graph& graph, const Files& files) {
         return;
     }
 
-    // We'll parse the CSV and store edges
     vector<TempEdge> allEdges;
-    allEdges.reserve(NODE_MAX_VALUE); // Reserve some guess if you know approx # of lines
+    // If you know the approximate number of lines, reserve that many (not NODE_MAX_VALUE):
+    // allEdges.reserve(some_estimated_line_count);
 
     string line;
     unsigned int counter = 0;
@@ -88,14 +88,13 @@ void buildGraphFromCSV(Graph& graph, const Files& files) {
 
     while (getline(csv_file, line)) {
         if (line.empty()) continue;
-        // CSV format: node1, node2, distance
-        // Example: 123,456,999
-        // We'll parse them
         stringstream ss(line);
-        string cell;
         vector<int> row;
-        while (getline(ss, cell, ',')) {
-            row.push_back(stoi(cell));
+        {
+            string cell;
+            while (getline(ss, cell, ',')) {
+                row.push_back(stoi(cell));
+            }
         }
         if (row.size() != 3) continue;
 
@@ -108,7 +107,7 @@ void buildGraphFromCSV(Graph& graph, const Files& files) {
         allEdges.push_back({node2, node1, dist});
 
         counter++;
-        progression = counter * 100 / CSV_LINES;
+        progression = counter * 100 / CSV_LINES; // your known CSV_LINES
         if (progression != progression_backup) {
             cout << "\rLoading the CSV file into memory ... " << progression << " %" << flush;
             progression_backup = progression;
@@ -116,8 +115,11 @@ void buildGraphFromCSV(Graph& graph, const Files& files) {
     }
     csv_file.close();
 
-    // Now we know how many nodes we have:
-    // map_size = largest ID + 1
+    // Suppose you do:
+    //    graph.map_size = NODE_MAX_VALUE + 1;
+    // If you discovered the max node on-the-fly, you'd do:
+    //    int maxNodeID = 0; // track max while reading
+    //    graph.map_size = maxNodeID + 1;
     graph.map_size = NODE_MAX_VALUE + 1;
 
     // Sort edges by src
@@ -126,15 +128,11 @@ void buildGraphFromCSV(Graph& graph, const Files& files) {
              return a.src < b.src;
          });
 
-    // Resize adjacency_start to (map_size + 1)
-    graph.adjacency_start.resize(graph.map_size, 0);
+    // 1) Resize adjacency_start to (map_size + 1), init to 0
+    graph.adjacency_start.resize(graph.map_size + 1, 0);
 
-    // We’ll build 'graph.edges' from 'allEdges'
-    graph.edges.resize(allEdges.size());
-
-    // Pass 1: Count how many edges each node has
+    // 2) Count how many edges each node has
     for (auto &e : allEdges) {
-        // e.src is the node
         graph.adjacency_start[e.src]++;  
     }
     // Now adjacency_start[u] = number of edges from node u
@@ -148,29 +146,30 @@ void buildGraphFromCSV(Graph& graph, const Files& files) {
         graph.adjacency_start[u] = graph.adjacency_start[u-1] + temp.second;
         temp.second = temp.first;
     }
-    // So adjacency_start[u] now is the cumulative count of edges up to node u-1
-    // adjacency_start[u+1] - adjacency_start[u] = # of edges from node u
+    // Now adjacency_start[u] is the *cumulative* sum up to node u-1
+    // adjacency_start[map_size] must be set after the final prefix sum:
+    graph.adjacency_start[graph.map_size] = static_cast<int>(allEdges.size());
 
-    // Pass 2: Place edges in the correct slot
-    // We'll keep a temporary array of "write positions" so we know where to put each edge
-    vector<int> writePosition(NODE_MAX_VALUE);
+    // 4) Allocate edges
+    graph.edges.resize(allEdges.size());
+
+    // We'll keep a temporary array of "write positions"
+    vector<int> writePosition(graph.map_size, 0);
+    // Initialize each writePosition[u] = adjacency_start[u], 
+    // so we know where to place the next edge for node u
     for (int u = 0; u < graph.map_size; u++) {
         writePosition[u] = graph.adjacency_start[u];
     }
 
-    // Fill graph.edges in sorted order
+    // 5) Fill graph.edges in sorted order
     for (auto &e : allEdges) {
         int pos = writePosition[e.src]++;
         graph.edges[pos].id = e.dst;
         graph.edges[pos].weight = e.dist;
     }
 
-    // adjacency_start[map_size] should be = allEdges.size()
-    graph.adjacency_start[graph.map_size] = allEdges.size();
-
     // Mark loaded
     graph.loaded = true;
-
 }
 
 // Build the graph (from backup if exists, else from CSV)

@@ -14,8 +14,10 @@ int main () {
 
     loadLandmarks(graph, files);
 
-    reset_algorithm_data(graph, path_data, astar1, astar2);  
+    
 
+    reset_algorithm_data(graph, path_data, astar1, astar2);  
+    
     path_data.start = 1;
     path_data.end = 2;
     find_path(graph, path_data, astar1, astar2);
@@ -31,6 +33,8 @@ int main () {
 
             break;
         }
+
+        cout << "Calculating shortest path between node " << formatWithSpaces(path_data.start) << " and node " << formatWithSpaces(path_data.end) << " ... " << endl;
 
         start_timer(timer);
 
