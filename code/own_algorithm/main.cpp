@@ -2,6 +2,9 @@
 
 int main () {
 
+    // To allow special characters in cout such as 'µ'
+    setlocale(LC_ALL, "en_US.UTF-8");
+
     Graph graph;
     Files files;
     Path path_data;

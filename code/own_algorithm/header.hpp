@@ -42,6 +42,7 @@
 #include <mutex>
 #include <atomic>
 #include <algorithm>
+#include <locale>
 
 // Alias
 using namespace std;
