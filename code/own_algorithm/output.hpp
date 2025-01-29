@@ -41,12 +41,10 @@ struct Edge {
 };
 
 // Graph in compressed adjacency form
-struct Graph {
-    bool loaded = false;
-    
+struct Graph {    
     // Number of nodes (1 + max node ID)
-    int map_size;  
-    
+    int nodes_qty;
+
     // For node u:
     //   edges are stored in [ adjacency_start[u], adjacency_start[u+1] ) inside 'edges'
     // adjacency_start has length = map_size + 1 
@@ -111,12 +109,12 @@ void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& a
     astar2.cost_from_start.clear();    
 
     // Initialize vectors
-    visited_forward.resize(graph.map_size, false);
-    visited_backward.resize(graph.map_size, false);
-    astar1.node_before.resize(graph.map_size, {-1, 0}); // {previous_node, weight}
-    astar2.node_before.resize(graph.map_size, {-1, 0}); // {previous_node, weight}
-    astar1.cost_from_start.resize(graph.map_size, INF);
-    astar2.cost_from_start.resize(graph.map_size, INF);
+    visited_forward.resize(graph.nodes_qty, false);
+    visited_backward.resize(graph.nodes_qty, false);
+    astar1.node_before.resize(graph.nodes_qty, {-1, 0}); // {previous_node, weight}
+    astar2.node_before.resize(graph.nodes_qty, {-1, 0}); // {previous_node, weight}
+    astar1.cost_from_start.resize(graph.nodes_qty, INF);
+    astar2.cost_from_start.resize(graph.nodes_qty, INF);
     
     // Reset mutex
     if (visited_mutex.try_lock()) {

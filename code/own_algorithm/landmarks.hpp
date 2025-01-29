@@ -11,9 +11,9 @@
 
 void buildLandmarks(Graph& graph) {
 
-    vector<bool> isLandmark(graph.map_size, false);
-    vector<int> pathsArray(graph.map_size);
-    graph.landmark_distance.resize(LANDMARKS_QTY*graph.map_size);
+    vector<bool> isLandmark(graph.nodes_qty, false);
+    vector<int> pathsArray(graph.nodes_qty);
+    graph.landmark_distance.resize(LANDMARKS_QTY*graph.nodes_qty);
     int firstLandmark = ROOT;
 
     graph.landmarks.push_back(firstLandmark);
@@ -31,7 +31,7 @@ void buildLandmarks(Graph& graph) {
         // get all the shortest paths from the landmark node to all the other nodes
         pathsArray = shortestPaths(graph, current_landmark);
         // Store them in landmark_distance[node * LANDMARKS_QTY + landmark]
-        for (int node = 0; node < graph.map_size; ++node) {
+        for (int node = 0; node < graph.nodes_qty; ++node) {
             graph.landmark_distance[node * LANDMARKS_QTY + landmark] = pathsArray[node];
         }
 
@@ -45,7 +45,7 @@ void buildLandmarks(Graph& graph) {
         // Iterate over all the nodes to find the farthest node from all previous landmarks
         int farthestNode = -1, maxMinDistance = -1;
         // Fo reach node
-        for (int node = 0; node < graph.map_size; ++node) {
+        for (int node = 0; node < graph.nodes_qty; ++node) {
             // Skip the nodes already selected as landmark
             if (isLandmark[node]) continue;
             
@@ -82,7 +82,7 @@ void saveLandmarksToBinary(Graph& graph, Files& files) {
     }
 
     // n = number of nodes, m = number of chosen landmarks
-    int n = graph.map_size;
+    int n = graph.nodes_qty;
     int m = (int)graph.landmarks.size();
 
     // 1) Write n and m
@@ -111,7 +111,7 @@ bool loadLandmarksFromBinary(Graph& graph, Files& files) {
     file.read(reinterpret_cast<char*>(&n), sizeof(n));
     file.read(reinterpret_cast<char*>(&m), sizeof(m));
 
-    graph.map_size = n; // might update the map_size if needed
+    graph.nodes_qty = n; // might update the map_size if needed
     graph.landmarks.resize(m);
     graph.landmark_distance.resize((size_t)n * m);
 

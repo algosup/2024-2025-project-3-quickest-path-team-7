@@ -2,7 +2,6 @@
 #define HEADER_H
 
 #define CSV_LINES           28854312
-#define NODE_MAX_VALUE      23947347
 
 #define ROOT                1
 #define LANDMARKS_QTY       10
@@ -16,6 +15,8 @@
 #define DATASET             "USA-roads.csv"
 #define OUTPUT              "shortest-path.csv"
 
+#define SUCCESS             true
+#define FAIL                false
 #define INVALID_NODE        -1
 #define STOP                -2
 

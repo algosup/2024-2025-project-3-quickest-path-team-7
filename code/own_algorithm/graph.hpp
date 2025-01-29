@@ -3,52 +3,51 @@
 
 #include "header.hpp"
 
-void saveGraphToBinary(const Graph& graph, const Files& files) {
+bool saveGraphToBinary(const Graph& graph, const Files& files) {
+
+    // Open/Create the binary file backup
     ofstream ofs(files.map_backup, ios::binary);
     if (!ofs.is_open()) {
-        cerr << "Failed to open file for writing: " << files.map_backup << endl;
-        return;
+        return FAIL;
     }
 
-    // 1) Write map_size
-    ofs.write(reinterpret_cast<const char*>(&graph.map_size), sizeof(graph.map_size));
+    // Write the number of nodes
+    ofs.write(reinterpret_cast<const char*>(&graph.nodes_qty), sizeof(graph.nodes_qty));
 
-    // 2) Write adjacency_start array size + contents
-    //    size = (graph.map_size + 1)
+    // Write adjacency_start array size + contents
     int startArraySize = graph.adjacency_start.size();
     ofs.write(reinterpret_cast<const char*>(&startArraySize), sizeof(startArraySize));
     ofs.write(reinterpret_cast<const char*>(graph.adjacency_start.data()),
               startArraySize * sizeof(int));
 
-    // 3) Write edges array size + contents
+    // Write edges array size + contents
     int edgesSize = graph.edges.size();
     ofs.write(reinterpret_cast<const char*>(&edgesSize), sizeof(edgesSize));
     ofs.write(reinterpret_cast<const char*>(graph.edges.data()),
               edgesSize * sizeof(Edge));
 
     ofs.close();
+
+    return SUCCESS;
 }
 
 // Load compressed adjacency data from the binary file
-void loadGraphFromBinary(Graph& graph, const Files& files) {
+bool loadGraphFromBinary(Graph& graph, const Files& files) {
+
+    // Open the binary file backup
     ifstream ifs(files.map_backup, ios::binary);
-    if (!ifs.is_open()) {
-        cerr << "Failed to open file for reading: " << files.map_backup << endl;
-        graph.loaded = false;
-        return;
-    }
 
-    // 1) Read map_size
-    ifs.read(reinterpret_cast<char*>(&graph.map_size), sizeof(graph.map_size));
+    // Read map_size
+    ifs.read(reinterpret_cast<char*>(&graph.nodes_qty), sizeof(graph.nodes_qty));
 
-    // 2) Read adjacency_start
+    // Read adjacency_start 
     int startArraySize = 0;
     ifs.read(reinterpret_cast<char*>(&startArraySize), sizeof(startArraySize));
     graph.adjacency_start.resize(static_cast<int>(startArraySize));
     ifs.read(reinterpret_cast<char*>(graph.adjacency_start.data()),
              startArraySize * sizeof(int));
 
-    // 3) Read edges
+    // Read edges array
     int edgesSize = 0;
     ifs.read(reinterpret_cast<char*>(&edgesSize), sizeof(edgesSize));
     graph.edges.resize(static_cast<int>(edgesSize));
@@ -56,58 +55,64 @@ void loadGraphFromBinary(Graph& graph, const Files& files) {
              edgesSize * sizeof(Edge));
 
     ifs.close();
-    graph.loaded = true;
+    
+    return SUCCESS;
 
 }
 
 // Temporary structure to store edges before compressing
-struct TempEdge {
-    int src; // source
-    int dst; // destination
-    int dist; // distance
+struct FullEdge {
+    int source;
+    int destination;
+    int weight;
 };
 
-// CSV_LINES is presumably the total lines in your CSV
-// or you can read until EOF with a simpler loop.
-void buildGraphFromCSV(Graph& graph, const Files& files) {
-    ifstream csv_file(files.dataset);
-    if (!csv_file.is_open()) {
-        cerr << "Cannot open dataset: " << files.dataset << endl;
-        graph.loaded = false;
-        return;
-    }
+bool buildGraphFromCSV(Graph& graph, const Files& files) {
 
-    vector<TempEdge> allEdges;
-    // If you know the approximate number of lines, reserve that many (not NODE_MAX_VALUE):
-    // allEdges.reserve(some_estimated_line_count);
+    // Open the CSV file
+    ifstream csv_file(files.dataset);
+    
+    // vector to store all connections of the CSV file
+    vector<FullEdge> allEdges;
 
     string line;
     unsigned int counter = 0;
     unsigned int progression = 0;
     unsigned int progression_backup = 0;
 
+    // For each line in the CSV file
     while (getline(csv_file, line)) {
+
+        // Skip empty lines
         if (line.empty()) continue;
+
+        // For each 'cell' (number) in the line, extract it in row[]
         stringstream ss(line);
         vector<int> row;
-        {
-            string cell;
-            while (getline(ss, cell, ',')) {
-                row.push_back(stoi(cell));
-            }
+        string cell;
+        while (getline(ss, cell, ',')) {
+            row.push_back(stoi(cell));
         }
-        if (row.size() != 3) continue;
 
-        int node1 = row[0];
-        int node2 = row[1];
-        int dist  = row[2];
+        // Check if the line has the correct number of values
+        if (row.size() != 3) {
+            cout << "Error: Expected 3 values per line, but read " << row.size() << endl;
+            return FAIL;
+        }
 
         // Insert in both directions for an undirected graph
-        allEdges.push_back({node1, node2, dist});
-        allEdges.push_back({node2, node1, dist});
+        int nodeA  = row[0];
+        int nodeB  = row[1];
+        int weight = row[2];
+        allEdges.push_back({nodeA, nodeB, weight});
+        allEdges.push_back({nodeB, nodeA, weight});
 
-        counter++;
-        progression = counter * 100 / CSV_LINES; // your known CSV_LINES
+        // Keep track of the maximum node value (will be the nodes quantity)
+        graph.nodes_qty = max(graph.nodes_qty, max(nodeA, nodeB));
+
+        // Show progression and count lines
+        counter++;    
+        progression = counter * 100 / CSV_LINES;
         if (progression != progression_backup) {
             cout << "\rLoading the CSV file into memory ... " << progression << " %" << flush;
             progression_backup = progression;
@@ -115,101 +120,112 @@ void buildGraphFromCSV(Graph& graph, const Files& files) {
     }
     csv_file.close();
 
-    // Suppose you do:
-    //    graph.map_size = NODE_MAX_VALUE + 1;
-    // If you discovered the max node on-the-fly, you'd do:
-    //    int maxNodeID = 0; // track max while reading
-    //    graph.map_size = maxNodeID + 1;
-    graph.map_size = NODE_MAX_VALUE + 1;
+    // Check if the constant is correct
+    if (counter != CSV_LINES) {
+        cout << "Error: Expected " << CSV_LINES << " lines, but read " << counter << endl;
+        return FAIL;
+    }
 
-    // Sort edges by src
+    // Sort edges to then enable contigous access of the neighbor of each node
     sort(allEdges.begin(), allEdges.end(), 
-         [](const TempEdge& a, const TempEdge& b) {
-             return a.src < b.src;
+         [](const FullEdge& a, const FullEdge& b) {
+             return a.source < b.source;
          });
 
-    // 1) Resize adjacency_start to (map_size + 1), init to 0
-    graph.adjacency_start.resize(graph.map_size + 1, 0);
+    // Resize adjacency_start to create each node index [x]
+    graph.adjacency_start.resize(graph.nodes_qty + 1);
 
-    // 2) Count how many edges each node has
-    for (auto &e : allEdges) {
-        graph.adjacency_start[e.src]++;  
+    // store the number of neighbors for each node (to then define the indexes for the edges)
+    for (auto &edge : allEdges) {
+        // Add 1 to the number of neighbors for the source node
+        graph.adjacency_start[edge.source]++;  
     }
-    // Now adjacency_start[u] = number of edges from node u
-    // We need prefix sums so adjacency_start[u] = index where edges for u begin
+    // Now adjacency_start[u] = number of neighbors from node u
 
-    // prefix sum
+    // Increase index by the number of edges of the previous one, 
+    // so adjacency_start[u] = index where edges for u begin in the edges array of the graph
     graph.adjacency_start[0] = 0;
     int_pair temp = {0, 0};
-    for (int u = 1; u <= NODE_MAX_VALUE; u++) {
+    for (int u = 1; u <= graph.nodes_qty; u++) {
         temp.first = graph.adjacency_start[u];
         graph.adjacency_start[u] = graph.adjacency_start[u-1] + temp.second;
         temp.second = temp.first;
     }
-    // Now adjacency_start[u] is the *cumulative* sum up to node u-1
-    // adjacency_start[map_size] must be set after the final prefix sum:
-    graph.adjacency_start[graph.map_size] = static_cast<int>(allEdges.size());
-
-    // 4) Allocate edges
+    // Now adjacency_start[u] = index where edges for u begin in the edges array of the graph
+    
+    // Resizes edges vector of the graph to enable improvised access[x]
     graph.edges.resize(allEdges.size());
 
-    // We'll keep a temporary array of "write positions"
-    vector<int> writePosition(graph.map_size, 0);
+    // temporary 'writePosition' will be used to know where to write the next edge of a given node
+    vector<int> writePosition(graph.nodes_qty, 0);
     // Initialize each writePosition[u] = adjacency_start[u], 
-    // so we know where to place the next edge for node u
-    for (int u = 0; u < graph.map_size; u++) {
+    // so we know where to place the first edge for a given node u
+    for (int u = 0; u < graph.nodes_qty; u++) {
         writePosition[u] = graph.adjacency_start[u];
     }
 
-    // 5) Fill graph.edges in sorted order
-    for (auto &e : allEdges) {
-        int pos = writePosition[e.src]++;
-        graph.edges[pos].id = e.dst;
-        graph.edges[pos].weight = e.dist;
+    // Fill graph.edges in sorted order at the correct position
+    for (FullEdge edge : allEdges) {
+        // we extract the position to write in pos and then increment for next edge
+        int pos = writePosition[edge.source]++;
+        graph.edges[pos].id = edge.destination;
+        graph.edges[pos].weight = edge.weight;
     }
 
-    // Mark loaded
-    graph.loaded = true;
+    return SUCCESS;
 }
 
-// Build the graph (from backup if exists, else from CSV)
-void buildGraph(Graph& graph, Files& files, bool force = false) {
-    // If not forcing a rebuild, try to load from binary
+bool loadGraph(Graph& graph, Files& files, bool force = false) {
+
+    // If not forcing a rebuild from CSV, try to load from binary backup
     if (!force) {
+        cout << "\n\nLoading the graph from the backup " << files.map_backup << " ... " << flush;
+        
+        // Check if the backup exists
         ifstream test(files.map_backup, ios::binary);
-        if (test.is_open()) {
+        if (!test.is_open()) {
+            cout << "\nBackup not found !" << endl;
+        } else {
             test.close();
-            loadGraphFromBinary(graph, files);
-            if (graph.loaded) {
-                cout << "Loaded graph from " << files.map_backup << "!" << endl;
-                return;
+
+            // Load the backup of the graph
+            if (loadGraphFromBinary(graph, files)) {
+                cout << "Done !" << endl;
+                return SUCCESS;
+            } else {
+                cout << "\nFailed to read the backup !" << endl;
+                return FAIL;
             }
         }
     }
 
-    // Otherwise, read the CSV and build from scratch
-    cout << "Building graph from " << files.dataset << "..." << endl;
-    buildGraphFromCSV(graph, files);
-    if (!graph.loaded) {
-        cerr << "Error: graph not built from CSV." << endl;
-        return;
+    // Otherwise, build the graph from CSV file directly
+    cout << "Building graph from " << files.dataset << " ... " << flush;
+
+    // Check if the dataset exists
+    ifstream test(files.dataset);
+    if (!test.is_open()) {
+        cout << "\nDataset not found !" << endl;
+        return FAIL;
+    }
+    test.close();
+
+    // Build the graph from CSV
+    if(buildGraphFromCSV(graph, files)) {
+        cout << "Done !" << endl;
+    } else {
+        cout << "\nFailed to build the graph from CSV !" << endl;
+        return FAIL;
     }
 
-    // Save to binary for next time
-    saveGraphToBinary(graph, files);
-    cout << "\nGraph saved to binary " << files.map_backup << endl;
-}
-
-void loadGraph(Graph& graph, Files& files, bool force = false) {
-    buildGraph(graph, files, force);
-
-    if (!graph.loaded) {
-        // In your code, you do a loop prompting user to "retry" or specify a new CSV path
-        // We'll omit that logic here, but you'd do it similarly if (graph.loaded == false).
-        cerr << "Graph not loaded. Provide new CSV or fix the file paths." << endl;
-        return;
+    // Save it to binary backup for next time
+    if(saveGraphToBinary(graph, files)){
+        cout << "Graph saved to " << files.map_backup << " !" << endl;
+        return SUCCESS;
+    } else {
+        cout << "\nFailed to save the graph to binary !" << endl;
+        return FAIL;
     }
-
 }
 
 #endif

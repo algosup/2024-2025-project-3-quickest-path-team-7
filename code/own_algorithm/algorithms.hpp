@@ -180,7 +180,7 @@ void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i
 vector<int> shortestPaths(Graph& graph, int source) {
-    vector<int> distances(graph.map_size, INF); // Initialize distances to infinity
+    vector<int> distances(graph.nodes_qty, INF); // Initialize distances to infinity
     distances[source] = 0; // Distance to the source node is 0
 
     // Min-heap priority queue: (distance, node)
