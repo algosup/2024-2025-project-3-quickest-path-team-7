@@ -5,6 +5,7 @@
 
 bool saveGraphToBinary(const Graph& graph, const Files& files) {
 
+    cout << "Saving the graph to " << files.map_backup << " ... " << flush;
     // Open/Create the binary file backup
     ofstream ofs(files.map_backup, ios::binary);
     if (!ofs.is_open()) {
@@ -28,6 +29,7 @@ bool saveGraphToBinary(const Graph& graph, const Files& files) {
 
     ofs.close();
 
+    cout << "Done !" << endl;
     return SUCCESS;
 }
 
@@ -120,6 +122,7 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
         }
     }
     csv_file.close();
+    cout << endl;
 
     // Check if the constant is correct
     if (counter != CSV_LINES) {
@@ -128,11 +131,14 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
     }
 
     // Sort edges to then enable contigous access of the neighbor of each node
+    cout << "Sorting edges ... " << flush;
     sort(allEdges.begin(), allEdges.end(), 
          [](const FullEdge& a, const FullEdge& b) {
              return a.source < b.source;
          });
+    cout << "Done !" << endl;
 
+    cout << "Organizing data ... " << flush;
     // Resize adjacency_start to create each node index [x]
     graph.adjacency_start.resize(graph.nodes_qty + 1);
 
@@ -173,6 +179,8 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
         graph.edges[pos].weight = edge.weight;
     }
 
+    cout << "Done !" << endl;
+
     return SUCCESS;
 }
 
@@ -185,47 +193,43 @@ bool loadGraph(Graph& graph, Files& files, bool force = false) {
         // Check if the backup exists
         ifstream test(files.map_backup, ios::binary);
         if (!test.is_open()) {
-            cout << "\nBackup not found !" << endl;
+            cout << "\nBackup " << files.map_backup << " not found !" << endl;
         } else {
             test.close();
 
             // Load the backup of the graph
-            if (loadGraphFromBinary(graph, files)) {
+            if (!loadGraphFromBinary(graph, files)) {
+                cout << "\nFailed to load the backup !" << endl;
+                return FAIL;
+            } else {
                 cout << "Done !" << endl;
                 return SUCCESS;
-            } else {
-                cout << "\nFailed to read the backup !" << endl;
-                return FAIL;
             }
         }
     }
 
     // Otherwise, build the graph from CSV file directly
-    cout << "Building graph from " << files.dataset << " ... " << flush;
 
     // Check if the dataset exists
     ifstream test(files.dataset);
     if (!test.is_open()) {
-        cout << "\nDataset not found !" << endl;
+        cout << "Dataset " << files.dataset << " not found !" << endl;
         return FAIL;
     }
     test.close();
 
     // Build the graph from CSV
-    if(buildGraphFromCSV(graph, files)) {
-        cout << "Done !" << endl;
-    } else {
-        cout << "\nFailed to build the graph from CSV !" << endl;
+    if(!buildGraphFromCSV(graph, files)) {
+        cout << "Failed to build the graph from CSV !" << endl;
         return FAIL;
     }
 
     // Save it to binary backup for next time
-    if(saveGraphToBinary(graph, files)){
-        cout << "Graph saved to " << files.map_backup << " !" << endl;
-        return SUCCESS;
-    } else {
-        cout << "\nFailed to save the graph to binary !" << endl;
+    if(!saveGraphToBinary(graph, files)){
+        cout << "Failed to save the graph to binary !" << endl;
         return FAIL;
+    } else {
+        return SUCCESS;
     }
 }
 

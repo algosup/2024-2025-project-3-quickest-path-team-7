@@ -10,11 +10,13 @@ int main () {
 
     takeFolderInput(files);
 
-    loadGraph(graph, files);
+    // Load the graph from CSV or backup
+    if (loadGraph(graph, files) == FAIL) {
+        cout << "Error loading graph, exiting... \n" << endl;
+        return 1;
+    }
 
     loadLandmarks(graph, files);
-
-    
 
     reset_algorithm_data(graph, path_data, astar1, astar2);  
     
@@ -24,13 +26,10 @@ int main () {
 
     while (true)
     {
-        
-        if (takeUserInput(graph, path_data) == INVALID_NODE)
-        { 
+        // Take user input for the start and end nodes or any extra command (you can check it out)
+        if (takeUserInput(graph, path_data) == INVALID_NODE){ 
             continue;
-
         } else if (path_data.start == STOP) {
-
             break;
         }
 
