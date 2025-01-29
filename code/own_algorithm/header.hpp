@@ -41,6 +41,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <algorithm>
 
 // Alias
 using namespace std;
