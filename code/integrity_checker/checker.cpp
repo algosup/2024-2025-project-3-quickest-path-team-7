@@ -2,7 +2,7 @@
 
 int main() {
 
-    vector<vector<int>> dag;
+    DAG dag;
     Graph graph;
 
     cout << "\nInitialization\n" << endl;

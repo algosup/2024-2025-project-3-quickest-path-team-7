@@ -10,6 +10,11 @@ struct Graph {
     vector<int> weights;
 };
 
+struct DAG {
+    vector<vector<int>> data;
+    vector<vector<int>> parents;
+};
+
 // Function to calculate then display the memory usage of the graph
 void GraphMemoryUsage(Graph& graph) {
 

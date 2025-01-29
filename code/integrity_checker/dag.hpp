@@ -3,112 +3,157 @@
 
 #include "header.hpp"
 
-// Function to detect a cycle in a directed graph using DFS
-bool dfs(int node, vector<vector<int>>& dag, vector<int>& visited) {
-    // 0 = not visited, 1 = visiting (in the current recursion stack), 2 = visited
-    visited[node] = 1;  // Mark the node as visiting
+void loadDag(DAG& dag) 
+{
+    ifstream file(DATASET);
+    string line;
+    unordered_map<int, vector<int>> data;
+    while (getline(file, line)) 
+    {
+        stringstream ss(line);
+        string token;
+        vector<int> tokens;
+        while (getline(ss, token, ',')) 
+        {
+            tokens.push_back(stoi(token));
+        }
+        data[tokens[0]].push_back(tokens[1]);
+        
+    }
+    dag.data.resize(NODE_MAX_VALUE);
+    for (const auto& [node, neighbors] : data) 
+    {
+        dag.data[node] = neighbors;
+    }
+    file.close();
+    cout << "dag data loaded" << endl;
+}
+
+void loadParents(DAG& dag) 
+{
+    cout << "2.2" << endl;
+    dag.parents.resize(NODE_MAX_VALUE);
+    cout << "2.3" << endl;
+    for (int i = 0; i < NODE_MAX_VALUE; i++) 
+    {
+        for (const auto& neighbor : dag.data[i]) 
+        {
+            dag.parents[neighbor].push_back(i);
+        }
+    } 
+    cout << "2.4" << endl;
+    cout << "dag parents loaded" << endl;
+}
+
+void afficheData(DAG& dag) 
+{
+    for (int i = 0; i < NODE_MAX_VALUE; i++) 
+    {
+        cout << "Node " << i << " neighbors are " << endl;
+        if(dag.data[i].empty())
+        {
+            cout << "No neighbors" << endl;
+            continue;
+        }
+        for (const auto& neighbor : dag.data[i]) 
+        {
+            cout << neighbor << endl;
+        }
+    }
+}
+
+void afficheParents(DAG& dag) 
+{
+    for (int i = 0; i < NODE_MAX_VALUE; i++) 
+    {
+        cout << "Node " << i << " parents are " << endl;
+        if(dag.parents[i].empty())
+        {
+            cout << "No parents" << endl;
+            continue;
+        }
+        for (const auto& parent : dag.parents[i]) 
+        {
+            cout << parent << endl;
+        }
+    }
+}
+
+bool dfs(int node, DAG& dag, vector<int>& visited) 
+{
+    //cout << "DFS on node " << node << endl;
+    visited[node] = visited[node]+1;  // Mark the node as visiting
 
     // Explore all neighbors
-    if (dag[node].empty()) {
-        visited[node] = 2;  // Mark the node as fully processed
+    if (dag.data[node].empty()) 
+    {
+        visited[node] = dag.parents[node].size()+1;  // Mark the node as fully processed
         return false;
     }
-    for (int neighbor : dag[node]) {
-        cout << neighbor << endl;
-        if (visited[neighbor] == 1) {  // A cycle is detected
+    for (int neighbor : dag.data[node]) 
+    {
+        if (visited[neighbor] == dag.parents[node].size() and dag.parents[node].size() != 0) 
+        {  // A cycle is detected
+            cout << "Cycle detected in node" << node << endl;
             return true;
         }
-        if (visited[neighbor] == 0 && dfs(neighbor, dag, visited)) {
+        if (visited[neighbor] == 0 && dfs(neighbor, dag, visited)) 
+        {
+            cout << "Cycle detected in node" << node << endl;
             return true;
         }
     }
 
-    visited[node] = 2;  // Mark the node as fully processed
+    visited[node] = dag.parents[node].size()+1;  // Mark the node as fully processed
     return false;
 }
 
-void loadDAG(vector<vector<int>>& dag, bool force = false) 
+void buildDag(DAG& dag) 
 {
-
-    fstream csv_map(DATASET);
-    
-    unsigned int counter = 0;
-    unsigned int progression = 0;
-    unsigned int progression_backup = 0;
-
-    string line;
-    while (getline(csv_map, line)) {
-
-        dag.resize(23947347);
-        stringstream nodeString(line);
-        string node_cell;
-        vector<int> nodeData;
-        
-        while (getline(nodeString, node_cell, ',')) {
-            nodeData.push_back(stoi(node_cell));
-        }
-        
-        // CSV format is: node1, node2, distance
-        if (nodeData.size() == 3) {
-            int node1 = nodeData[0];
-            int node2 = nodeData[1];
-            int distance = nodeData[2];
-            dag[node1] = {node2, distance};
-        }
-        counter++;
-        progression = counter * 100 / CSV_LINES;
-        if (progression != progression_backup) {
-            cout << "\rLoading the CSV file into memory ... " << progression << " %" << flush;
-            progression_backup = progression;
-        }
-    }
-
-    csv_map.close();
-
-}
-
-void buildDag(vector<vector<int>>& dag) {
-
-    loadDAG(dag);
+    cout << "1" << endl;
+    loadDag(dag);
+    cout << "2" << endl;
+    loadParents(dag);
+    cout << "3" << endl;
+    //afficheData(dag);
+    //afficheParents(dag);
     cout << "DAG loaded" << endl;
     // To track the state of the nodes during DFS (0 = unvisited, 1 = visiting, 2 = visited)
-    int n = dag.size();
+    int n = dag.data.size();
+    cout << "4" << endl;
     unsigned int counter = 0;
     unsigned int progression = 0;
     unsigned int progression_backup = 0;
     vector<int> visited(n, 0);  // 0 = unvisited, 1 = visiting, 2 = visited
-
+    cout << "5" << endl;
     // Check for cycles in the graph
-    bool asCicle = false;
-    for (int i = 0; i < n; ++i) {
-        cout << i << endl;
+    for (int i = 1; i < n; ++i) 
+    {
         counter++;
-        progression = counter * 100 / CSV_LINES;
-        if (progression != progression_backup) {
-            cout << "\rLoading the CSV file into memory ... " << progression << " %" << flush;
+        progression = (counter / CSV_LINES)*100;
+        if (progression != progression_backup) 
+        {
+            cout << "\rDag checked at ... " << progression << " %" << flush;
             progression_backup = progression;
         }
-        if (visited[i] == 0) {  // If the node is not visited
-            if (dfs(i, dag, visited)) {
+        if (visited[i] == 0) 
+        {  // If the node is not visited
+            if (dfs(i, dag, visited)) 
+            {
                 cout << "The graph contains a cycle!" << endl;
                 visited.clear();
-                vector<int> visited(dag.size(), 0);
-                asCicle = true;
-                break;
+                vector<int> visited(dag.data.size(), 0);
+                return;
             }
         }
     }
-    if (asCicle == true) 
-        {
-        cout << "The graph isn't acyclic (DAG)." << endl;
-        }
-    if (asCicle == false) 
-        {
-        cout << "The graph is acyclic (DAG)." << endl;
-        }
+    cout << "6" << endl;
+    cout << "The graph is acyclic (DAG)." << endl;
     //cin.get();
-    dag.clear();
-    dag.shrink_to_fit();
+    dag.data.clear();
+    dag.data.shrink_to_fit();
+    dag.parents.clear();
+    dag.parents.shrink_to_fit();
 }
 
 #endif
