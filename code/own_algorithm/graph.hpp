@@ -76,6 +76,7 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
     vector<FullEdge> allEdges;
 
     string line;
+    graph.nodes_qty = 0;
     unsigned int counter = 0;
     unsigned int progression = 0;
     unsigned int progression_backup = 0;

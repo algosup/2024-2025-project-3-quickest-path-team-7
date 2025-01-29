@@ -42,7 +42,7 @@ struct Edge {
 
 // Graph in compressed adjacency form
 struct Graph {    
-    // Number of nodes (1 + max node ID)
+    // Number of nodes (max node ID)
     int nodes_qty;
 
     // For node u:
