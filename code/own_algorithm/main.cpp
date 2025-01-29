@@ -19,10 +19,6 @@ int main () {
     loadLandmarks(graph, files);
 
     reset_algorithm_data(graph, path_data, astar1, astar2);  
-    
-    path_data.start = 1;
-    path_data.end = 2;
-    find_path(graph, path_data, astar1, astar2);
 
     while (true)
     {

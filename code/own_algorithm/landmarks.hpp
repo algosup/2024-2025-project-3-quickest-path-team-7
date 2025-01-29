@@ -70,8 +70,6 @@ void buildLandmarks(Graph& graph) {
 
     cout << "\rBuilding landmarks (" << LANDMARKS_QTY << "/" << LANDMARKS_QTY << ") ... Done !" << endl;
 
-    cout << "\nReversing the landmark table indexes ... " << flush;
-
 }
 
 void saveLandmarksToBinary(Graph& graph, Files& files) {
@@ -103,7 +101,7 @@ bool loadLandmarksFromBinary(Graph& graph, Files& files) {
     cout << "Loading landmarks from " << files.landmarks_backup << " ... " << flush;
     ifstream file(files.landmarks_backup, ios::binary);
     if (!file.is_open()) {
-        cout << "Backup not found!\n" << endl;
+        cout << "Backup not found!" << endl;
         return false;
     }
 
@@ -136,7 +134,6 @@ void loadLandmarks (Graph& graph, Files& files){
         cout << "Done !" << endl;
         cout << "Saving landmarks to binary backup... " << flush;
         saveLandmarksToBinary(graph, files); 
-        cout << "Done !" << endl;
     }
 }
 
