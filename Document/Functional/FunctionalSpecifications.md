@@ -12,7 +12,7 @@
 
 **Created on:** January 6<sup>th</sup>, 2025
 
-**Last updated:** January 27<sup>th</sup>, 2025
+**Last updated:** January 30<sup>th</sup>, 2025
 
 ---
 ---
@@ -22,6 +22,8 @@
 | 01/06/2025 | 0       | Create template               | Abderrazaq MAKRAN |
 | 01/16/2025 | 0.5       | Finished Intro (have to check data validation and add back to top) + Doing Functional API Details               | Abderrazaq MAKRAN |
 | 01/21/2025 | 1       | First version functional, still needs to be reviewed        | Abderrazaq MAKRAN |
+| 01/25/2025 | 1       | Changes in error handling, milestones       | Abderrazaq MAKRAN |
+| 01/30/2025 | 1       | Refine graph validation part       | Abderrazaq MAKRAN |
 ---
 
 ## Stakeholders
@@ -439,10 +441,10 @@ This project will use a single `GET` request method to handle all queries, ensur
 ---
 
 #### **Query Parameters**
-| **Parameter**  | **Required** | **Description**                                                                                              | **Accepted Values**         |
+| **Parameter**  | **Required** | **Description**                                                                                              | **Input Values**         |
 |-----------------|-------------|--------------------------------------------------------------------------------------------------------------|-----------------------------|
-| `source`       | Yes         | The ID of the starting landmark (A). Must be an integer within the valid range.                              | Integer (1–23,947,347)      |
-| `destination`  | Yes         | The ID of the destination landmark (B). Must be an integer within the valid range.                           | Integer (1–23,947,347)      |
+| `source`       | Yes         | The ID of the starting landmark (A). Must be an integer within the valid range.                              | Integer must be between 1 and 23,947,347      |
+| `destination`  | Yes         | The ID of the destination landmark (B). Must be an integer within the valid range.                           | Integer must be between 1 and 23,947,347     |
 | `format`       | No          | Overrides the `Accept` header to specify the response format.                                                | `json`, `xml`               |
 
 ---
@@ -761,15 +763,14 @@ As we explored earlier in this document, here is a small recap of how the proces
 | **Method Validation**  | Ensures the request method is `GET`. If not, the API rejects the request.                            | **405 Method Not Allowed**       |
 | **Input Validation**   | Validates `source` and `destination` parameters for presence and correctness.                        | **400 Bad Request**              |
 | **Landmark Check**     | Checks if the `source` and `destination` exist in the dataset:                                       |                                  |
-|                        | - If either is missing, the API returns an error.                                                   | **404 Not Found**                |
-|                        | - If `source` equals `destination`, it returns success with a message indicating identical landmarks.| **200 OK: Identical Landmarks**  |
-| **Pathfinding**        | Runs a pathfinding algorithm (e.g., A*) to calculate the shortest path:                              |                                  |
-|                        | - If no valid path is found, the API returns an error.                                              | **404 Not Found**                |
-|                        | - If successful, the calculated path is processed.                                                  | **200 OK**                       |
-| **Response Formatting**| Formats the output in the requested format (JSON by default, or XML if specified).                   | **200 OK**                       |
-| **Send Response**      | Sends the formatted response with the shortest path to the user.                                     | **200 OK**                       |
+|                        | - If either is missing from the dataset, the API returns an error.                                   | **404 Not Found**                |
+|                        | - If `source` equals `destination`, the API returns an error indicating identical landmarks.         | **400 Bad Request**              |
+| **Pathfinding**        | Executes the A* algorithm to compute the shortest path:                                              |                                  |
+|                        | - If an internal error occurs during computation, the API returns an error.                          | **500 Internal Server Error**    |
+|                        | - If successful, the calculated path and travel time are processed.                                  | **200 OK**                       |
+| **Response Formatting**| Formats the output based on the requested format (JSON by default, or XML if specified).             | **200 OK**                       |
+| **Send Response**      | Sends the formatted response with the shortest path and travel time to the user.                     | **200 OK**                       |
 
-This table summarizes the key steps in the process flow and their corresponding system responses.
 
 ```mermaid
 graph TD
