@@ -80,24 +80,17 @@ void find_path(Graph& graph, Path& path_data, Astar& astar) {
         if (astar.checked[current_node.id]) continue;
         astar.checked[current_node.id] = true;
 
-        // Parallelize neighbor exploration
-        astar.neighbors.clear();
-        for (int k = graph.adjacency_start[current_node.id]; k < graph.adjacency_start[current_node.id+1]; k++) {
-            astar.neighbors.push_back(graph.edges[k]);
-        }
-        #pragma omp parallel for
-        for (size_t i = 0; i < astar.neighbors.size(); ++i) {
+        for (int i = graph.adjacency_start[current_node.id]; i < graph.adjacency_start[current_node.id+1]; i++) {
 
-            if (astar.checked[astar.neighbors[i].id]) continue;
+            if (astar.checked[graph.edges[i].id]) continue;
 
-            int local_cost = astar.cost_from_start[current_node.id] + astar.neighbors[i].weight;
-            if (local_cost < astar.cost_from_start[astar.neighbors[i].id]) {
-                astar.node_before[astar.neighbors[i].id] = {current_node.id, astar.neighbors[i].weight};
-                astar.cost_from_start[astar.neighbors[i].id] = local_cost;
+            int local_cost = astar.cost_from_start[current_node.id] + graph.edges[i].weight;
+            if (local_cost < astar.cost_from_start[graph.edges[i].id]) {
+                astar.node_before[graph.edges[i].id] = {current_node.id, graph.edges[i].weight};
+                astar.cost_from_start[graph.edges[i].id] = local_cost;
 
-                int estimated_cost = local_cost + WEIGHT * estimate_distance(graph, astar.neighbors[i].id, path_data.end);
-                Node neighbor = {astar.neighbors[i].id, astar.neighbors[i].weight, estimated_cost};
-                #pragma omp critical
+                int estimated_cost = local_cost + heuristic_weight * estimate_distance(graph, graph.edges[i].id, path_data.end);
+                Node neighbor = {graph.edges[i].id, graph.edges[i].weight, estimated_cost};
                 astar.pq.push(neighbor);
             }
         }
