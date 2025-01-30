@@ -25,19 +25,19 @@ struct Node {
     }
 };
 
+// Each edge in the compressed adjacency array
+struct Edge {
+    int id;  
+    int weight;  
+};
+
+
 struct Astar {
     vector<int> cost_from_start;
     vector<int_pair> node_before;
     vector<bool> checked;
     priority_queue<Node> pq;
-    int iterations;  
-};
-
-
-// Each edge in the compressed adjacency array
-struct Edge {
-    int id;  
-    int weight;  
+    vector<Edge> neighbors;
 };
 
 // Graph in compressed adjacency form
@@ -90,53 +90,7 @@ string formatWithSpaces(long number) {
     return numStr;
 }
 
-void reset_algorithm_data(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
-
-    // initialize the ints
-    astar1.iterations = 0;
-    astar2.iterations = 0;
-
-    // Empty then Initialize atomics
-    meeting_found.store(false);
-    meeting_node.store(0);
-
-    // Reset vectors
-    visited_forward.clear();
-    visited_backward.clear();
-    astar1.node_before.clear();
-    astar2.node_before.clear();
-    astar1.cost_from_start.clear();
-    astar2.cost_from_start.clear();    
-
-    // Initialize vectors
-    visited_forward.resize(graph.nodes_qty, false);
-    visited_backward.resize(graph.nodes_qty, false);
-    astar1.node_before.resize(graph.nodes_qty, {-1, 0}); // {previous_node, weight}
-    astar2.node_before.resize(graph.nodes_qty, {-1, 0}); // {previous_node, weight}
-    astar1.cost_from_start.resize(graph.nodes_qty, INF);
-    astar2.cost_from_start.resize(graph.nodes_qty, INF);
-    
-    // Reset mutex
-    if (visited_mutex.try_lock()) {
-        visited_mutex.unlock();
-    }
-
-    // Empty the priority queues
-    while (!astar1.pq.empty()) {
-        astar1.pq.pop();
-    }
-    while (!astar2.pq.empty()) {
-        astar2.pq.pop();
-    }
-
-    // reset the path_data
-    path_data.path.clear();
-    path_data.distance = 0;
-    path_data.calculation_time = 0;
-    path_data.estimated_distance = 0;
-}
-
-void savePathToCSV(Graph& graph, Files& files, Path& path_data, Astar& astar1, Astar& astar2) {
+void savePathToCSV(Graph& graph, Files& files, Path& path_data) {
 
     ofstream file(files.output);
     if (!file.is_open()) {

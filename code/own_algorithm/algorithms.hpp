@@ -3,6 +3,32 @@
 
 #include "header.hpp"
 
+void reset_compute_data(Graph& graph, Path& path_data, Astar& astar) {
+
+    // initialize the vectors
+
+    astar.node_before.clear();
+    astar.node_before.resize(graph.nodes_qty, {-1, 0});
+
+    astar.cost_from_start.clear();
+    astar.cost_from_start.resize(graph.nodes_qty, INF);
+
+    astar.checked.clear();
+    astar.checked.resize(graph.nodes_qty, false);
+
+
+    // Empty the priority queue
+    while (!astar.pq.empty()) {
+        astar.pq.pop();
+    }
+
+    // reset the path_data
+    path_data.path.clear();
+    path_data.distance = 0;
+    path_data.calculation_time = 0;
+    path_data.estimated_distance = 0;
+}
+
 // Function to estimate the distance between two nodes using landmarks
 int estimate_distance(Graph& graph, int source, int destination) {
     int estimation = 0;
@@ -20,162 +46,64 @@ int estimate_distance(Graph& graph, int source, int destination) {
     return estimation;
 }
 
-// Function to reconstruct the path from the forward and backward visited nodes
-void reconstruct_bidirectional_path(Astar& astar1, Astar& astar2, Path& path_data) {
-    // Reconstruct path from start to meeting node
-    vector<int_pair> forward_path;
-    int current_node = meeting_node;
-    while (current_node != -1) {
-        forward_path.insert(forward_path.begin(), {current_node, astar1.node_before[current_node].second});
-        current_node = astar1.node_before[current_node].first;
+void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
+    int current_node = path_data.end;
+    while (current_node != path_data.start) {
+        path_data.path.insert(path_data.path.begin(), {current_node, node_before[current_node].second});
+        path_data.distance += node_before[current_node].second;
+        current_node = node_before[current_node].first;
     }
-
-    // Reconstruct path from meeting node to end
-    vector<int_pair> backward_path;
-    current_node = meeting_node;
-    while (current_node != -1) {
-        current_node = astar2.node_before[current_node].first;
-        if (current_node != -1) { // Skip the meeting node itself
-            backward_path.push_back({current_node, astar2.node_before[current_node].second});
-        }
-    }
-
-    // Combine forward and backward paths
-    path_data.path = forward_path;
-    path_data.path.insert(path_data.path.end(), backward_path.begin(), backward_path.end());
+    path_data.path.insert(path_data.path.begin(), {current_node, 0});
 }
 
-// Function for forward search (Thread 1)
-void forward_search(Graph& graph, Astar& astar1, int end) {
-    bool push = false;
-    bool brother_visited = false;
-    while (!astar1.pq.empty() && !meeting_found.load()) {
-        
-        Node current = astar1.pq.top();
-        astar1.pq.pop();
-        astar1.iterations++;
 
-        // Early termination: If this node is visited by backward search
-        {
-            lock_guard<mutex> lock(visited_mutex);
-            brother_visited = visited_backward[current.id];
-        }
-        if (brother_visited) {
-            meeting_node.store(current.id);
-            meeting_found.store(true);
+// A* derived algorithm to find the shortest path between two nodes
+void find_path(Graph& graph, Path& path_data, Astar& astar) {
+
+    int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
+    path_data.estimated_distance = start_to_end_estimation;
+    //start_to_end_estimation *= WEIGHT;
+
+    Node current_node = {path_data.start, 0, start_to_end_estimation};
+    astar.pq.push(current_node);
+    astar.cost_from_start[current_node.id] = 0;
+
+    while (!astar.pq.empty()) {
+        current_node = astar.pq.top();
+        astar.pq.pop();
+
+        if (current_node.id == path_data.end) {
+            reconstruct_path(astar.node_before, path_data);
             return;
         }
 
-        // Explore neighbors
-        for (int i = graph.adjacency_start[current.id]; i < graph.adjacency_start[current.id+1]; i++) {
-            Edge neighbor = graph.edges[i];
-            int local_cost_from_start = astar1.cost_from_start[current.id] + neighbor.weight;
+        if (astar.checked[current_node.id]) continue;
+        astar.checked[current_node.id] = true;
 
-            // Update visited set and push to priority queue
-            if (local_cost_from_start < astar1.cost_from_start[neighbor.id]){
-                {
-                    lock_guard<mutex> lock(visited_mutex);
-                    if (!visited_forward[neighbor.id]) {
-                        // Mark node as visited
-                        visited_forward[neighbor.id] = true;
-                        push = true;
-                    }
-                } 
-                if (push) {
-                    // Update node_before and cost_from_start
-                    astar1.node_before[neighbor.id] = {current.id, neighbor.weight};
-                    astar1.cost_from_start[neighbor.id] = local_cost_from_start;
-                    astar1.pq.push({neighbor.id, neighbor.weight, local_cost_from_start + estimate_distance(graph, neighbor.id, end)});
-                }
+        // Parallelize neighbor exploration
+        astar.neighbors.clear();
+        for (int k = graph.adjacency_start[current_node.id]; k < graph.adjacency_start[current_node.id+1]; k++) {
+            astar.neighbors.push_back(graph.edges[k]);
+        }
+        #pragma omp parallel for
+        for (size_t i = 0; i < astar.neighbors.size(); ++i) {
+
+            if (astar.checked[astar.neighbors[i].id]) continue;
+
+            int local_cost = astar.cost_from_start[current_node.id] + astar.neighbors[i].weight;
+            if (local_cost < astar.cost_from_start[astar.neighbors[i].id]) {
+                astar.node_before[astar.neighbors[i].id] = {current_node.id, astar.neighbors[i].weight};
+                astar.cost_from_start[astar.neighbors[i].id] = local_cost;
+
+                int estimated_cost = local_cost + WEIGHT * estimate_distance(graph, astar.neighbors[i].id, path_data.end);
+                Node neighbor = {astar.neighbors[i].id, astar.neighbors[i].weight, estimated_cost};
+                #pragma omp critical
+                astar.pq.push(neighbor);
             }
         }
     }
-}
+} 
 
-// Function for backward search (Thread 2)
-void backward_search(Graph& graph, Astar& astar2, int start) {
-    bool push = false;
-    bool brother_visited = false;
-    while (!astar2.pq.empty() && !meeting_found.load()) {
-        
-        Node current = astar2.pq.top();
-        astar2.pq.pop();
-        astar2.iterations++;
-
-        // Early termination: If this node is visited by forward search
-        {
-            lock_guard<mutex> lock(visited_mutex);
-            brother_visited = visited_forward[current.id];
-        }
-        if (brother_visited) {
-            meeting_node.store(current.id);
-            meeting_found.store(true);
-            return;
-        }
-
-        // Explore neighbors
-        for (int i = graph.adjacency_start[current.id]; i < graph.adjacency_start[current.id+1]; i++) {
-            Edge neighbor = graph.edges[i];
-            int local_cost_from_start = astar2.cost_from_start[current.id] + neighbor.weight;
-
-            // Update visited set and push to priority queue
-            if (local_cost_from_start < astar2.cost_from_start[neighbor.id]){
-                {
-                    lock_guard<mutex> lock(visited_mutex);
-                    if (!visited_backward[neighbor.id]) {
-                        // Mark node as visited
-                        visited_backward[neighbor.id] = true;
-                        push = true;
-                    }
-                } 
-                if (push) {
-                    // Update node_before and cost_from_start
-                    astar2.node_before[neighbor.id] = {current.id, neighbor.weight};
-                    astar2.cost_from_start[neighbor.id] = local_cost_from_start;
-                    astar2.pq.push({neighbor.id, neighbor.weight, local_cost_from_start + estimate_distance(graph, neighbor.id, start)});
-                }
-            }
-        }
-    }
-}
-
-// Main function to find the shortest path using bidirectional A*
-void find_path(Graph& graph, Path& path_data, Astar& astar1, Astar& astar2) {
-
-    path_data.estimated_distance = estimate_distance(graph, path_data.start, path_data.end);;
-    
-    // Initialize priority queues
-    astar1.pq.push({path_data.start, 0, path_data.estimated_distance});
-    astar2.pq.push({path_data.end, 0, path_data.estimated_distance});
-
-    //path_data.estimated_distance /= heuristic_weight;
-
-    // Initialize visited sets
-    visited_forward[path_data.start] = true;
-    visited_backward[path_data.end] = true;
-
-    // Initialize node tracking
-    astar1.cost_from_start[path_data.start] = 0;
-    astar2.cost_from_start[path_data.end] = 0;
-
-    // Launch threads for forward and backward search
-    thread forward_thread(forward_search, ref(graph), ref(astar1), path_data.end);
-    thread backward_thread(backward_search, ref(graph), ref(astar2), path_data.start);
-
-    // Wait for both threads to finish
-    forward_thread.join();
-    backward_thread.join();
-
-    path_data.distance = astar1.cost_from_start[meeting_node] + astar2.cost_from_start[meeting_node];
-    
-    if (meeting_node != 0) {
-        // Reconstruct the path
-        reconstruct_bidirectional_path(astar1, astar2, path_data);
-    } else {
-        // No path found
-        path_data.path.clear();
-        reset_algorithm_data(graph, path_data, astar1, astar2);      }
-}
 
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i

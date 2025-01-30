@@ -9,7 +9,7 @@ int main () {
     Files files;
     Path path_data;
     Timer timer;
-    Astar astar1, astar2;
+    Astar astar;
 
     takeFolderInput(files);
 
@@ -21,7 +21,7 @@ int main () {
 
     loadLandmarks(graph, files);
 
-    reset_algorithm_data(graph, path_data, astar1, astar2);  
+    reset_compute_data(graph, path_data, astar);  
 
     while (true)
     {
@@ -36,7 +36,7 @@ int main () {
 
         start_timer(timer);
 
-        find_path(graph, path_data, astar1, astar2);
+        find_path(graph, path_data, astar);
 
         stop_timer(timer);
         path_data.calculation_time = timer.time;
@@ -62,8 +62,8 @@ int main () {
         cout <<   "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
 
         // Save the path nodes to a CSV file
-        savePathToCSV(graph, files, path_data, astar1, astar2);      
-        reset_algorithm_data(graph, path_data, astar1, astar2);  
+        savePathToCSV(graph, files, path_data);      
+        reset_compute_data(graph, path_data, astar);  
 
     }
 
