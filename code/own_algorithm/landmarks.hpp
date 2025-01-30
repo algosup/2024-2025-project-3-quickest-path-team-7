@@ -1,5 +1,5 @@
-#ifndef LANDMARKS_QTY_HPP
-#define LANDMARKS_QTY_HPP
+#ifndef LANDMARKS_HPP
+#define LANDMARKS_HPP
 
 #include "header.hpp"
 
@@ -13,7 +13,7 @@ void buildLandmarks(Graph& graph) {
 
     vector<bool> isLandmark(graph.nodes_qty, false);
     vector<int> pathsArray(graph.nodes_qty);
-    graph.landmark_distance.resize(LANDMARKS_QTY*graph.nodes_qty);
+    graph.landmark_distance.resize(landmarks_qty*graph.nodes_qty);
     int firstLandmark = ROOT;
 
     graph.landmarks.push_back(firstLandmark);
@@ -23,22 +23,22 @@ void buildLandmarks(Graph& graph) {
     // Calculate all the distances from the first landmark to all the nodes
     // and store them in the landmark_distance table
     // Then find the farthest node as the next landmark
-    for (int landmark = 0; landmark < LANDMARKS_QTY; ++landmark) {
+    for (int landmark = 0; landmark < landmarks_qty; ++landmark) {
 
-        cout << "\rBuilding landmarks (" << landmark+1  << "/" << LANDMARKS_QTY << ") ... " << flush;
+        cout << "\rBuilding landmarks (" << landmark+1  << "/" << landmarks_qty << ") ... " << flush;
 
         int current_landmark = graph.landmarks.back();
         // get all the shortest paths from the landmark node to all the other nodes
         pathsArray = shortestPaths(graph, current_landmark);
-        // Store them in landmark_distance[node * LANDMARKS_QTY + landmark]
+        // Store them in landmark_distance[node * landmarks_qty + landmark]
         for (int node = 0; node < graph.nodes_qty; ++node) {
-            graph.landmark_distance[node * LANDMARKS_QTY + landmark] = pathsArray[node];
+            graph.landmark_distance[node * landmarks_qty + landmark] = pathsArray[node];
         }
 
         // Scan the distances from the current landmark to all the nodes
         // to find the farthest node as the next landmark
 
-        if (landmark == LANDMARKS_QTY - 1) {
+        if (landmark == landmarks_qty - 1) {
             break; // As we don't need to find the farthest node for the last landmark
         }
 
@@ -53,7 +53,7 @@ void buildLandmarks(Graph& graph) {
             int minDistance = INF;
             for (int prevLandmark = 0; prevLandmark < graph.landmarks.size(); ++prevLandmark) {
                 int landmarkIndex = graph.landmarks[prevLandmark];
-                minDistance = min(minDistance, graph.landmark_distance[node * LANDMARKS_QTY + prevLandmark]);
+                minDistance = min(minDistance, graph.landmark_distance[node * landmarks_qty + prevLandmark]);
             }
 
             // Update the farthest node based on the maximum of these minimum distances
@@ -68,7 +68,7 @@ void buildLandmarks(Graph& graph) {
 
     }
 
-    cout << "\rBuilding landmarks (" << LANDMARKS_QTY << "/" << LANDMARKS_QTY << ") ... Done !" << endl;
+    cout << "\rBuilding landmarks (" << landmarks_qty << "/" << landmarks_qty << ") ... Done !" << endl;
 
 }
 

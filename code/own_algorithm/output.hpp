@@ -78,6 +78,7 @@ vector<bool> visited_forward;         // Forward visited set
 vector<bool> visited_backward;        // Backward visited set
 
 float heuristic_weight = WEIGHT;
+int landmarks_qty = LANDMARKS_QTY;
 
 // Function to format a number with spaces between each group of three digits
 string formatWithSpaces(long number) {
@@ -99,7 +100,7 @@ void savePathToCSV(Graph& graph, Files& files, Path& path_data) {
     }
 
     file 
-    << "A-star Algorithm, "     << "using " << LANDMARKS_QTY << " landmarks"
+    << "A-star Algorithm, "     << "using " << landmarks_qty << " landmarks"
     << "\nStart Node, "         << formatWithSpaces(path_data.start) 
     << "\nEnd Node, "           << formatWithSpaces(path_data.end) 
     << "\nEstimated Distance, " << formatWithSpaces(path_data.estimated_distance)

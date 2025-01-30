@@ -32,8 +32,8 @@ void reset_compute_data(Graph& graph, Path& path_data, Astar& astar) {
 // Function to estimate the distance between two nodes using landmarks
 int estimate_distance(Graph& graph, int source, int destination) {
     int estimation = 0;
-    int source_index = source * LANDMARKS_QTY;
-    int destination_index = destination * LANDMARKS_QTY;
+    int source_index = source * landmarks_qty;
+    int destination_index = destination * landmarks_qty;
     // For each landmark : "
     for (int i = 0; i < graph.landmarks.size(); i++) {
         // Take the absolute value of the difference between these two distances

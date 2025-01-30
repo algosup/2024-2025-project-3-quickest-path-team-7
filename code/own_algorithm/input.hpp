@@ -37,7 +37,7 @@ void takeFolderInput(Files& files) {
         files.landmarks_backup = LANDMARKS_BACKUP;
     }
 
-    files.landmarks_backup = files.landmarks_backup + "-" + to_string(LANDMARKS_QTY) + ".bin";
+    files.landmarks_backup = files.landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
     
     cout << "\nThe program will read this dataset: " << files.dataset << endl;
     cout << "The program will save the output to this file: " << files.output << endl;
@@ -56,23 +56,30 @@ int takeUserInput(Graph& graph, Path& path) {
     }
 
     if (input == "fast") {
-        cout << "Using predefined nodes 1 and 2." << endl;
         path.start = 1;
         path.end = 2;
+        cout << "Using predefined nodes " << path.start << " and " << path.end << "." << endl;
         return 0;
     }
 
     if (input == "med") {
-        cout << "Using predefined nodes 8 and 1200000." << endl;
-        path.start = 8;
-        path.end = 1200000;
+        path.start = 1471291;
+        path.end = 9597648;
+        cout << "Using predefined nodes " << path.start << " and " << path.end << "." << endl;
         return 0;
     }
 
     if (input == "long") {
-        cout << "Using predefined nodes 1471291 and 9597648." << endl;
+        path.start = 9489093;
+        path.end = 22377087;
+        cout << "Using predefined nodes " << path.start << " and " << path.end << "." << endl;
+        return 0;
+    }
+
+    if (input == "try") {
         path.start = 1471291;
-        path.end = 9597648;
+        path.end = 22377087;
+        cout << "Using predefined nodes " << path.start << " and " << path.end << "." << endl;
         return 0;
     }
 
@@ -80,6 +87,13 @@ int takeUserInput(Graph& graph, Path& path) {
         cout << "Enter the weight: ";
         cin >> heuristic_weight;
         cout << "Weight set to " << heuristic_weight << endl;
+        return 0;
+    }
+
+    if (input == "landmarks") {
+        cout << "Enter the number of landmarks: ";
+        cin >> landmarks_qty;
+        buildLandmarks(graph);
         return 0;
     }
 
