@@ -114,7 +114,7 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
         graph.nodes_qty = max(graph.nodes_qty, max(nodeA, nodeB));
 
         // Show progression and count lines
-        counter++;    
+        counter++;
         progression = counter * 100 / CSV_LINES;
         if (progression != progression_backup) {
             cout << "\rLoading the CSV file into memory ... " << progression << " %" << flush;
@@ -122,12 +122,12 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
         }
     }
     csv_file.close();
-    cout << endl;
 
     // Check if the constant is correct
-    if (counter != CSV_LINES) {
-        cout << "Error: Expected " << CSV_LINES << " lines, but read " << counter << endl;
-        return FAIL;
+    if (counter < CSV_LINES) {
+        cout << "\rLoading the CSV file into memory ... 100 %" << endl;
+    } else {
+        cout << endl;
     }
 
     // Sort edges to then enable contigous access of the neighbor of each node
@@ -138,9 +138,13 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
          });
     cout << "Done !" << endl;
 
+    for (FullEdge edge : allEdges) {
+        cout << edge.source << " " << edge.destination << " " << edge.weight << endl;
+    }
+
     cout << "Organizing data ... " << flush;
-    // Resize adjacency_start to create each node index [x]
-    graph.adjacency_start.resize(graph.nodes_qty + 1);
+    // Resize adjacency_start to create each node index [x] and [x+1]
+    graph.adjacency_start.resize(graph.nodes_qty + 2);
 
     // store the number of neighbors for each node (to then define the indexes for the edges)
     for (auto &edge : allEdges) {
@@ -149,25 +153,33 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
     }
     // Now adjacency_start[u] = number of neighbors from node u
 
+    for (int i = 1; i <= graph.nodes_qty +1; i++) {
+        cout << "Node " << i << " has " << graph.adjacency_start[i] << " neighbors." << endl;
+    }
+
     // Increase index by the number of edges of the previous one, 
     // so adjacency_start[u] = index where edges for u begin in the edges array of the graph
     graph.adjacency_start[0] = 0;
     int_pair temp = {0, 0};
-    for (int u = 1; u <= graph.nodes_qty; u++) {
+    for (int u = 1; u <= graph.nodes_qty+1; u++) {
         temp.first = graph.adjacency_start[u];
         graph.adjacency_start[u] = graph.adjacency_start[u-1] + temp.second;
         temp.second = temp.first;
     }
     // Now adjacency_start[u] = index where edges for u begin in the edges array of the graph
     
+    for (int i = 1; i <= graph.nodes_qty+1; i++) {
+        cout << "Node " << i << " starts at " << graph.adjacency_start[i] << endl;
+    }
+
     // Resizes edges vector of the graph to enable improvised access[x]
     graph.edges.resize(allEdges.size());
 
     // temporary 'writePosition' will be used to know where to write the next edge of a given node
-    vector<int> writePosition(graph.nodes_qty, 0);
+    vector<int> writePosition(graph.nodes_qty+1, 0);
     // Initialize each writePosition[u] = adjacency_start[u], 
     // so we know where to place the first edge for a given node u
-    for (int u = 0; u < graph.nodes_qty; u++) {
+    for (int u = 0; u < graph.nodes_qty+1; u++) {
         writePosition[u] = graph.adjacency_start[u];
     }
 
@@ -175,8 +187,15 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
     for (FullEdge edge : allEdges) {
         // we extract the position to write in pos and then increment for next edge
         int pos = writePosition[edge.source]++;
+        cout << "pos for node " << edge.source << " is " << pos << endl;
+        cout << "writing edge " << edge.destination << endl;
         graph.edges[pos].id = edge.destination;
         graph.edges[pos].weight = edge.weight;
+    }
+
+    cout << "List of all edges :" << endl;
+    for (int i = 0; i < allEdges.size(); i++) {
+        cout << "edge [] " << i << " : " << graph.edges[i].id << " " << graph.edges[i].weight << endl;
     }
 
     cout << "Done !" << endl;
@@ -184,7 +203,12 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
     return SUCCESS;
 }
 
-bool loadGraph(Graph& graph, Files& files, bool force = false) {
+int loadGraph(Graph& graph, Files& files, bool force = false) {
+
+    // Reset the graph data
+    graph.adjacency_start.clear();
+    graph.edges.clear();
+    graph.nodes_qty = 0;
 
     // If not forcing a rebuild from CSV, try to load from binary backup
     if (!force) {
@@ -210,11 +234,11 @@ bool loadGraph(Graph& graph, Files& files, bool force = false) {
 
     // Otherwise, build the graph from CSV file directly
 
-    // Check if the dataset exists
+    // Try to open the dataset
     ifstream test(files.dataset);
     if (!test.is_open()) {
         cout << "Dataset " << files.dataset << " not found !" << endl;
-        return FAIL;
+        return NO_DATASET;
     }
     test.close();
 

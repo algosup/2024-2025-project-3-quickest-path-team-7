@@ -11,14 +11,15 @@
 
 void buildLandmarks(Graph& graph) {
 
+    cout << "Building landmarks ... " << flush;
+
     vector<bool> isLandmark(graph.nodes_qty, false);
     vector<int> pathsArray(graph.nodes_qty);
     graph.landmark_distance.resize(landmarks_qty*graph.nodes_qty);
-    int firstLandmark = ROOT;
 
-    graph.landmarks.push_back(firstLandmark);
-    isLandmark[firstLandmark] = true;
-    isLandmark[0] = true; // As 0 is not a valid node
+    graph.landmarks.push_back(root_landmark);
+    isLandmark[root_landmark] = true;
+    isLandmark[0] = true;
 
     // Calculate all the distances from the first landmark to all the nodes
     // and store them in the landmark_distance table
@@ -33,6 +34,11 @@ void buildLandmarks(Graph& graph) {
         // Store them in landmark_distance[node * landmarks_qty + landmark]
         for (int node = 0; node < graph.nodes_qty; ++node) {
             graph.landmark_distance[node * landmarks_qty + landmark] = pathsArray[node];
+        }
+
+        // Displays the list of distances from the current landmark to all the nodes with the current landmark ID
+        for (int node = 0; node < graph.nodes_qty; ++node) {
+            cout << "Distance from " << current_landmark << " to " << node << " : " << pathsArray[node] << endl;
         }
 
         // Scan the distances from the current landmark to all the nodes
@@ -73,15 +79,18 @@ void buildLandmarks(Graph& graph) {
 }
 
 void saveLandmarksToBinary(Graph& graph, Files& files) {
+
+    cout << "Saving landmarks to " << files.landmarks_backup << " ... " << flush;
+
     ofstream file(files.landmarks_backup, ios::binary);
     if (!file.is_open()) {
-        cerr << "Failed to open the file for writing: " << files.landmarks_backup << endl;
+        cerr << "\nFailed to open the file for writing: " << files.landmarks_backup << endl;
         return;
     }
 
     // n = number of nodes, m = number of chosen landmarks
     int n = graph.nodes_qty;
-    int m = (int)graph.landmarks.size();
+    int m = landmarks_qty;
 
     // 1) Write n and m
     file.write(reinterpret_cast<const char*>(&n), sizeof(n));
@@ -95,6 +104,8 @@ void saveLandmarksToBinary(Graph& graph, Files& files) {
                (size_t)n * m * sizeof(int));
 
     file.close();
+
+    cout << "Done!" << endl;
 }
 
 bool loadLandmarksFromBinary(Graph& graph, Files& files) {
@@ -122,19 +133,39 @@ bool loadLandmarksFromBinary(Graph& graph, Files& files) {
 
     file.close();
     cout << "Done!" << endl;
+    graph.landmarks_loaded = true;
     return true;
 }
 
-void loadLandmarks (Graph& graph, Files& files){
+bool loadLandmarks (Graph& graph, Files& files, bool force = false) {
 
-    // check if a landmarks backup exists
-    if (!loadLandmarksFromBinary(graph, files)) {
-        cout << "Building landmarks... " << flush;
-        buildLandmarks(graph);
-        cout << "Done !" << endl;
-        cout << "Saving landmarks to binary backup... " << flush;
-        saveLandmarksToBinary(graph, files); 
+    graph.landmarks_loaded = false;
+
+    // Ensure there are not more landmarks than nodes
+    if (landmarks_qty > graph.nodes_qty) {
+        landmarks_qty = graph.nodes_qty;
+        root_landmark = graph.nodes_qty;
+        cout << "Number of landmarks set to " << landmarks_qty << " (number of nodes)" << endl;
+        cout << "New root landmark: " << root_landmark << endl;
     }
+
+    // update the landmarks backup file name based on the number of landmarks
+    files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
+
+    if (!force) {
+        // check if a landmarks backup exists
+        if (!loadLandmarksFromBinary(graph, files)) {
+            buildLandmarks(graph);
+            saveLandmarksToBinary(graph, files); 
+            graph.landmarks_loaded = true;
+        }
+    } else {
+        buildLandmarks(graph);
+        saveLandmarksToBinary(graph, files); 
+        graph.landmarks_loaded = true;
+    }
+
+    return graph.landmarks_loaded;
 }
 
 #endif

@@ -3,12 +3,6 @@
 
 #include "header.hpp"
 
-struct Timer {
-    chrono::high_resolution_clock::time_point start_time;
-    chrono::high_resolution_clock::time_point end_time;
-    long time;
-};
-
 void start_timer(Timer& timer) {
     timer.start_time = chrono::high_resolution_clock::now();
 }

@@ -11,65 +11,68 @@ int main () {
     Timer timer;
     Astar astar;
 
-    takeFolderInput(files);
+    cout << "\n\n\n\nWelcome to the path finder !\nIf any problem occurs, type 'help' for a list of commands." << endl;
 
-    // Load the graph from CSV or backup
-    if (loadGraph(graph, files) == FAIL) {
-        cout << "Error loading graph, exiting... \n" << endl;
-        return 1;
+    // Build the i/o filenames and eventually ask for the folder path
+    takeFolderInput(files, SKIP);
+
+    // try to load the graph
+    while (!graph.loaded){
+        switch(loadGraph(graph, files)) {
+            case SUCCESS :
+                graph.loaded = true;
+                break;
+            case NO_DATASET :
+                takeFolderInput(files, ASK_FOLDER);
+                break;
+            case FAIL :
+                cout << "Error loading graph, exiting... \n" << endl;
+                return 1;
+        }
     }
-
-    loadLandmarks(graph, files);
-
-    reset_compute_data(graph, path_data, astar);  
+    
+    if (!loadLandmarks(graph, files)) {
+        cout << "Landmarks loading failed. Exiting... " << endl;
+        return 1;
+    } 
 
     while (true)
     {
+        reset_compute_data(graph, path_data, astar); 
+
         // Take user input for the start and end nodes or any extra command (you can check it out)
-        if (takeUserInput(graph, path_data) == INVALID_NODE){ 
-            continue;
-        } else if (path_data.start == STOP) {
-            break;
+        switch (takeUserInput(graph, path_data, files))
+        {
+            case INVALID_NODE :
+                cout << "Invalid node, please try again." << endl;
+                continue;
+                break;
+            case INVALID_COMMAND :
+                cout << "Invalid command, please try again." << endl;
+                continue;
+                break;
+            case EXIT :
+                cout << "Exiting... (user ask)" << endl;
+                return 0;
+                break;
+            case PATH :
+                cout << "Calculating shortest path from node " 
+                     << formatWithSpaces(path_data.start) << " to node " 
+                     << formatWithSpaces(path_data.end) << " ... " << endl;
+                break;
+            case COMMAND :
+                continue;
+                break;
+            default:
+                break;
         }
 
-        cout << "Calculating shortest path between node " << formatWithSpaces(path_data.start) << " and node " << formatWithSpaces(path_data.end) << " ... " << endl;
+        find_path(graph, path_data, astar, timer);
 
-        start_timer(timer);
-
-        find_path(graph, path_data, astar);
-
-        stop_timer(timer);
-        path_data.calculation_time = timer.time;
-
-        // If there is no path between the two nodes, output a message
-        if (path_data.path.empty()) {
-            cout << "No path found between node " << formatWithSpaces(path_data.start) << " and node " << formatWithSpaces(path_data.end) << "." << endl;
-            continue;
-        }
-
-        if (path_data.start == 1471291 && path_data.end == 9597648) {
-            path_data.estimated_distance = 45789944;
-        }
-        if (path_data.start == 8 && path_data.end == 1200000) {
-            path_data.estimated_distance = 30400830;
-        }
-
-        // Output results
-        cout << "\nTotal Distance     : "   << formatWithSpaces(path_data.distance)   << endl;
-        cout <<   "Estimated Distance : " << formatWithSpaces(path_data.estimated_distance) << endl;
-        cout <<   "Percentage Error   : "  << formatWithSpaces((path_data.distance - path_data.estimated_distance) * 100 / path_data.estimated_distance) << "%" << endl;
-        cout <<   "Number of edges    : "   << formatWithSpaces(path_data.path.size() - 1) << endl;
-        cout <<   "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
-
-        // Save the path nodes to a CSV file
-        savePathToCSV(graph, files, path_data);      
-        reset_compute_data(graph, path_data, astar);  
-
+        savePathToCSV(graph, files, path_data); 
     }
 
-    cout << "End";
- 
-    cin.get(); // Pause the console
+    cout << "Exiting... (something went wrong)" << endl;
 
     return 0;
 

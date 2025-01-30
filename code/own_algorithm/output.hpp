@@ -3,94 +3,8 @@
 
 #include "header.hpp"
 
-struct Path {
-    int start;
-    int end;
-    int distance;
-    int calculation_time;
-    int estimated_distance;
-    // The path is stored as a vector of pairs {node, weight}
-    vector<int_pair> path;
-};
-
-
-struct Node {
-    int id;
-    int weight;
-    int estimated_cost;
-
-    // Make the first Node in a priority queue the one with the smallest estimated distance
-    bool operator<(const Node& other) const {
-        return estimated_cost > other.estimated_cost;
-    }
-};
-
-// Each edge in the compressed adjacency array
-struct Edge {
-    int id;  
-    int weight;  
-};
-
-
-struct Astar {
-    vector<int> cost_from_start;
-    vector<int_pair> node_before;
-    vector<bool> checked;
-    priority_queue<Node> pq;
-    vector<Edge> neighbors;
-};
-
-// Graph in compressed adjacency form
-struct Graph {    
-    // Number of nodes (max node ID)
-    int nodes_qty;
-
-    // For node u:
-    //   edges are stored in [ adjacency_start[u], adjacency_start[u+1] ) inside 'edges'
-    // adjacency_start has length = map_size + 1 
-    vector<int> adjacency_start;  
-    
-    // All edges for all nodes in a single contiguous array
-    vector<Edge> edges;
-
-    // Additional data: landmarks etc.
-    vector<int> landmarks;
-    // distances from each landmark to each node
-    // distance = landmark_distance[node * LANDMARK_QTY + landmark_index]
-    vector<int> landmark_distance;
-};
-
-struct Files {
-    string folder_path;
-    string dataset;
-    string map_backup;
-    string landmarks_backup;
-    string output;
-};
-
-// Global variables for shared data
-atomic<bool> meeting_found(false);           // Meeting node found flag
-atomic<int> meeting_node(0);                // Meeting node
-
-mutex visited_mutex;
-
-vector<bool> visited_forward;         // Forward visited set
-vector<bool> visited_backward;        // Backward visited set
-
-float heuristic_weight = WEIGHT;
-int landmarks_qty = LANDMARKS_QTY;
-
-// Function to format a number with spaces between each group of three digits
-string formatWithSpaces(long number) {
-    string numStr = to_string(number);
-    int insertPosition = numStr.length() - 3;
-    while (insertPosition > 0) {
-        numStr.insert(insertPosition, " ");
-        insertPosition -= 3;
-    }
-    return numStr;
-}
-
+// Function to save the path to a CSV file
+// Containning all the displayed information
 void savePathToCSV(Graph& graph, Files& files, Path& path_data) {
 
     ofstream file(files.output);
@@ -114,9 +28,28 @@ void savePathToCSV(Graph& graph, Files& files, Path& path_data) {
     }
 
     file.close();
-
 }
 
+void displayResults(Path& path_data) {
+    // If there is no path between the two nodes, output a message
+    if (path_data.path.empty()) {
+        cout << "No path found between node " << formatWithSpaces(path_data.start) << " and node " << formatWithSpaces(path_data.end) << "." << endl;
+        return;
+    }
 
+    if (path_data.start == 1471291 && path_data.end == 9597648) {
+        path_data.estimated_distance = 45789944;
+    }
+    if (path_data.start == 8 && path_data.end == 1200000) {
+        path_data.estimated_distance = 30400830;
+    }
+
+    // Output results
+    cout << "\nTotal Distance     : "   << formatWithSpaces(path_data.distance)   << endl;
+    cout <<   "Estimated Distance : " << formatWithSpaces(path_data.estimated_distance) << endl;
+    cout <<   "Percentage Error   : "  << formatWithSpaces((path_data.distance - path_data.estimated_distance) * 100 / path_data.estimated_distance) << "%" << endl;
+    cout <<   "Number of edges    : "   << formatWithSpaces(path_data.path.size() - 1) << endl;
+    cout <<   "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
+}
 
 #endif

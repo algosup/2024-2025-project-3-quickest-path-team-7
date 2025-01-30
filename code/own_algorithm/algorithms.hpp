@@ -6,16 +6,13 @@
 void reset_compute_data(Graph& graph, Path& path_data, Astar& astar) {
 
     // initialize the vectors
-
-    astar.node_before.clear();
-    astar.node_before.resize(graph.nodes_qty, {-1, 0});
-
-    astar.cost_from_start.clear();
-    astar.cost_from_start.resize(graph.nodes_qty, INF);
-
     astar.checked.clear();
-    astar.checked.resize(graph.nodes_qty, false);
+    astar.node_before.clear();
+    astar.cost_from_start.clear();
 
+    astar.checked.resize(graph.nodes_qty, false);
+    astar.node_before.resize(graph.nodes_qty, {-1, 0});
+    astar.cost_from_start.resize(graph.nodes_qty, INF);
 
     // Empty the priority queue
     while (!astar.pq.empty()) {
@@ -31,9 +28,11 @@ void reset_compute_data(Graph& graph, Path& path_data, Astar& astar) {
 
 // Function to estimate the distance between two nodes using landmarks
 int estimate_distance(Graph& graph, int source, int destination) {
+
     int estimation = 0;
     int source_index = source * landmarks_qty;
     int destination_index = destination * landmarks_qty;
+
     // For each landmark : "
     for (int i = 0; i < graph.landmarks.size(); i++) {
         // Take the absolute value of the difference between these two distances
@@ -43,22 +42,26 @@ int estimate_distance(Graph& graph, int source, int destination) {
             estimation = diff;
         }
     }
+
     return estimation;
 }
 
 void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
+
     int current_node = path_data.end;
+
     while (current_node != path_data.start) {
         path_data.path.insert(path_data.path.begin(), {current_node, node_before[current_node].second});
         path_data.distance += node_before[current_node].second;
         current_node = node_before[current_node].first;
     }
     path_data.path.insert(path_data.path.begin(), {current_node, 0});
+
+    return;
 }
 
-
 // A* derived algorithm to find the shortest path between two nodes
-void find_path(Graph& graph, Path& path_data, Astar& astar) {
+void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
 
     int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
     path_data.estimated_distance = start_to_end_estimation;
@@ -71,6 +74,8 @@ void find_path(Graph& graph, Path& path_data, Astar& astar) {
     while (!astar.pq.empty()) {
         current_node = astar.pq.top();
         astar.pq.pop();
+
+        cout << "Current node: " << current_node.id << " estimated cost: " << current_node.estimated_cost << endl;
 
         if (current_node.id == path_data.end) {
             reconstruct_path(astar.node_before, path_data);
@@ -97,7 +102,16 @@ void find_path(Graph& graph, Path& path_data, Astar& astar) {
     }
 } 
 
+void find_path(Graph& graph, Path& path_data, Astar& astar, Timer& timer) {
 
+    start_timer(timer);
+    astar_algorithm(graph, path_data, astar);
+    stop_timer(timer);
+
+    path_data.calculation_time = timer.time;
+    displayResults(path_data);
+
+}
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i
 vector<int> shortestPaths(Graph& graph, int source) {
@@ -122,15 +136,20 @@ vector<int> shortestPaths(Graph& graph, int source) {
         int currentNode = top.second;
         pq.pop();
 
+        cout << "Current node: " << currentNode << " distance: " << currentDist << endl;
+
         // If the popped distance is greater than the recorded distance, skip processing
         if (currentDist > distances[currentNode]) {
+            cout << "skipping cause " << currentDist << " > " << distances[currentNode] << endl;
             continue;
         }
 
         // Relax all edges of the current node
-
+        cout << graph.adjacency_start[currentNode+1] << endl;
+        cout << "indexes: " << graph.adjacency_start[currentNode] << " to " << graph.adjacency_start[currentNode+1]-1 << endl;
         for (int i = graph.adjacency_start[currentNode]; i < graph.adjacency_start[currentNode+1]; i++) {
             Edge neighbor = graph.edges[i];
+            cout << "neighbor: " << neighbor.id << " weight: " << neighbor.weight << endl;
             int newDist = currentDist + neighbor.weight;
             if (newDist < distances[neighbor.id]) {
                 distances[neighbor.id] = newDist;
