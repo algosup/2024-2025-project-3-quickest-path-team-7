@@ -32,13 +32,8 @@ void buildLandmarks(Graph& graph) {
         // get all the shortest paths from the landmark node to all the other nodes
         pathsArray = shortestPaths(graph, current_landmark);
         // Store them in landmark_distance[node * landmarks_qty + landmark]
-        for (int node = 0; node < graph.nodes_qty; ++node) {
+        for (int node = 1; node <= graph.nodes_qty; ++node) {
             graph.landmark_distance[node * landmarks_qty + landmark] = pathsArray[node];
-        }
-
-        // Displays the list of distances from the current landmark to all the nodes with the current landmark ID
-        for (int node = 0; node < graph.nodes_qty; ++node) {
-            cout << "Distance from " << current_landmark << " to " << node << " : " << pathsArray[node] << endl;
         }
 
         // Scan the distances from the current landmark to all the nodes

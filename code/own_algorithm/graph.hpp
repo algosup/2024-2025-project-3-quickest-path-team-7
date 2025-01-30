@@ -94,16 +94,32 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
         vector<int> row;
         string cell;
         while (getline(ss, cell, ',')) {
-            row.push_back(stoi(cell));
+            try {
+                row.push_back(stoi(cell));
+            } catch (const invalid_argument& e) {
+                cout << "Error : Parsing CSV at line " << counter << endl;
+                cout << "-> Invalid node value" << endl;
+                return FAIL;
+            } catch (const out_of_range& e) {
+                cout << "Error : Parsing CSV at line " << counter << endl;
+                cout << "-> Value out of range" << endl;
+                return FAIL;
+            }
+            if (row.back() <= 0) {
+                cout << "Error : Parsing CSV at line " << counter << endl;
+                cout << "-> Negative or Null value" << endl;
+                return FAIL;
+            }
         }
 
         // Check if the line has the correct number of values
         if (row.size() != 3) {
-            cout << "Error: Expected 3 values per line, but read " << row.size() << endl;
+            cout << "Error : Parsing CSV at line " << counter << endl;
+            cout << "-> Expected 3 values per line, but read " << row.size() << endl;
             return FAIL;
         }
-
-        // Insert in both directions for an undirected graph
+        //Check if nodes and weight are strictly positive integers and store them in int variables
+        // Use try-catch to avoid invalid inputs
         int nodeA  = row[0];
         int nodeB  = row[1];
         int weight = row[2];
@@ -138,10 +154,6 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
          });
     cout << "Done !" << endl;
 
-    for (FullEdge edge : allEdges) {
-        cout << edge.source << " " << edge.destination << " " << edge.weight << endl;
-    }
-
     cout << "Organizing data ... " << flush;
     // Resize adjacency_start to create each node index [x] and [x+1]
     graph.adjacency_start.resize(graph.nodes_qty + 2);
@@ -152,10 +164,6 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
         graph.adjacency_start[edge.source]++;  
     }
     // Now adjacency_start[u] = number of neighbors from node u
-
-    for (int i = 1; i <= graph.nodes_qty +1; i++) {
-        cout << "Node " << i << " has " << graph.adjacency_start[i] << " neighbors." << endl;
-    }
 
     // Increase index by the number of edges of the previous one, 
     // so adjacency_start[u] = index where edges for u begin in the edges array of the graph
@@ -168,10 +176,6 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
     }
     // Now adjacency_start[u] = index where edges for u begin in the edges array of the graph
     
-    for (int i = 1; i <= graph.nodes_qty+1; i++) {
-        cout << "Node " << i << " starts at " << graph.adjacency_start[i] << endl;
-    }
-
     // Resizes edges vector of the graph to enable improvised access[x]
     graph.edges.resize(allEdges.size());
 
@@ -187,15 +191,8 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
     for (FullEdge edge : allEdges) {
         // we extract the position to write in pos and then increment for next edge
         int pos = writePosition[edge.source]++;
-        cout << "pos for node " << edge.source << " is " << pos << endl;
-        cout << "writing edge " << edge.destination << endl;
         graph.edges[pos].id = edge.destination;
         graph.edges[pos].weight = edge.weight;
-    }
-
-    cout << "List of all edges :" << endl;
-    for (int i = 0; i < allEdges.size(); i++) {
-        cout << "edge [] " << i << " : " << graph.edges[i].id << " " << graph.edges[i].weight << endl;
     }
 
     cout << "Done !" << endl;

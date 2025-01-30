@@ -75,8 +75,6 @@ void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
         current_node = astar.pq.top();
         astar.pq.pop();
 
-        cout << "Current node: " << current_node.id << " estimated cost: " << current_node.estimated_cost << endl;
-
         if (current_node.id == path_data.end) {
             reconstruct_path(astar.node_before, path_data);
             return;
@@ -94,7 +92,7 @@ void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
                 astar.node_before[graph.edges[i].id] = {current_node.id, graph.edges[i].weight};
                 astar.cost_from_start[graph.edges[i].id] = local_cost;
 
-                int estimated_cost = local_cost + heuristic_weight * estimate_distance(graph, graph.edges[i].id, path_data.end);
+                int estimated_cost = local_cost +  heuristic_weight * estimate_distance(graph, graph.edges[i].id, path_data.end);
                 Node neighbor = {graph.edges[i].id, graph.edges[i].weight, estimated_cost};
                 astar.pq.push(neighbor);
             }
@@ -136,20 +134,14 @@ vector<int> shortestPaths(Graph& graph, int source) {
         int currentNode = top.second;
         pq.pop();
 
-        cout << "Current node: " << currentNode << " distance: " << currentDist << endl;
-
         // If the popped distance is greater than the recorded distance, skip processing
         if (currentDist > distances[currentNode]) {
-            cout << "skipping cause " << currentDist << " > " << distances[currentNode] << endl;
             continue;
         }
 
         // Relax all edges of the current node
-        cout << graph.adjacency_start[currentNode+1] << endl;
-        cout << "indexes: " << graph.adjacency_start[currentNode] << " to " << graph.adjacency_start[currentNode+1]-1 << endl;
         for (int i = graph.adjacency_start[currentNode]; i < graph.adjacency_start[currentNode+1]; i++) {
             Edge neighbor = graph.edges[i];
-            cout << "neighbor: " << neighbor.id << " weight: " << neighbor.weight << endl;
             int newDist = currentDist + neighbor.weight;
             if (newDist < distances[neighbor.id]) {
                 distances[neighbor.id] = newDist;

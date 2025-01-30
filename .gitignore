@@ -28,3 +28,5 @@ code/own_algorithm/graph-backup.bin
 code/own_algorithm/main
 *.bin
 code/own_algorithm/shortest-path.csv
+code/own_algorithm/USA.csv
+*.csv
