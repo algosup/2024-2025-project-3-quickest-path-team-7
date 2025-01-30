@@ -62,7 +62,7 @@ void find_path(Graph& graph, Path& path_data, Astar& astar) {
 
     int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
     path_data.estimated_distance = start_to_end_estimation;
-    //start_to_end_estimation *= WEIGHT;
+    start_to_end_estimation *= heuristic_weight;
 
     Node current_node = {path_data.start, 0, start_to_end_estimation};
     astar.pq.push(current_node);
