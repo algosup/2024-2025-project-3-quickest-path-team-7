@@ -9,8 +9,6 @@
 		- [Programming Language](#programming-language)
 		- [Dependencies](#dependencies)
 		- [Hardware](#hardware)
-		- [Security](#security)
-		- [Platform Compatibility](#platform-compatibility)
 	- [System Architecture](#system-architecture)
 		- [Overview](#overview)
 		- [Component Details](#component-details)
@@ -22,32 +20,18 @@
 		- [Query Handling Flow](#query-handling-flow)
 	- [Core Algorithms](#core-algorithms)
 		- [Bidirectional Dijkstra](#bidirectional-dijkstra)
-			- [Algorithm Overview](#algorithm-overview)
-			- [Key Optimizations](#key-optimizations-1)
-			- [Pseudocode](#pseudocode)
 		- [Approximation Heuristics](#approximation-heuristics)
-			- [Early Termination in Bidirectional Dijkstra](#early-termination-in-bidirectional-dijkstra)
-			- [A\* with Bounded Heuristics](#a-with-bounded-heuristics)
-			- [Precomputation for Approximate Paths (CH Lite)](#precomputation-for-approximate-paths-ch-lite)
-			- [Validation of Approximation](#validation-of-approximation)
-			- [Comparison of Strategies](#comparison-of-strategies)
-		- [Bidirectional A\* Extension](#bidirectional-a-extension)
-			- [Admissible Heuristic](#admissible-heuristic)
-			- [Priority Adjustment](#priority-adjustment)
-		- [Complexity Analysis](#complexity-analysis)
-		- [Example Implementation Snippet](#example-implementation-snippet)
+			- [Early Termination with Bidirectional Dijkstra](#early-termination-with-bidirectional-dijkstra)
+			- [Bidirectional A\* with Bounded Heuristics](#bidirectional-a-with-bounded-heuristics)
+			- [Contraction Hierarchies (CH Lite)](#contraction-hierarchies-ch-lite)
+		- [Algorithm Comparison](#algorithm-comparison)
+		- [Example Implementation (Bidirectional A\* Snippet)](#example-implementation-bidirectional-a-snippet)
+		- [Validation of Approximations](#validation-of-approximations)
 	- [Data Handling](#data-handling)
 		- [Input Format](#input-format)
 		- [Data Integrity Verification](#data-integrity-verification)
 			- [Validation Pipeline](#validation-pipeline)
 			- [Implementation Notes](#implementation-notes)
-		- [Directed Cycle Check (DAG Verification)](#directed-cycle-check-dag-verification)
-		- [Error Recovery](#error-recovery)
-		- [Input Sanitization (Post-Load)](#input-sanitization-post-load)
-		- [Metrics Collection](#metrics-collection)
-	- [Multi-Threading Strategy](#multi-threading-strategy)
-		- [Concurrency Model](#concurrency-model)
-		- [Implementation Steps](#implementation-steps)
 		- [Load Balancing](#load-balancing)
 		- [Thread Safety](#thread-safety)
 		- [Error Handling](#error-handling)
@@ -55,10 +39,6 @@
 		- [Key C++23 Features Used](#key-c23-features-used)
 	- [REST API Specifications](#rest-api-specifications)
 		- [Endpoint: `GET /path`](#endpoint-get-path)
-	- [Time and Space Complexity](#time-and-space-complexity)
-		- [Algorithmic Complexities](#algorithmic-complexities)
-		- [Real-World Considerations](#real-world-considerations)
-		- [Key Takeaways](#key-takeaways)
 	- [Error Handling](#error-handling-1)
 		- [HTTP Status Codes \& Responses](#http-status-codes--responses)
 		- [Input Validation](#input-validation)
@@ -111,7 +91,7 @@
 	- [Contributors](#contributors)
 	- [License](#license)
 	- [Additional Implementation Considerations](#additional-implementation-considerations)
-		- [Security](#security-1)
+		- [Security](#security)
 			- [Network Exposure](#network-exposure)
 			- [Input Validation](#input-validation-1)
 			- [Rate Limiting](#rate-limiting)
@@ -120,6 +100,7 @@
 		- [Performance Optimization](#performance-optimization)
 		- [Testing and Validation](#testing-and-validation)
 		- [Deployment and Maintenance](#deployment-and-maintenance)
+		- [Platform Compatibility](#platform-compatibility)
 		- [Compliance and Ethics](#compliance-and-ethics)
 		- [Documentation](#documentation)
 		- [Disaster Recovery](#disaster-recovery)
@@ -176,16 +157,6 @@ The system must:
 - **Memory**: ≥8GB RAM (24M nodes require ~4GB for [adjacency lists](#glossary), plus OS/algorithm overhead).  
 - **Storage**: 10GB free space (for CSV, binaries, and runtime caches).  
 - **CPU**: At least quad-core processor (4 threads recommended for concurrent pathfinding and HTTP handling).  
-
-### Security
-- **Input Validation**: Reject non-integer `src`/`dst` values or IDs outside the node range.  
-- **Localhost-Only**: Server binds to `127.0.0.1` by default; expose externally only with firewall rules.  
-- **Data Sanitization**: Sanitize CSV input to prevent malformed edges or integer overflows.  
-
-### Platform Compatibility
-- **Primary Target**: Linux/macOS (due to [BSD socket](#glossary) dependencies).  
-- **Windows**: Requires Winsock2 and POSIX compatibility layer (e.g., WSL or Cygwin).  
-- **Testing**: Validated on Ubuntu 22.04 (GCC 13), macOS Ventura (Clang 16), and Windows 11 (WSL2).  
 
 ## System Architecture
 
@@ -289,262 +260,165 @@ flowchart LR
 
 ### Bidirectional Dijkstra
 
-#### Algorithm Overview
+**Algorithm Overview**  
+Searches forward from `src` and backward from `dst` simultaneously. Terminates when the frontiers intersect, yielding the shortest path.
 
-Bidirectional Dijkstra improves upon standard Dijkstra by running two simultaneous searches:
+**Key Optimizations**:
+- **Alternating Frontiers**: Process nodes from the smaller priority queue first to balance effort.
+- **Early Termination**: Stop when the sum of the smallest forward/backward tentative costs exceeds the best-known path cost.
+- **Path Reconstruction**: Track parent pointers in both directions to rebuild the path once a meeting node is found.
 
-- **Forward Search**: From the source node (`src`) using the original edge directions.
-- **Backward Search**: From the target node (`dst`) using reversed edges.
-- **Termination**: Ends when settled nodes from both searches intersect, indicating an optimal path has been found.
-
-#### Key Optimizations
-
-1. **Early Termination**  
-	Stop when the sum of the smallest forward and backward tentative distances exceeds the current best path cost.
-
-2. **Alternating Frontiers**  
-	Process one node per iteration from the smaller [priority queue](#glossary) to balance computational effort.
-
-3. **Path Reconstruction**  
-	Track parent pointers in both directions to rebuild the path once the midpoint is discovered.
-
-#### Pseudocode
-
+**Pseudocode**:
 ```plaintext
 function bidirectional_dijkstra(src, dst, adj, reverse_adj):
-	 forward_dist = {node: ∞ for all nodes}
-	 backward_dist = {node: ∞ for all nodes}
-	 forward_dist[src] = 0
-	 backward_dist[dst] = 0
-	 forward_parent, backward_parent = {}, {}
-	 best_path_cost = ∞
-	 meeting_node = null
+    forward_dist = array(inf), backward_dist = array(inf)
+    forward_parent = array(null), backward_parent = array(null)
+    forward_dist[src] = 0; backward_dist[dst] = 0
+    forward_pq = priority queue (ordered by forward_dist)
+    backward_pq = priority queue (ordered by backward_dist)
+    forward_pq.insert(src); backward_pq.insert(dst)
+    best_cost = inf; meeting_node = null
 
-	 forward_pq = PriorityQueue()
-	 backward_pq = PriorityQueue()
-	 forward_pq.insert(src, 0)
-	 backward_pq.insert(dst, 0)
+    while !forward_pq.empty() and !backward_pq.empty():
+        # Expand forward search
+        u = forward_pq.pop()
+        if forward_dist[u] + backward_dist[u] < best_cost:
+            best_cost = forward_dist[u] + backward_dist[u]
+            meeting_node = u
+        for neighbor, cost in adj[u]:
+            if forward_dist[neighbor] > forward_dist[u] + cost:
+                forward_dist[neighbor] = forward_dist[u] + cost
+                forward_parent[neighbor] = u
+                forward_pq.insert_or_update(neighbor)
 
-	 while not (forward_pq.empty() or backward_pq.empty()):
-		  # Process forward search
-		  u = forward_pq.pop()
-		  for neighbor in adj[u]:
-				if forward_dist[neighbor] > forward_dist[u] + edge_cost:
-					 update forward_dist and forward_parent
-					 forward_pq.insert/update(neighbor)
-		  if u in backward_dist and (forward_dist[u] + backward_dist[u] < best_path_cost):
-				best_path_cost = forward_dist[u] + backward_dist[u]
-				meeting_node = u
+        # Expand backward search
+        v = backward_pq.pop()
+        if forward_dist[v] + backward_dist[v] < best_cost:
+            best_cost = forward_dist[v] + backward_dist[v]
+            meeting_node = v
+        for neighbor, cost in reverse_adj[v]:
+            if backward_dist[neighbor] > backward_dist[v] + cost:
+                backward_dist[neighbor] = backward_dist[v] + cost
+                backward_parent[neighbor] = v
+                backward_pq.insert_or_update(neighbor)
 
-		  # Process backward search
-		  v = backward_pq.pop()
-		  for neighbor in reverse_adj[v]:
-				if backward_dist[neighbor] > backward_dist[v] + edge_cost:
-					 update backward_dist and backward_parent
-					 backward_pq.insert/update(neighbor)
-		  if v in forward_dist and (forward_dist[v] + backward_dist[v] < best_path_cost):
-				best_path_cost = forward_dist[v] + backward_dist[v]
-				meeting_node = v
+        # Early termination check
+        if best_cost <= forward_pq.top_key() + backward_pq.top_key():
+            break
 
-		  # Early termination if queues overlap
-		  if best_path_cost ≤ forward_pq.top_key() + backward_pq.top_key():
-				break
-
-	 return reconstruct_path(meeting_node, forward_parent, backward_parent)
+    return reconstruct_path(meeting_node, forward_parent, backward_parent)
 ```
+
+**Complexity**:
+- **Time**: O((V + E) log V) (same as unidirectional Dijkstra but ~50% faster in practice).
+- **Space**: O(V + E) for adjacency lists and priority queues.
 
 ### [Approximation Heuristics](#glossary)
 
-To meet the requirement that computed paths do not exceed the true shortest path by more than 10%, the following strategies are proposed. These heuristics reduce search times while bounding error.
+Strategies to accelerate pathfinding while ensuring ≤10% deviation from optimality.
 
-#### Early Termination in Bidirectional Dijkstra
+#### Early Termination with Bidirectional Dijkstra
 
 **Mechanism**:  
-Track the best candidate path cost (`best_cost`) during the bidirectional search. During expansions, prune paths where:
+Prune paths where forward_cost + backward_cost > 1.10 × best_cost.
 
-```
-forward_cost + backward_cost > 1.10 × best_cost
-```
-
-Terminate the search once the combined cost of the next candidate nodes in both frontiers exceeds the threshold.
-
-**Implementation Example**:
-
+**Implementation**:
 ```cpp
-// During bidirectional search
-int best_cost = INF;
-while (!forward_pq.empty() && !backward_pq.empty()) {
-	 // Expand from the queue with the smaller top cost
-	 if (forward_pq.top().cost <= backward_pq.top().cost) {
-		  auto [u, f_cost] = forward_pq.top();
-		  forward_pq.pop();
-
-		  // Early termination check
-		  if (f_cost + backward_dist[u] > 1.10 * best_cost) {
-				break;
-		  }
-
-		  // ... process neighbors ...
-	 } else {
-		  // Similar logic for backward search
-	 }
-
-	 // Update best_cost when a meeting node is found
-	 if (meeting_node_exists) {
-		  int total_cost = forward_dist[u] + backward_dist[u];
-		  if (total_cost < best_cost) {
-				best_cost = total_cost;
-		  }
-	 }
+// During priority queue processing:
+if (current_forward_cost + current_backward_cost > 1.10 * best_cost) {
+	break; // Terminate early
 }
 ```
 
-**Advantages**:
-- Guarantees ≤10% error with minimal code changes.
-- Reduces search space significantly.
+**Complexity**:
+- **Time**: O(k log k) where k is the number of nodes expanded before early termination (typically 30–60% faster than exact search).
+- **Space**: Same as standard Bidirectional Dijkstra.
 
-#### [A*](#glossary) with Bounded Heuristics
+#### Bidirectional [A*](#glossary) with Bounded Heuristics
 
 **Admissible Heuristic**:  
-For road networks, use the Euclidean distance between nodes (scaled by speed) as a heuristic. For up to 10% suboptimality:
+Use geographic distance (if coordinates available) or precomputed landmarks to guide the search.
 
-```
-h(u, v) = α × (Euclidean distance between u and v)    where α ≤ 1.10
-```
+**Priority Adjustment**:
+- Forward queue priority: forward_dist[u] + h(u, dst)
+- Backward queue priority: backward_dist[v] + h(v, src)
 
-**Integration with Bidirectional Dijkstra**:
-- Replace standard Dijkstra’s priority queues with A* priority: `f(u) = g(u) + h(u)`.
-- Adjust `α` dynamically based on sampling if error edges above 10%.
-
-**Trade-offs**:
-- Requires geospatial node coordinates or precomputed distances (e.g., landmark-based heuristics).
-- Typically accelerates queries, especially for long-distance paths.
-
-#### Precomputation for Approximate Paths (CH Lite)
-
-**[Contraction Hierarchies](#glossary) (CH) Lite**:
-- **Preprocessing**: Identify “highway” nodes and create shortcuts.
-- **Query**: Bidirectional Dijkstra mostly travels via shortcuts.
-- **Overhead**: ~15% additional memory, but can reduce query time by 50–80%.
-
-#### Validation of Approximation
-
-1. **Sampling**: Generate random `(src, dst)` pairs.
-2. **Exact vs. Approx**: Compute both and compare costs.
-3. **Error Bound**: Confirm `approx_cost ≤ 1.10 × exact_cost`.
-
-If the error >10% in too many samples, tighten the approximation parameters (e.g., reduce `α` or prune earlier).
-
-#### Comparison of Strategies
-
-| Method                  | Error Bound | Preprocessing | Memory Overhead | Query Speed  |
-|-------------------------|-------------|---------------|-----------------|--------------|
-| Early Termination       | ≤10%        | None          | None            | 1–2× faster  |
-| A* w/ Bounded Heuristic | ≤10%        | None          | Low             | 2–5× faster  |
-| Contraction Hierarchies | 0% (exact)  | High          | 15–20%          | 10–100× faster|
-
-**Recommendation**: For minimal code changes, use Early Termination. A* or CH can be added if geospatial data or preprocessing time is acceptable.
-
-### Bidirectional A* Extension
-
-#### Admissible Heuristic
-
-If coordinates are available:
-
+**Bounded Suboptimality**:  
+Scale heuristic by up to 10% to allow approximation:
 ```cpp
-double heuristic(int node, int target) {
-	 return euclidean_distance(node, target) / max_road_speed;
+// Euclidean heuristic (requires node coordinates)
+double heuristic(int u, int target) {
+	return 1.10 * euclidean_distance(u, target) / max_speed;
 }
 ```
 
-Apply this to both forward and backward searches.
+**Complexity**:
+- **Time**: O(b^(ε·d/2)) where ε is heuristic quality (0.5–0.9 for road networks).
+- **Space**: Same as Bidirectional Dijkstra.
 
-#### Priority Adjustment
+#### [Contraction Hierarchies](#glossary) (CH Lite)
 
-- **Forward Queue**: `forward_dist[u] + heuristic(u, dst)`
-- **Backward Queue**: `backward_dist[v] + heuristic(v, src)`
+**Preprocessing**:  
+Add shortcuts for "highway" nodes to bypass local edges.
 
-This approach further reduces exploration if the heuristic is well-chosen.
+**Query**:  
+Bidirectional search uses shortcuts to skip minor roads.
 
-### Complexity Analysis
+**Complexity**:
+- **Preprocessing Time**: O(V log V + E) (offline).
+- **Query Time**: O((V' + E') log V') where V' ≪ V (often 10–100× faster).
+- **Space**: 15–20% overhead for shortcuts.
 
-| Algorithm               | Time Complexity | Space Complexity | Notes                                      |
-|-------------------------|-----------------|------------------|--------------------------------------------|
-| Bidirectional Dijkstra  | O(b^(d/2))      | O(V + E)         | b = branching factor, d = path depth       |
-| Bidirectional A*        | O(b^(ε·d/2))    | O(V + E)         | ε = heuristic quality (0 < ε < 1)          |
-| Approximate Dijkstra    | O((V + E) log V)| O(V + E)         | Up to 10% error bound (early pruning)      |
+### Algorithm Comparison
 
-### Example Implementation Snippet
+| Algorithm                | Time Complexity       | Space Complexity | Error Bound | Use Case                          |
+|--------------------------|-----------------------|------------------|-------------|-----------------------------------|
+| Bidirectional Dijkstra   | O((V + E) log V)      | O(V + E)         | 0% (Exact)  | Small graphs or exact paths       |
+| Early Termination        | O(k log k)            | O(V + E)         | ≤10%        | Speed-critical applications       |
+| Bidirectional A*         | O(b^(ε·d/2))          | O(V + E)         | ≤10%        | Geospatial road networks          |
+| Contraction Hierarchies  | O((V' + E') log V')   | O(1.2V + E)      | 0% (Exact)  | Large-scale offline systems       |
+
+**Notes**:
+- **d**: Path depth (number of edges between src and dst).
+- **b**: Branching factor (average neighbors per node).
+- **V', E'**: Subgraph size after contraction hierarchy preprocessing.
+
+### Example Implementation (Bidirectional A* Snippet)
 
 ```cpp
-bool Pathfinder::bidirectionalDijkstra(int src, int dst, std::vector<int>& path) {
-	 auto& adj = adjacencyList_;              // Forward adjacency
-	 auto reverse_adj = buildReverseAdjacency(); // Precomputed reverse edges
+bool Pathfinder::bidirectionalAStar(int src, int dst, std::vector<int>& path) {
+	auto& adj = adjacencyList_;
+	auto reverse_adj = buildReverseAdjacency();
 
-	 std::priority_queue<PQNode> forward_pq, backward_pq;
-	 std::vector<int> forward_dist(adj.size(), INF), backward_dist(adj.size(), INF);
-	 std::vector<int> forward_parent(adj.size(), -1), backward_parent(adj.size(), -1);
+	// Heuristic initialization (hypothetical coordinates)
+	auto heuristic = [&](int node, int target) {
+		return 1.10 * euclidean_distance(node, target) / max_speed;
+	};
 
-	 forward_dist[src] = 0;
-	 backward_dist[dst] = 0;
-	 forward_pq.emplace(src, 0);
-	 backward_pq.emplace(dst, 0);
+	// Forward priority: g(u) + h(u, dst)
+	std::priority_queue<Node> forward_pq;
+	forward_pq.push({src, 0 + heuristic(src, dst)});
 
-	 int best_cost = INF;
-	 int meeting_node = -1;
+	// Backward priority: g(v) + h(v, src)
+	std::priority_queue<Node> backward_pq;
+	backward_pq.push({dst, 0 + heuristic(dst, src)});
 
-	 while (!forward_pq.empty() && !backward_pq.empty()) {
-		  // Forward expansion
-		  auto [u, cost_u] = forward_pq.top();
-		  forward_pq.pop();
-		  if (cost_u > forward_dist[u]) continue;
-
-		  for (const Edge& e : adj[u]) {
-				if (forward_dist[e.to] > forward_dist[u] + e.cost) {
-					 forward_dist[e.to] = forward_dist[u] + e.cost;
-					 forward_parent[e.to] = u;
-					 forward_pq.emplace(e.to, forward_dist[e.to]);
-				}
-		  }
-
-		  // Check intersection
-		  if (backward_dist[u] != INF && forward_dist[u] + backward_dist[u] < best_cost) {
-				best_cost = forward_dist[u] + backward_dist[u];
-				meeting_node = u;
-		  }
-
-		  // Backward expansion
-		  auto [v, cost_v] = backward_pq.top();
-		  backward_pq.pop();
-		  if (cost_v > backward_dist[v]) continue;
-
-		  for (const Edge& e : reverse_adj[v]) {
-				if (backward_dist[e.to] > backward_dist[v] + e.cost) {
-					 backward_dist[e.to] = backward_dist[v] + e.cost;
-					 backward_parent[e.to] = v;
-					 backward_pq.emplace(e.to, backward_dist[e.to]);
-				}
-		  }
-
-		  if (forward_dist[v] != INF && forward_dist[v] + backward_dist[v] < best_cost) {
-				best_cost = forward_dist[v] + backward_dist[v];
-				meeting_node = v;
-		  }
-
-		  // Early termination (approximation or exact)
-		  if (!forward_pq.empty() && !backward_pq.empty()) {
-				int lower_bound = forward_pq.top().second + backward_pq.top().second;
-				if (best_cost <= lower_bound) {
-					 break;
-				}
-		  }
-	 }
-
-	 // TODO: Reconstruct path from meeting_node via forward_parent and backward_parent
-	 return (meeting_node != -1);
+	// ... rest similar to Bidirectional Dijkstra but with heuristic-adjusted priorities
 }
 ```
 
+### Validation of Approximations
+
+**Sampling**:  
+Compare exact and approximate paths for 1,000 random (src, dst) pairs.
+
+**Error Measurement**:
+```plaintext
+error = (approximate_cost / exact_cost) - 1
+```
+
+**Adjustment**:  
+If >10% error occurs in >5% of samples, tighten heuristics (e.g., reduce scaling factor to 1.05).
 
 ## Data Handling
 
@@ -577,7 +451,7 @@ Key parsing rules:
 | **1. File Sanity Check**         | File size and line count              | Reject empty or malformed CSV files.                                                              |
 | **2. Basic Syntax**              | Per-line regex `^\d+,\d+,\d+$`        | Filter malformed lines (logged).                                                                  |
 | **3. Value Constraints**         | Range checks                           | Ensure `Time > 0` and node IDs ≥ 0.                                                               |
-| **4. Directed Cycle Check**    | Topological sort or DFS-based cycle detection | Verify that the CSV, when interpreted as directed edges, contains no cycles. If a directed cycle exists, the data is invalid. |
+| **4. Directed Cycle Check**    | Topological sort or [DFS](#glossary)-based cycle detection | Verify that the CSV, when interpreted as directed edges, contains no cycles. If a directed cycle exists, the data is invalid. |
 | **5. Connectivity**              | Union-Find (disjoint set) or BFS       | Track connected components (undirected interpretation) to ensure no isolated subgraphs.           |
 | **6. Anomaly Detection**         | Statistical sampling                   | Check 0.1% of nodes for self-loops or isolated landmarks.                                         |
 
@@ -585,14 +459,29 @@ Key parsing rules:
 - **Union-Find for Connectivity**:  
   Maintain a disjoint-set data structure during CSV ingestion:  
   ```cpp
-  class UnionFind {
-	 std::vector<int> parent;
-  public:
-	 UnionFind(int max_id) : parent(max_id + 1) { /* ... */ }
-	 void unite(int a, int b);
-	 bool connected(int a, int b);
-  };
-  ```
+	class UnionFind {
+		std::vector<int> parent;
+	public:
+		UnionFind(int n) : parent(n) { 
+			std::iota(parent.begin(), parent.end(), 0); 
+		}
+		int find(int x) { 
+			return (parent[x] == x) ? x : (parent[x] = find(parent[x])); 
+		}
+		void unite(int a, int b) { 
+			parent[find(a)] = find(b); 
+		}
+	};
+
+	// During CSV parsing:
+	UnionFind uf(max_node_id);
+	for each edge (a, b) in CSV:
+		uf.unite(a, b);
+
+	// After parsing:
+	bool is_connected = (uf.find(src) == uf.find(dst)); // Replace BFS/DFS
+	```
+
   - Time Complexity: ~O(α(n)) per union/find operation (near-constant).
   - Space: O(V).
 
@@ -839,41 +728,6 @@ curl -H "Accept: application/xml" "http://localhost:8080/path?src=123&dst=456"
 
 **Documentation (Future Phase)**:
 An OpenAPI 3.0 specification will be provided at `/openapi.yaml` for automated client generation.
-
-## Time and Space Complexity
-
-### Algorithmic Complexities
-| Algorithm/Component       | Time Complexity       | Space Complexity       | Notes                                                                 |
-|---------------------------|-----------------------|------------------------|-----------------------------------------------------------------------|
-| **Bidirectional Dijkstra** | `O((V + E) log V)`    | `O(V + E)`             | - Forward/backward searches reduce runtime by ~50% vs unidirectional.|
-| **Approximation (10% bound)** | `O(k log k)`       | `O(V + E)`             | - `k` = nodes expanded before exceeding 1.1× best path cost.          |
-| **Connectivity Check**     | `O(V + E)`           | `O(V)`                 | - BFS/[DFS](#glossary) impractical for 24M nodes. Use **Union-Find** during CSV load instead. |
-| **Cycle Check**            | `O(V + E)`           | `O(V)`                 | - Detects invalid self-loops only (road networks inherently cyclical).|
-| **HTTP Request Handling**  | `O(1)` per request   | `O(1)` per thread      | - Parsing/formatting negligible; concurrency limited by thread pool. |
-
-### Real-World Considerations
-1. **Memory Footprint**:
-   - **Adjacency List**: 
-     - For 24M nodes and 58M edges (USA road networks), expect ~3.5–4.5 GB RAM usage (using `std::vector<std::vector<Edge>>` with 8-byte edges). 
-     - **Optimization**: Use Compressed Sparse Row (CSR) format to reduce memory by 30–40%.
-   - **Priority Queues**: 
-     - Bidirectional Dijkstra requires two priority queues. For 24M nodes, each queue may temporarily store ~1M entries (~8 MB each with 8-byte entries).
-
-2. **Runtime in Practice**:
-   - **Bidirectional Dijkstra**: 
-     - Sparse road networks (avg. degree = 2.4) yield ~10–100 ms per query on modern CPUs. 
-     - Worst-case (dense subgraphs) approaches `O((V + E) log V)` but is rare in geospatial data.
-   - **Approximation Heuristic**: 
-     - Early termination at 10% error reduces runtime by 60–80% with minimal accuracy loss.
-
-3. **Concurrency Overheads**:
-   - Multi-threading adds `O(n)` memory for `n` threads (each with own queues and caches).
-   - Lock contention negligible if graph is read-only.
-
-### Key Takeaways
-- **Graph Density Matters**: Sparse graphs (roads) favor adjacency lists; dense graphs prefer matrices.
-- **Memory > CPU**: For 24M nodes, focus on memory-efficient structures (e.g., CSR over `std::vector`).
-- **Approximation Tradeoff**: A 10% error margin can reduce latency by 5–10× in worst-case scenarios.
 
 ## Error Handling
 
@@ -1334,18 +1188,23 @@ Below are concise implementations of the core components, demonstrating a minima
 #include <string>
 
 struct Edge {
-	int to;
-	int cost;
+    int to;
+    int cost;
+};
+
+// Compressed Sparse Row (CSR) format
+struct CSRGraph {
+    std::vector<int> offsets; // Node ID → starting index in `edges`
+    std::vector<Edge> edges;  // All edges concatenated
 };
 
 class DataValidation {
 public:
-	bool loadCSV(const std::string& filename);
-	const std::vector<std::vector<Edge>>& getAdjacencyList() const {
-		return adjacencyList_;
-	}
+    bool loadCSV(const std::string& filename);
+    const CSRGraph& getCSRGraph() const { return csr_graph_; }
+
 private:
-	std::vector<std::vector<Edge>> adjacencyList_;
+    CSRGraph csr_graph_;
 };
 
 #endif // DATA_VALIDATION_HPP
@@ -1356,55 +1215,60 @@ private:
 #include "data_validation.hpp"
 #include <fstream>
 #include <sstream>
-#include <iostream>
+#include <unordered_map>
+#include <numeric> // for std::partial_sum
 
 bool DataValidation::loadCSV(const std::string& filename) {
-	std::ifstream infile(filename);
-	if (!infile.is_open()) {
-		return false;
-	}
+    std::ifstream infile(filename);
+    if (!infile.is_open()) return false;
 
-	// First pass: find max ID for sizing adjacencyList_
-	int maxID = 0;
-	{
-		std::string line;
-		while (std::getline(infile, line)) {
-			std::stringstream ss(line);
-			int a, b, cost;
-			char comma;
-			if (!(ss >> a >> comma >> b >> comma >> cost)) {
-				// Malformed line; could log or skip
-				continue;
-			}
-			if (a > maxID) maxID = a;
-			if (b > maxID) maxID = b;
-		}
-	}
+    // First pass: count edges per node and find max ID
+    std::unordered_map<int, int> edge_counts;
+    int max_id = 0;
 
-	// Prepare adjacency
-	adjacencyList_.resize(maxID + 1);
+    std::string line;
+    while (std::getline(infile, line)) {
+        std::stringstream ss(line);
+        int a, b, cost;
+        char comma;
+        if (!(ss >> a >> comma >> b >> comma >> cost)) continue;
 
-	// Reset to start of file
-	infile.clear();
-	infile.seekg(0, std::ios::beg);
+        max_id = std::max({max_id, a, b});
+        edge_counts[a]++;  // Count A->B
+        edge_counts[b]++;  // Count B->A (bidirectional)
+    }
 
-	// Second pass: populate adjacency
-	std::string line;
-	while (std::getline(infile, line)) {
-		std::stringstream ss(line);
-		int a, b, cost;
-		char comma;
-		if (!(ss >> a >> comma >> b >> comma >> cost)) {
-			// Malformed line; skip
-			continue;
-		}
-		adjacencyList_[a].push_back({b, cost});
-		adjacencyList_[b].push_back({a, cost});
-	}
+    // Initialize CSR offsets
+    csr_graph_.offsets.resize(max_id + 2, 0); // +2 for safety
 
-	// (Optional) Perform additional validation, e.g., union-find checks
+    // Populate offsets
+    for (const auto& [node, count] : edge_counts) {
+        csr_graph_.offsets[node + 1] = count;
+    }
+    std::partial_sum(csr_graph_.offsets.begin(), csr_graph_.offsets.end(), csr_graph_.offsets.begin());
 
-	return true;
+    // Second pass: populate edges
+    csr_graph_.edges.resize(csr_graph_.offsets.back());
+    std::vector<int> counters(max_id + 1, 0);
+
+    infile.clear();
+    infile.seekg(0);
+    while (std::getline(infile, line)) {
+        std::stringstream ss(line);
+        int a, b, cost;
+        char comma;
+        if (!(ss >> a >> comma >> b >> comma >> cost)) continue;
+
+        // Insert A->B
+        int idx_a = csr_graph_.offsets[a] + counters[a]++;
+        csr_graph_.edges[idx_a] = {b, cost};
+
+        // Insert B->A
+        int idx_b = csr_graph_.offsets[b] + counters[b]++;
+        csr_graph_.edges[idx_b] = {a, cost};
+    }
+
+    return true;
 }
 ```
 
@@ -1415,43 +1279,195 @@ bool DataValidation::loadCSV(const std::string& filename) {
 #ifndef PATHFINDER_HPP
 #define PATHFINDER_HPP
 
-#include <vector>
-#include <queue>
 #include "data_validation.hpp"
+#include <vector>
 
 class Pathfinder {
 public:
-	explicit Pathfinder(const std::vector<std::vector<Edge>>& adjList);
-	bool bidirectionalDijkstra(int src, int dst, std::vector<int>& pathOut);
+    explicit Pathfinder(const CSRGraph& csr_graph);
+    
+    // Modified method signature with approximation parameters
+    bool findShortestPath(int src, int dst, std::vector<int>& pathOut, 
+                         bool approximate = false, float max_error = 0.10f);
 
 private:
-	const std::vector<std::vector<Edge>>& adjacencyList_;
+    struct SearchState {
+        std::vector<int> dist;
+        std::vector<int> parent;
+        std::priority_queue<std::pair<int, int>> pq; // (cost + heuristic, node)
+    };
+
+    void initializeSearch(SearchState& state, int start_node, bool is_forward);
+    int heuristic(int node, int target) const;  // A* heuristic function
+    
+    const CSRGraph& csr_graph_;
+    float current_max_error_ = 0.10f; // Default 10% error bound
 };
 
-#endif // PATHFINDER_HPP
+#endif
 ```
 
 **Source** (`pathfinder.cpp`):
 ```cpp
 #include "pathfinder.hpp"
+#include <queue>
 #include <limits>
+#include <cmath>
+#include <unordered_map>
 
-Pathfinder::Pathfinder(const std::vector<std::vector<Edge>>& adjList)
-	: adjacencyList_(adjList) {}
+// Example node coordinates - REPLACE WITH REAL DATA
+std::unordered_map<int, std::pair<double, double>> node_coordinates;
 
-bool Pathfinder::bidirectionalDijkstra(int src, int dst, std::vector<int>& pathOut) {
-	// Validate node IDs
-	if (src < 0 || src >= (int)adjacencyList_.size()) return false;
-	if (dst < 0 || dst >= (int)adjacencyList_.size()) return false;
+Pathfinder::Pathfinder(const CSRGraph& csr_graph)
+    : csr_graph_(csr_graph) {}
 
-	// For demonstration, return a trivial path (direct if possible).
-	// Replace with actual bidirectional Dijkstra logic.
-	pathOut.clear();
-	pathOut.push_back(src);
-	if (src != dst)
-		pathOut.push_back(dst);
+bool Pathfinder::bidirectionalSearch(int src, int dst, 
+                                    std::vector<int>& pathOut,
+                                    bool approximate,
+                                    float max_error) {
+    const int INF = std::numeric_limits<int>::max();
+    const auto& offsets = csr_graph_.offsets;
+    const auto& edges = csr_graph_.edges;
 
-	return true;
+    // Validate input nodes
+    if (src < 0 || src >= static_cast<int>(offsets.size()-1) ||
+        dst < 0 || dst >= static_cast<int>(offsets.size()-1)) {
+        return false;
+    }
+
+    // Initialize data structures
+    std::vector<int> forward_dist(offsets.size()-1, INF);
+    std::vector<int> backward_dist(offsets.size()-1, INF);
+    std::vector<int> forward_parent(offsets.size()-1, -1);
+    std::vector<int> backward_parent(offsets.size()-1, -1);
+
+    using Node = std::pair<int, int>;  // (cost + heuristic, node)
+    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> 
+        forward_pq, backward_pq;
+
+    // Heuristic helper function
+    auto heuristic = [&](int node, int target, bool is_forward) {
+        if (!approximate) return 0;
+        try {
+            const auto& [x1, y1] = node_coordinates.at(node);
+            const auto& [x2, y2] = node_coordinates.at(target);
+            double dx = x2 - x1, dy = y2 - y1;
+            return static_cast<int>((1.0 + max_error) * std::hypot(dx, dy));
+        } catch (...) {
+            return 0;  // Fallback if coordinates missing
+        }
+    };
+
+    // Initialize queues
+    forward_dist[src] = 0;
+    backward_dist[dst] = 0;
+    forward_pq.emplace(heuristic(src, dst, true), src);
+    backward_pq.emplace(heuristic(dst, src, false), dst);
+
+    int best_cost = INF;
+    int meeting_node = -1;
+
+    while (!forward_pq.empty() && !backward_pq.empty()) {
+        // --- Forward Search ---
+        auto [f_cost, u] = forward_pq.top();
+        forward_pq.pop();
+        
+        if (approximate) f_cost -= heuristic(u, dst, true);
+        if (f_cost > forward_dist[u]) continue;
+
+        for (int i = offsets[u]; i < offsets[u+1]; ++i) {
+            const Edge& e = edges[i];
+            int new_cost = forward_dist[u] + e.cost;
+            
+            if (new_cost < forward_dist[e.to]) {
+                forward_dist[e.to] = new_cost;
+                forward_parent[e.to] = u;
+                
+                int priority = new_cost;
+                if (approximate) {
+                    priority += heuristic(e.to, dst, true);
+                }
+                forward_pq.emplace(priority, e.to);
+
+                // Update best path if meeting point found
+                if (backward_dist[e.to] != INF) {
+                    int total = new_cost + backward_dist[e.to];
+                    if (total < best_cost) {
+                        best_cost = total;
+                        meeting_node = e.to;
+                    }
+                }
+            }
+        }
+
+        // --- Backward Search ---
+        auto [b_cost, v] = backward_pq.top();
+        backward_pq.pop();
+        
+        if (approximate) b_cost -= heuristic(v, src, false);
+        if (b_cost > backward_dist[v]) continue;
+
+        for (int i = offsets[v]; i < offsets[v+1]; ++i) {
+            const Edge& e = edges[i];
+            int new_cost = backward_dist[v] + e.cost;
+            
+            if (new_cost < backward_dist[e.to]) {
+                backward_dist[e.to] = new_cost;
+                backward_parent[e.to] = v;
+                
+                int priority = new_cost;
+                if (approximate) {
+                    priority += heuristic(e.to, src, false);
+                }
+                backward_pq.emplace(priority, e.to);
+
+                // Update best path if meeting point found
+                if (forward_dist[e.to] != INF) {
+                    int total = forward_dist[e.to] + new_cost;
+                    if (total < best_cost) {
+                        best_cost = total;
+                        meeting_node = e.to;
+                    }
+                }
+            }
+        }
+
+        // --- Early Termination Check ---
+        if (approximate && meeting_node != -1) {
+            int current_bound = forward_pq.top().first + backward_pq.top().first;
+            if (best_cost <= current_bound * (1.0 + max_error)) {
+                break;
+            }
+        }
+    }
+
+    if (meeting_node == -1) return false;
+
+    pathOut = reconstructPath(meeting_node, forward_parent, backward_parent);
+    return true;
+}
+
+std::vector<int> Pathfinder::reconstructPath(int meeting_node,
+                                            const std::vector<int>& forward_parent,
+                                            const std::vector<int>& backward_parent) const {
+    std::vector<int> path;
+    
+    // Reconstruct forward path (meeting_node -> src)
+    int node = meeting_node;
+    while (node != -1) {
+        path.push_back(node);
+        node = forward_parent[node];
+    }
+    std::reverse(path.begin(), path.end());
+
+    // Reconstruct backward path (meeting_node -> dst)
+    node = backward_parent[meeting_node];
+    while (node != -1) {
+        path.push_back(node);
+        node = backward_parent[node];
+    }
+
+    return path;
 }
 ```
 
@@ -1487,82 +1503,275 @@ private:
 **Source** (`server.cpp`):
 ```cpp
 #include "server.hpp"
+#include "pathfinder.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
+#include <sstream>
+#include <algorithm>
 #include <cstring>
+#include <vector>
+#include <thread>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 
-Server::Server(Pathfinder& pathfinder)
-	: pathfinder_(pathfinder) {}
+class ServerImpl {
+public:
+    ServerImpl(Pathfinder& pf, int port) 
+        : pathfinder_(pf), port_(port), shutdown_(false) {}
 
-void Server::run(int port) {
-	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (server_fd < 0) {
-		perror("Socket creation failed");
-		return;
-	}
+    void run() {
+        try {
+            setupSocket();
+            startWorkers();
+            acceptLoop();
+        } catch (const std::exception& e) {
+            std::cerr << "Server failed: " << e.what() << std::endl;
+            shutdown();
+        }
+    }
 
-	int opt = 1;
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-		perror("Set socket options failed");
-		close(server_fd);
-		return;
-	}
+    void shutdown() {
+        shutdown_ = true;
+        cv_.notify_all();
+        if (server_fd_ != -1) close(server_fd_);
+    }
 
-	sockaddr_in address{};
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(port);
+private:
+    Pathfinder& pathfinder_;
+    int port_;
+    int server_fd_{-1};
+    std::atomic<bool> shutdown_;
+    
+    std::mutex mtx_;
+    std::condition_variable cv_;
+    std::queue<int> client_queue_;
+    std::vector<std::thread> workers_;
 
-	if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
-		perror("Bind failed");
-		close(server_fd);
-		return;
-	}
+    void setupSocket() {
+        server_fd_ = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_fd_ < 0) {
+            throw std::runtime_error("Socket creation failed");
+        }
 
-	if (listen(server_fd, 3) < 0) {
-		perror("Listen failed");
-		close(server_fd);
-		return;
-	}
+        int opt = 1;
+        if (setsockopt(server_fd_, SOL_SOCKET, 
+                      SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+            throw std::runtime_error("Setsockopt failed");
+        }
 
-	std::cout << "Server listening on port " << port << "..." << std::endl;
+        sockaddr_in address{};
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(port_);
 
-	while (true) {
-		socklen_t addrlen = sizeof(address);
-		int new_socket = accept(server_fd, (struct sockaddr*)&address, &addrlen);
-		if (new_socket < 0) {
-			perror("Accept failed");
-			continue;
-		}
+        if (bind(server_fd_, (sockaddr*)&address, sizeof(address)) < 0) {
+            throw std::runtime_error("Bind failed");
+        }
 
-		// Simplistic single-thread approach:
-		char buffer[1024] = {0};
-		ssize_t bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
-		if (bytes_read < 0) {
-			perror("Read from client failed");
-			close(new_socket);
-			continue;
-		}
+        if (listen(server_fd_, 1024) < 0) { // Increased backlog
+            throw std::runtime_error("Listen failed");
+        }
 
-		// Very basic response (a real implementation would parse buffer)
-		std::string response =
-			"HTTP/1.1 200 OK\r\n"
-			"Content-Type: application/json\r\n"
-			"Connection: close\r\n"
-			"\r\n"
-			"{ \"message\": \"Server is running\" }";
+        std::cout << "Server listening on port " << port_ << std::endl;
+    }
 
-		if (send(new_socket, response.c_str(), response.size(), 0) < 0) {
-			perror("Send to client failed");
-		}
+    void startWorkers() {
+        unsigned num_workers = std::max(2u, std::thread::hardware_concurrency());
+        for (unsigned i = 0; i < num_workers; ++i) {
+            workers_.emplace_back([this] { workerThread(); });
+        }
+    }
 
-		close(new_socket);
-	}
+    void workerThread() {
+        while (true) {
+            int client_socket = -1;
+            {
+                std::unique_lock lock(mtx_);
+                cv_.wait(lock, [this] { 
+                    return !client_queue_.empty() || shutdown_; 
+                });
 
-	close(server_fd);
-}
+                if (shutdown_) return;
+                
+                client_socket = client_queue_.front();
+                client_queue_.pop();
+            }
+            
+            try {
+                handleClient(client_socket);
+            } catch (const std::exception& e) {
+                std::cerr << "Client handling error: " << e.what() << std::endl;
+            }
+            close(client_socket);
+        }
+    }
+
+    void acceptLoop() {
+        while (!shutdown_) {
+            sockaddr_in client_addr{};
+            socklen_t addr_len = sizeof(client_addr);
+            int client_socket = accept(server_fd_, 
+                (sockaddr*)&client_addr, &addr_len);
+
+            if (client_socket < 0) {
+                if (!shutdown_) std::cerr << "Accept error" << std::endl;
+                continue;
+            }
+
+            {
+                std::lock_guard lock(mtx_);
+                client_queue_.push(client_socket);
+            }
+            cv_.notify_one();
+        }
+    }
+
+    void handleClient(int client_socket) {
+        try {
+            auto [src, dst, format, approximate] = parseRequest(client_socket);
+            std::vector<int> path;
+            bool found = pathfinder_.bidirectionalSearch(src, dst, path, approximate);
+            sendResponse(client_socket, formatResponse(found, path, format));
+        } catch (const std::exception& e) {
+            sendError(client_socket, 400, "Bad request: " + std::string(e.what()));
+        }
+    }
+
+    std::tuple<int, int, std::string, bool> parseRequest(int client_socket) {
+        constexpr size_t BUFFER_SIZE = 4096;
+        char buffer[BUFFER_SIZE];
+        
+        ssize_t bytes_read = recv(client_socket, buffer, BUFFER_SIZE - 1, 0);
+        if (bytes_read <= 0) throw std::runtime_error("Read error");
+        
+        buffer[bytes_read] = '\0';
+        std::string request(buffer);
+
+        // Parse HTTP method and path
+        size_t start = request.find(' ');
+        size_t end = request.find(' ', start + 1);
+        if (start == std::string::npos || end == std::string::npos) {
+            throw std::runtime_error("Invalid request format");
+        }
+
+        std::string path = request.substr(start + 1, end - start - 1);
+        if (path.find("/path") != 0) {
+            throw std::runtime_error("Invalid endpoint");
+        }
+
+        // Parse query parameters
+        size_t query_start = path.find('?');
+        if (query_start == std::string::npos) {
+            throw std::runtime_error("Missing query parameters");
+        }
+
+        std::istringstream iss(path.substr(query_start + 1));
+        std::string token;
+        int src = -1, dst = -1;
+        std::string format = "json";
+        bool approximate = false;
+
+        while (std::getline(iss, token, '&')) {
+            size_t eq_pos = token.find('=');
+            if (eq_pos == std::string::npos) continue;
+
+            std::string key = token.substr(0, eq_pos);
+            std::string value = token.substr(eq_pos + 1);
+
+            if (key == "src") {
+                src = std::stoi(value);
+            } else if (key == "dst") {
+                dst = std::stoi(value);
+            } else if (key == "format") {
+                format = value;
+            } else if (key == "approx") {
+                approximate = (value == "true" || value == "1");
+            }
+        }
+
+        if (src < 0 || dst < 0) {
+            throw std::runtime_error("Missing src/dst parameters");
+        }
+
+        std::transform(format.begin(), format.end(), format.begin(), ::tolower);
+        if (format != "json" && format != "xml") {
+            throw std::runtime_error("Invalid format parameter");
+        }
+
+        return {src, dst, format, approximate};
+    }
+
+    std::string formatResponse(bool found, 
+                              const std::vector<int>& path,
+                              const std::string& format) {
+        if (!found) {
+            if (format == "json") {
+                return R"({"status":"error","message":"No path found"})";
+            } else {
+                return R"(<response><status>error</status><message>No path found</message></response>)";
+            }
+        }
+
+        if (format == "json") {
+            std::ostringstream oss;
+            oss << R"({"status":"success","path":[)";
+            for (size_t i = 0; i < path.size(); ++i) {
+                oss << path[i];
+                if (i < path.size() - 1) oss << ",";
+            }
+            oss << "]}";
+            return oss.str();
+        } else {
+            std::ostringstream oss;
+            oss << R"(<response><status>success</status><path>)";
+            for (int node : path) {
+                oss << "<node>" << node << "</node>";
+            }
+            oss << "</path></response>";
+            return oss.str();
+        }
+    }
+
+    void sendResponse(int client_socket, const std::string& body) {
+        std::ostringstream oss;
+        oss << "HTTP/1.1 200 OK\r\n"
+            << "Content-Type: " << (body.find("xml") != std::string::npos 
+                                  ? "application/xml" 
+                                  : "application/json") << "\r\n"
+            << "Content-Length: " << body.size() << "\r\n"
+            << "Connection: close\r\n\r\n"
+            << body;
+
+        std::string response = oss.str();
+        send(client_socket, response.data(), response.size(), 0);
+    }
+
+    void sendError(int client_socket, int code, const std::string& message) {
+        std::ostringstream oss;
+        oss << "HTTP/1.1 " << code << " Error\r\n"
+            << "Content-Type: text/plain\r\n"
+            << "Content-Length: " << message.size() << "\r\n"
+            << "Connection: close\r\n\r\n"
+            << message;
+            
+        std::string response = oss.str();
+        send(client_socket, response.data(), response.size(), 0);
+    }
+};
+
+// Public Server implementation
+Server::Server(Pathfinder& pf, int port) 
+    : impl_(std::make_unique<ServerImpl>(pf, port)) {}
+
+Server::~Server() = default;
+
+void Server::run() { impl_->run(); }
+void Server::shutdown() { impl_->shutdown(); }
 ```
 
 ### Planned Improvements
@@ -1769,7 +1978,12 @@ Caution: Use `Access-Control-Allow-Origin: *` only if you trust all domains (e.g
 - **Versioning**:  
   - Use semantic versioning (e.g., `v1.2.3`) for releases and tag commits in Git.  
 - **Rollback Strategy**:  
-  - Maintain previous stable binaries to quickly revert during deployment failures.  
+  - Maintain previous stable binaries to quickly revert during deployment failures.
+
+### Platform Compatibility
+- **Primary Target**: Linux/macOS (due to [BSD socket](#glossary) dependencies).  
+- **Windows**: Requires Winsock2 and POSIX compatibility layer (e.g., WSL or Cygwin).  
+- **Testing**: Validated on Ubuntu 22.04 (GCC 13), macOS Ventura (Clang 16), and Windows 11 (WSL2).    
 
 ### Compliance and Ethics
 - **Data Privacy**:  
@@ -1798,7 +2012,7 @@ Caution: Use `Access-Control-Allow-Origin: *` only if you trust all domains (e.g
 **Adjacency List** [↩︎](#hardware)  
 : A data structure in which each node (landmark) has a list of nodes to which it is directly connected, along with the cost or time to reach them. The project often uses a Compressed Sparse Row (CSR) format to store large adjacency lists efficiently.
 
-**Approximation Heuristic** [↩︎](#approximation-heuristics)  
+**Approximation Heuristic** [↩︎](#bidirectional-a-with-bounded-heuristics)  
 : A technique that finds a path not strictly optimal but within a defined percentage (e.g., 10%) of the shortest path, thereby reducing computation time.
 
 **A\* (A-Star)** [↩︎](#a-with-bounded-heuristics)  
@@ -1813,13 +2027,13 @@ Caution: Use `Access-Control-Allow-Origin: *` only if you trust all domains (e.g
 **BSD Sockets** [↩︎](#platform-compatibility)  
 : A programming interface (API) for network communication on Unix-like systems, used to implement raw socket connections for the HTTP server.
 
-**Contraction Hierarchies (CH)** [↩︎](#precomputation-for-approximate-paths-ch-lite)  
+**Contraction Hierarchies (CH)** [↩︎](#contraction-hierarchies-ch-lite)  
 : A precomputation method that “contracts” less important nodes to create shortcuts, speeding up queries on large road networks.
 
 **CSV (Comma-Separated Values)** [↩︎](#project-overview) 
 : A file format that stores tabular data with comma delimiters. Here, `USA-roads.csv` provides bidirectional edges for the road network.
 
-**DFS (Depth-First Search)** [↩︎](#glossary)  
+**DFS (Depth-First Search)** [↩︎](#validation-pipeline)  
 : An algorithm that explores a graph by advancing as far as possible along each path before backtracking. Useful for detecting cycles or checking connectivity.
 
 **Dijkstra’s Algorithm** [↩︎](#core-algorithms)  
