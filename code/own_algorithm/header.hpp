@@ -10,9 +10,9 @@
 // Using 1.1 : provides a good balance between speed and accuracy (< 5% longer path)
 #define WEIGHT              1.1
 
-#define MAP_BACKUP          "qmap-backup.bin"
-#define LANDMARKS_BACKUP    "qlandmarks-backup"
-#define DATASET             "USA.csv"
+#define MAP_BACKUP          "map-backup.bin"
+#define LANDMARKS_BACKUP    "landmarks-backup"
+#define DATASET             "USA-roads.csv"
 #define OUTPUT              "shortest-path.csv"
 
 #define FAIL                false
