@@ -5,7 +5,7 @@
 
 float   heuristic_weight    = WEIGHT;
 int     landmarks_qty       = LANDMARKS_QTY;
-int     root_landmark       = ROOT;
+int     root_landmark       = ROOT_LANDMARK;
 
 struct Timer {
     chrono::high_resolution_clock::time_point start_time;

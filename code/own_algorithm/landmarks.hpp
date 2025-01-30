@@ -11,6 +11,10 @@
 
 void buildLandmarks(Graph& graph) {
 
+    //Reset the landmarks data
+    graph.landmarks.clear();
+    graph.landmark_distance.clear();
+
     cout << "Building landmarks ... " << flush;
 
     vector<bool> isLandmark(graph.nodes_qty, false);

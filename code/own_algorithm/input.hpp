@@ -82,6 +82,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
     }
     if (input == "build-graph") {
         loadGraph(graph, files, FORCE_BUILD);
+        loadLandmarks(graph, files, FORCE_BUILD);
         return COMMAND;
     }
     if (input == "display-lm") {
