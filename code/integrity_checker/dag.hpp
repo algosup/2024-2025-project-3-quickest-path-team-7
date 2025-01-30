@@ -108,7 +108,7 @@ bool dfs(int node, DAG& dag, vector<int>& visited)
     return false;
 }
 
-void buildDag(DAG& dag) 
+DAG buildDag(DAG& dag) 
 {
     cout << "1" << endl;
     loadDag(dag);
@@ -150,10 +150,7 @@ void buildDag(DAG& dag)
     cout << "6" << endl;
     cout << "The graph is acyclic (DAG)." << endl;
     //cin.get();
-    dag.data.clear();
-    dag.data.shrink_to_fit();
-    dag.parents.clear();
-    dag.parents.shrink_to_fit();
+    return dag;
 }
 
 #endif

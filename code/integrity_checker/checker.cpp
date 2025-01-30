@@ -8,9 +8,9 @@ int main() {
     cout << "\nInitialization\n" << endl;
 
     // Build a DAG from CSV
-    buildDag(dag);
+    dag = buildDag(dag);
     // Check if the DAG is acyclic
-
+    bfs(dag);
     // Delete the DAG
 
     // Load Csv data in memory as graph eventually from a backup
