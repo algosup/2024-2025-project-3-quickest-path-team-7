@@ -228,7 +228,7 @@ int loadGraph(Graph& graph, Files& files, bool force = false) {
                 return FAIL;
             } else {
                 cout << "Done !" << endl;
-                if (!loadLandmarks(graph, files)) {
+                if (!loadLandmarks(graph, files, force)) {
                     cout << "Landmarks loading failed. Exiting... " << endl;
                     return FAIL;
                 } 
@@ -258,7 +258,7 @@ int loadGraph(Graph& graph, Files& files, bool force = false) {
         cout << "Failed to save the graph to binary !" << endl;
         return FAIL;
     } else {
-        if (!loadLandmarks(graph, files)) {
+        if (!loadLandmarks(graph, files, force)) {
             cout << "Landmarks loading failed. Exiting... " << endl;
             return FAIL;
         } 

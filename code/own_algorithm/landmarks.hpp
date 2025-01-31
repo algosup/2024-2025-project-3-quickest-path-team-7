@@ -21,6 +21,10 @@ void buildLandmarks(Graph& graph) {
     vector<int> pathsArray(graph.nodes_qty);
     graph.landmark_distance.resize(landmarks_qty*graph.nodes_qty);
 
+    // Check if the root landmark is a valid node
+    if (graph.adjacency_start[root_landmark] == graph.adjacency_start[root_landmark+1]) {
+        root_landmark = graph.nodes_qty;
+    }
     graph.landmarks.push_back(root_landmark);
     isLandmark[root_landmark] = true;
     isLandmark[0] = true;
