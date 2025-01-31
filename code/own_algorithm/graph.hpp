@@ -208,8 +208,16 @@ int loadGraph(Graph& graph, Files& files, bool force = false) {
     graph.nodes_qty = 0;
     graph.loaded = false;
     graph.landmarks_loaded = false;
+    // Clear all the vectors
+    graph.edges.clear();
     graph.landmarks.clear();
+    graph.adjacency_start.clear();
     graph.landmark_distance.clear();
+    // Free memory from the vectors
+    graph.edges.shrink_to_fit();
+    graph.landmarks.shrink_to_fit();
+    graph.adjacency_start.shrink_to_fit();
+    graph.landmark_distance.shrink_to_fit();
 
     // If not forcing a rebuild from CSV, try to load from binary backup
     if (!force) {
