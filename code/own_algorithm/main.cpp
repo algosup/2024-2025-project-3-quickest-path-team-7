@@ -30,11 +30,6 @@ int main () {
                 return 1;
         }
     }
-    
-    if (!loadLandmarks(graph, files)) {
-        cout << "Landmarks loading failed. Exiting... " << endl;
-        return 1;
-    } 
 
     while (true)
     {

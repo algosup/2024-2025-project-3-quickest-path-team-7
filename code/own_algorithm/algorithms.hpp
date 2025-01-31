@@ -63,6 +63,15 @@ void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
 // A* derived algorithm to find the shortest path between two nodes
 void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
 
+    if (! graph.loaded) {
+        cout << "Graph not loaded, please load it first." << endl;
+        return;
+    }
+    if (!graph.landmarks_loaded) {
+        cout << "Landmarks not loaded, please load them first." << endl;
+        return;
+    }
+
     int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
     path_data.estimated_distance = start_to_end_estimation;
     start_to_end_estimation *= heuristic_weight;
