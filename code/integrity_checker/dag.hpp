@@ -87,12 +87,12 @@ bool dfs(int node, DAG& dag, vector<int>& visited)
     // Explore all neighbors
     if (dag.data[node].empty()) 
     {
-        visited[node] = dag.parents[node].size()+1;  // Mark the node as fully processed
+        visited[node] = dag.parents[node].size()+1;  // Mark the node
         return false;
     }
     for (int neighbor : dag.data[node]) 
     {
-        if (visited[neighbor] == dag.parents[node].size() and dag.parents[node].size() != 0) 
+        if (visited[neighbor] == dag.parents[node].size() and dag.parents[node].size() != 0) // if the node is visited 
         {  // A cycle is detected
             cout << "Cycle detected in node" << node << endl;
             return true;
@@ -103,8 +103,22 @@ bool dfs(int node, DAG& dag, vector<int>& visited)
             return true;
         }
     }
+/*
+when cycle is detected,
 
-    visited[node] = dag.parents[node].size()+1;  // Mark the node as fully processed
+node where cycle is detected: 
+    node 1 -> node x -> node 2 -> node 1
+    node 1 has node 2 as parent
+    node 2 has node 1 as son
+    
+    change node 2 as son of node 1 and node 1 as parent of node 2
+
+e.g. of output:
+    node 2 <- node 1 -> node x -> node 2
+    node 1 has node 2 as son
+    node 2 has node 1 as parent
+*/
+    visited[node] = dag.parents[node].size()+1;  // Mark the node
     return false;
 }
 
