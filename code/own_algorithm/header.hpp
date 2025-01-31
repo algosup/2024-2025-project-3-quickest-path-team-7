@@ -4,7 +4,7 @@
 #define CSV_LINES           28854312
 
 #define ROOT_LANDMARK       1
-#define LANDMARKS_QTY       15
+#define LANDMARKS_QTY       10
 // WEIGHT is the coefficient aplied to the heuristic cost for A star :
 // Using 1 : provides the quickest path, but can take time to calculate
 // Using 1.1 : provides a good balance between speed and accuracy (< 5% longer path)
