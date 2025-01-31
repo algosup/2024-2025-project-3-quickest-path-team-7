@@ -14,6 +14,7 @@
 #define LANDMARKS_BACKUP    "landmarks-backup"
 #define DATASET             "USA-roads.csv"
 #define OUTPUT              "shortest-path.csv"
+#define SCAN_RESULT         "scan-result.csv"
 
 #define FAIL                false
 #define SUCCESS             true
@@ -60,6 +61,7 @@ const int INF = numeric_limits<int>::max();
 #include "algorithms.hpp"
 #include "landmarks.hpp"
 #include "graph.hpp"
+#include "scanner.hpp"
 #include "input.hpp"
 
 #endif

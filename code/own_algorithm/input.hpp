@@ -10,6 +10,7 @@ void takeFolderInput(Files& files, bool ask_folder = SKIP) {
     files.output = OUTPUT;
     files.map_backup = MAP_BACKUP;
     files.root_landmarks_backup = LANDMARKS_BACKUP;
+    files.scan_result = SCAN_RESULT;
 
     if (ask_folder){
         #ifdef PATH_MAX
@@ -36,7 +37,7 @@ void takeFolderInput(Files& files, bool ask_folder = SKIP) {
     files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
 }
 
-int takeUserInput(Graph& graph, Path& path, Files& files) {
+int takeUserInput(Graph& graph, Path& path, Files& files, Astar& astar) {
 
     string input;
     // Ask and check for the start and end nodes to calculate the shortest path
@@ -101,6 +102,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         files.map_backup = files.folder_path + "/" + MAP_BACKUP;
         files.root_landmarks_backup = files.folder_path + "/" + LANDMARKS_BACKUP;
         files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
+        files.scan_result = files.folder_path + "/" + SCAN_RESULT;
         cout << "Files path changed to " << files.folder_path << endl;
         return COMMAND;
     }
@@ -109,6 +111,10 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         cout << "Result output: " << files.output << endl;
         cout << "graph backup: " << files.map_backup << endl;
         cout << "Landmarks backup: " << files.landmarks_backup << endl;
+        return COMMAND;
+    }
+    if (input == "scan") {
+        scanLongestPaths(graph, files, path, astar);
         return COMMAND;
     }
     if (input == "exit") {

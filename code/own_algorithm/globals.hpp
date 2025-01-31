@@ -74,6 +74,7 @@ struct Files {
     string landmarks_backup;
     string root_landmarks_backup;
     string output;
+    string scan_result;
 };
 
 // Function to format a number with spaces between each group of three digits

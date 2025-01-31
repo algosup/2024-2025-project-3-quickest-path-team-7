@@ -36,7 +36,7 @@ int main () {
         reset_compute_data(graph, path_data, astar); 
 
         // Take user input for the start and end nodes or any extra command (you can check it out)
-        switch (takeUserInput(graph, path_data, files))
+        switch (takeUserInput(graph, path_data, files, astar))
         {
             case INVALID_NODE :
                 cout << "Invalid node, please try again." << endl;
