@@ -3,6 +3,33 @@
 
 #include "header.hpp"
 
+void push_out(DAG& dag, int indexListElem, int elementOut, string conditionDataParent)
+{
+    int k = 0;
+    if (conditionDataParent == "data")
+    {
+        for (int elementInList : dag.parents[indexListElem])
+        {
+            k++;
+            if (elementInList == elementOut)
+            {
+                dag.parents[indexListElem].erase(dag.parents[indexListElem].begin()+k);
+            }
+        }
+    }
+    if (conditionDataParent == "parents")
+    {
+        for (int elementInList : dag.data[indexListElem])
+        {
+            k++;
+            if (elementInList == elementOut)
+            {
+                dag.data[indexListElem].erase(dag.data[indexListElem].begin()+k);
+            }
+        }
+    }
+}
+
 void loadDag(DAG& dag) 
 {
     ifstream file(DATASET);
@@ -11,13 +38,13 @@ void loadDag(DAG& dag)
     while (getline(file, line)) 
     {
         stringstream ss(line);
-        string token;
-        vector<int> tokens;
-        while (getline(ss, token, ',')) 
+        string elemInList;
+        vector<int> elemList;
+        while (getline(ss, elemInList, ',')) 
         {
-            tokens.push_back(stoi(token));
+            elemList.push_back(stoi(elemInList));
         }
-        data[tokens[0]].push_back(tokens[1]);
+        data[elemList[0]].push_back(elemList[1]);
         
     }
     dag.data.resize(NODE_MAX_VALUE);
@@ -79,7 +106,7 @@ void afficheParents(DAG& dag)
     }
 }
 
-bool dfs(int node, DAG& dag, vector<int>& visited) 
+bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode) 
 {
     //cout << "DFS on node " << node << endl;
     visited[node] = visited[node]+1;  // Mark the node as visiting
@@ -94,13 +121,24 @@ bool dfs(int node, DAG& dag, vector<int>& visited)
     {
         if (visited[neighbor] == dag.parents[node].size() and dag.parents[node].size() != 0) // if the node is visited 
         {  // A cycle is detected
+
             cout << "Cycle detected in node" << node << endl;
-            return true;
+            //return true;
+
+            dag.data[node].push_back(visitedNode);
+            push_out(dag, node, visitedNode, "data");
+            push_out(dag, visitedNode, visitedNode, "parents");
+            dag.parents[visitedNode].push_back(node);
+            
         }
-        if (visited[neighbor] == 0 && dfs(neighbor, dag, visited)) 
+        if (visited[neighbor] == 0 and dfs(neighbor, dag, visited, node)) 
         {
             cout << "Cycle detected in node" << node << endl;
-            return true;
+            
+            dag.data[node].push_back(visitedNode);
+            push_out(dag, node, visitedNode, "data");
+            push_out(dag, visitedNode, visitedNode, "parents");
+            dag.parents[visitedNode].push_back(node);
         }
     }
 /*
@@ -110,7 +148,7 @@ node where cycle is detected:
     node 1 -> node x -> node 2 -> node 1
     node 1 has node 2 as parent
     node 2 has node 1 as son
-    
+
     change node 2 as son of node 1 and node 1 as parent of node 2
 
 e.g. of output:
@@ -152,12 +190,11 @@ DAG buildDag(DAG& dag)
         }
         if (visited[i] == 0) 
         {  // If the node is not visited
-            if (dfs(i, dag, visited)) 
+            if (dfs(i, dag, visited, 0)) 
             {
-                cout << "The graph contains a cycle!" << endl;
+                cout << "The graph is free of cycle!" << endl;
                 visited.clear();
                 vector<int> visited(dag.data.size(), 0);
-                return;
             }
         }
     }
