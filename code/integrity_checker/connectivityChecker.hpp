@@ -5,6 +5,7 @@
 
 void checker(DAG& dag, int node, vector<int>& visited)
 {
+    cout << node << endl;
     if(visited[node] == 1)
         return;
     visited[node] = 1;
@@ -26,14 +27,19 @@ bool parseVisited(vector<int>& visited)
 
 void connectivityChecker(DAG& dag) 
 {
+    cout << "7" << endl;
     bool fullyConnected;
     vector<int> visited(NODE_MAX_VALUE, 0);
-    checker(dag, 0, visited);
+    checker(dag, 1, visited);
+    cout << "8" << endl;
     fullyConnected = parseVisited(visited);
+    cout << "9" << endl;
     if(fullyConnected == true)
         cout << "graph is fully connected" << endl;
     else
         cout << "graph isn't fully connected" << endl;
+    cout << "10" << endl;
+    return;
 }
 
 #endif

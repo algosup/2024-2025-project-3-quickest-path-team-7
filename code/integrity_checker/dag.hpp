@@ -58,9 +58,7 @@ void loadDag(DAG& dag)
 
 void loadParents(DAG& dag) 
 {
-    cout << "2.2" << endl;
     dag.parents.resize(NODE_MAX_VALUE);
-    cout << "2.3" << endl;
     for (int i = 0; i < NODE_MAX_VALUE; i++) 
     {
         for (const auto& neighbor : dag.data[i]) 
@@ -68,7 +66,6 @@ void loadParents(DAG& dag)
             dag.parents[neighbor].push_back(i);
         }
     } 
-    cout << "2.4" << endl;
     cout << "dag parents loaded" << endl;
 }
 
@@ -121,8 +118,6 @@ bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode)
     {
         if (visited[neighbor] == dag.parents[node].size() and dag.parents[node].size() != 0) // if the node is visited 
         {  // A cycle is detected
-
-            cout << "Cycle detected in node" << node << endl;
             //return true;
 
             dag.data[node].push_back(visitedNode);
@@ -133,9 +128,7 @@ bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode)
             
         }
         if (visited[neighbor] == 0 and dfs(neighbor, dag, visited, node)) 
-        {
-            cout << "Cycle detected in node" << node << endl;
-            
+        {   
             dag.data[node].push_back(visitedNode);
             push_out(dag, node, visitedNode, "data");
             push_out(dag, visitedNode, visitedNode, "parents");
@@ -162,7 +155,7 @@ e.g. of output:
     return false;
 }
 
-DAG buildDag(DAG& dag) 
+void buildDag(DAG& dag) 
 {
     cout << "1" << endl;
     loadDag(dag);
@@ -203,7 +196,7 @@ DAG buildDag(DAG& dag)
     cout << "6" << endl;
     cout << "The graph is acyclic (DAG)." << endl;
     //cin.get();
-    return dag;
+    return;
 }
 
 #endif
