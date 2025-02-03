@@ -31,3 +31,4 @@ code/own_algorithm/shortest-path.csv
 code/own_algorithm/USA.csv
 *.csv
 code/own_algorithm/main.exe
+code/own_algorithm/classified_nodes.txt
