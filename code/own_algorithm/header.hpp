@@ -46,6 +46,10 @@
 #include <algorithm>
 #include <locale>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <cstring>
+
 // Alias
 using namespace std;
 using int_pair = pair<int, int>;

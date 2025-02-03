@@ -98,6 +98,7 @@ void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
 
             int local_cost = astar.cost_from_start[current_node.id] + graph.edges[i].weight;
             if (local_cost < astar.cost_from_start[graph.edges[i].id]) {
+
                 astar.node_before[graph.edges[i].id] = {current_node.id, graph.edges[i].weight};
                 astar.cost_from_start[graph.edges[i].id] = local_cost;
 

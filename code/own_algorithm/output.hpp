@@ -3,6 +3,35 @@
 
 #include "header.hpp"
 
+/* repsonse format json :
+{
+    "path": ["Landmark_A", "Landmark_B", "Landmark_C"],
+    "travel_time": 120
+}
+*/
+
+void send_path(Path& g_path, int client_socket) {
+    stringstream ss;
+
+        ss << "HTTP/1.1 200 OK\nContent-Type: text/plain\n\n";
+        ss << "{\n";
+        ss << "    \"path\": [";
+        for (int i = 0; i < g_path.path.size(); i++) {
+            ss << "\"" << g_path.path[i].first << "\"";
+            if (i < g_path.path.size() - 1) {
+                ss << ", ";
+            }
+        }
+        ss << "],\n";
+        ss << "    \"travel_time\": " << g_path.calculation_time << "\n";
+        ss << "}\n";
+
+
+    string response = ss.str();
+
+    send(client_socket, response.c_str(), response.size(), 0);
+
+}
 // Function to save the path to a CSV file
 // Containning all the displayed information
 void savePathToCSV(Graph& graph, Files& files, Path& path_data) {
@@ -45,11 +74,11 @@ void displayResults(Path& path_data) {
     }
 
     // Output results
-    cout << "\nTotal Distance     : "   << formatWithSpaces(path_data.distance)   << endl;
-    cout <<   "Estimated Distance : " << formatWithSpaces(path_data.estimated_distance) << endl;
-    cout <<   "Percentage Error   : "  << formatWithSpaces((path_data.distance - path_data.estimated_distance) * 100 / path_data.estimated_distance) << "%" << endl;
-    cout <<   "Number of edges    : "   << formatWithSpaces(path_data.path.size() - 1) << endl;
-    cout <<   "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
+    cout << "Total Distance     : "   << formatWithSpaces(path_data.distance)   << endl;
+    cout << "Estimated Distance : " << formatWithSpaces(path_data.estimated_distance) << endl;
+    cout << "Percentage Error   : "  << formatWithSpaces((path_data.distance - path_data.estimated_distance) * 100 / path_data.estimated_distance) << "%" << endl;
+    cout << "Number of edges    : "   << formatWithSpaces(path_data.path.size() - 1) << endl;
+    cout << "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
 }
 
 #endif

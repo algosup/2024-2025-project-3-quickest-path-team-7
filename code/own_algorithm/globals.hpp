@@ -87,4 +87,10 @@ string formatWithSpaces(long number) {
     return numStr;
 }
 
+Graph g_graph;
+Files g_files;
+Path  g_path;
+Timer g_timer;
+Astar g_astar;
+
 #endif
