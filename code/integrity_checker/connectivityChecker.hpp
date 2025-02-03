@@ -8,7 +8,10 @@ void checker(DAG& dag, int node, vector<int>& visited)
     if(visited[node] == 1)
         return;
     visited[node] = 1;
-    checker(dag, node, visited);
+    for(int neighbor: dag.data[node])
+        checker(dag, neighbor, visited);
+    for(int neighbor: dag.parents[node])
+        checker(dag, neighbor, visited);
 }
 
 bool parseVisited(vector<int>& visited)
