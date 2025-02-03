@@ -222,7 +222,6 @@ int loadGraph(Graph& graph, Files& files, bool force = false) {
     // If not forcing a rebuild from CSV, try to load from binary backup
     if (!force) {
         cout << "\n\nLoading the graph from the backup " << files.map_backup << " ... " << flush;
-        
         // Check if the backup exists
         ifstream test(files.map_backup, ios::binary);
         if (!test.is_open()) {

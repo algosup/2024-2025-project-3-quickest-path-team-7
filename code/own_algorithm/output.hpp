@@ -23,7 +23,7 @@ void send_path(Path& g_path, int client_socket) {
             }
         }
         ss << "],\n";
-        ss << "    \"travel_time\": " << g_path.calculation_time << "\n";
+        ss << "    \"travel_time\": " << g_path.distance << "\n";
         ss << "}\n";
 
 
