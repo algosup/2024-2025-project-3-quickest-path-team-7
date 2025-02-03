@@ -12,7 +12,7 @@
 
 **Created on:** January 6<sup>th</sup>, 2025
 
-**Last updated:** January 30<sup>th</sup>, 2025
+**Last updated:** February 03<sup>th</sup>, 2025
 
 ---
 ---
@@ -24,6 +24,7 @@
 | 01/21/2025 | 1       | First version functional, still needs to be reviewed        | Abderrazaq MAKRAN |
 | 01/25/2025 | 1       | Changes in error handling, milestones       | Abderrazaq MAKRAN |
 | 01/30/2025 | 1       | Refine graph validation part       | Abderrazaq MAKRAN |
+| 02/03/2025 | 1.5       | Add algorithm part, have to add non-functional and review        | Abderrazaq MAKRAN |
 ---
 
 ## Stakeholders
@@ -37,14 +38,64 @@
 <br><details>
 <summary><h2 id="toc"> Table of Contents <i>(Click to expand)</i></h2></summary>
 
-1. [Introduction](#1-introduction)
-   - [1.1 Project Scope](#11-project-scope)  
-   - [1.2 Project Team](#12-project-team)  
-   - [1.3 Project Reviewers](#13-project-reviewers)  
-   - [1.4 Deliverables](#14-deliverables)  
-   - [1.5 Milestones](#15-milestones)  
-   - [1.6 Terms, Acronyms, and Definitions](#16-terms-acronyms-and-definitions)  
-2. [System](#2-system)
+
+- [Functional Specifications](#functional-specifications)
+  - [Document History](#document-history)
+  - [| 02/03/2025 | 1.5       | Add algorithm part, have to add non-functional and review        | Abderrazaq MAKRAN |](#-02032025--15--------add-algorithm-part-have-to-add-non-functional-and-review---------abderrazaq-makran-)
+  - [Stakeholders](#stakeholders)
+- [1. Introduction](#1-introduction)
+  - [1.1 Project Scope](#11-project-scope)
+  - [1.1.1 Targeted audience](#111-targeted-audience)
+  - [1.2 Project Team](#12-project-team)
+  - [1.3 Project Reviewers](#13-project-reviewers)
+  - [1.4 Deliverables](#14-deliverables)
+  - [1.5 Milestones](#15-milestones)
+  - [1.6 Terms, Acronyms, and Definitions](#16-terms-acronyms-and-definitions)
+  - [1.7 Requirements, Constraints, and Assumptions](#17-requirements-constraints-and-assumptions)
+    - [1.7.1 Requirements](#171-requirements)
+    - [1.7.2 Constraints](#172-constraints)
+    - [1.7.3 Assumptions](#173-assumptions)
+    - [1.8 Risks and Challenges](#18-risks-and-challenges)
+      - [1.8.1 Risks](#181-risks)
+      - [1.8.2 Challenges](#182-challenges)
+  - [1.9 Personas and Use Cases](#19-personas-and-use-cases)
+    - [1.9.1 Personas](#191-personas)
+      - [**Persona 1: Sarah, the Backend Developer**](#persona-1-sarah-the-backend-developer)
+      - [**Persona 2: Hamid, the Data Scientist**](#persona-2-hamid-the-data-scientist)
+      - [**Persona 3: Leo, the DevOps Engineer**](#persona-3-leo-the-devops-engineer)
+    - [1.9.2 Use Case: Calculating the Quickest Path](#192-use-case-calculating-the-quickest-path)
+      - [Input](#input)
+      - [Process](#process)
+      - [Output](#output)
+        - [**200 OK**](#200-ok)
+- [2. System](#2-system)
+  - [2.1 Functional API Details](#21-functional-api-details)
+    - [**2.1.1 Endpoint**](#211-endpoint)
+      - [**Endpoint**:](#endpoint)
+      - [**Accepted Headers**](#accepted-headers)
+      - [**Query Parameters**](#query-parameters)
+      - [**Request Examples**](#request-examples)
+  - [2.2 Response Details](#22-response-details)
+    - [2.2.1 Success Response](#221-success-response)
+    - [2.2.2 Error Responses](#222-error-responses)
+  - [2.3 Data Validation](#23-data-validation)
+    - [Overview](#overview)
+    - [Validation Workflow](#validation-workflow)
+    - [1. Load the Graph](#1-load-the-graph)
+    - [2. Verify DAG Property](#2-verify-dag-property)
+    - [3. Check Connectivity](#3-check-connectivity)
+    - [4. Transform the Graph](#4-transform-the-graph)
+    - [Final Workflow Summary](#final-workflow-summary)
+    - [Key Considerations](#key-considerations)
+  - [2.4 Process Flow](#24-process-flow)
+  - [**2.5 Algorithm**](#25-algorithm)
+    - [**2.5.1 Algorithm Selection**](#251-algorithm-selection)
+    - [**2.5.2 Algorithm Workflow**](#252-algorithm-workflow)
+      - [**Heuristic Selection (`h(n)`)**](#heuristic-selection-hn)
+    - [**2.5.3 Performance Considerations**](#253-performance-considerations)
+      - [**Time Complexity (`Big O` Notation)**](#time-complexity-big-o-notation)
+    - [**2.5.4 Summary**](#254-summary)
+    - [Approvals](#approvals)
 
 </details>
 
@@ -795,6 +846,82 @@ graph TD
   Q --> R
 
 ```
+
+## **2.5 Algorithm**
+
+This section describes the algorithm selection, workflow, and performance considerations for computing the quickest path between two landmarks. The system must balance **speed, accuracy, and resource efficiency**, ensuring results are returned within **1 second** while staying within a **10% error margin** of the optimal path.
+
+---
+
+### **2.5.1 Algorithm Selection**
+
+| **Algorithm**                | **Description**                                                                 | **In Scope** | **Out of Scope** |
+|------------------------------|---------------------------------------------------------------------------------|--------------|------------------|
+| **Dijkstra’s Algorithm**      | Guarantees the shortest path but has higher computational costs for large graphs. | ❌           | ✅               |
+| **A* Algorithm**              | Uses a heuristic function to improve search efficiency while maintaining accuracy. | ✅           |                  |
+| **Bidirectional Dijkstra**    | Runs Dijkstra from both source and destination simultaneously to reduce search space. | ❌           | ✅               |
+| **ALT Algorithm (A* + Landmarks)** | Uses precomputed landmark distances to optimize A*. Improves speed for large graphs. | ✅ (optional) |                  |
+
+The **A* algorithm** is chosen as the **primary pathfinding method** due to its balance of speed and accuracy. The **ALT heuristic (A*, Landmarks, Triangle Inequality)** may be used to further optimize performance.
+
+---
+
+### **2.5.2 Algorithm Workflow**
+
+The system follows these key steps to compute the quickest path:
+
+| **Step**                | **Description**                                                                                   |
+|-------------------------|-------------------------------------------------------------------------------------------------|
+| **1. Load Graph Data**   | Parse the `USA-roads.csv` file and construct an adjacency list representing the graph.         |
+| **2. Validate Graph**    | Ensure the dataset is **acyclic** (DAG) and **fully connected** before execution.               |
+| **3. Initialize Search** | Start the A* algorithm with `source` as the starting node and `destination` as the goal.       |
+| **4. Compute Path**      | Expand the node with the lowest estimated cost `f(n) = g(n) + h(n)` until `destination` is reached. |
+| **5. Format Response**   | Return the **total travel time** and **ordered list of landmarks** in JSON or XML.             |
+
+#### **Heuristic Selection (`h(n)`)**
+
+The **heuristic function** estimates the cost from node `n` to the destination. The following approaches are considered:
+
+| **Heuristic**      | **Description**                                                           | **Usage** |
+|--------------------|---------------------------------------------------------------------------|----------|
+| **Euclidean Distance** | Assumes direct travel between nodes. Best for grid-like road layouts.   | ✅ |
+| **Manhattan Distance** | Assumes travel is limited to horizontal/vertical roads.                 | ✅ |
+| **ALT Heuristic**  | Uses precomputed landmarks to refine distance estimates.                   | ✅ (optional) |
+
+---
+
+### **2.5.3 Performance Considerations**
+
+The system must compute paths efficiently, ensuring low latency even with **24 million nodes**.
+
+| **Metric**               | **Requirement**                                             |
+|-------------------------|-------------------------------------------------------------|
+| **Execution Time**      | Must return results within **1 second** on a standard laptop. |
+| **Memory Usage**        | Must remain efficient, avoiding excessive resource consumption. |
+| **Accuracy Constraint** | The computed path must not exceed **10% error margin**.       |
+
+#### **Time Complexity (`Big O` Notation)**
+
+| **Operation**       | **Algorithm**   | **Time Complexity (Worst Case)** |
+|---------------------|----------------|----------------------------------|
+| **Graph Parsing**   | File I/O        | **O(V + E)** |
+| **Graph Validation**| DFS/BFS         | **O(V + E)** |
+| **Pathfinding**     | A* Search       | **O(E log V)** |
+
+- **V** is the number of landmarks (nodes).
+- **E** is the number of connections (edges).
+- **log V** accounts for priority queue operations.
+
+Given the project constraints, this ensures **fast execution** while maintaining accuracy.
+
+---
+
+### **2.5.4 Summary**
+
+- The system will use **A* algorithm** with an appropriate **heuristic function** for optimization.
+- Data will be preprocessed and validated before execution.
+- The algorithm will ensure **efficient memory usage** and **low response times**.
+- Results will be formatted in **JSON or XML** as per request parameters.
 
 
 
