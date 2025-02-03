@@ -6,13 +6,20 @@
 void checker(DAG& dag, int node, vector<int>& visited)
 {
     cout << node << endl;
-    if(visited[node] == 1)
-        return;
+    if(dag.data.size() >= node or dag.parents.size() >= node);
+        if(visited[node] == 1)
+            return;
     visited[node] = 1;
-    for(int neighbor: dag.data[node])
-        checker(dag, neighbor, visited);
-    for(int neighbor: dag.parents[node])
-        checker(dag, neighbor, visited);
+    if(dag.parents.size() >= node)
+    {
+        for(int neighbor: dag.data[node])
+            checker(dag, neighbor, visited);
+    }
+    if(dag.data.size() >= node)
+    {
+        for(int neighbor: dag.parents[node])
+            checker(dag, neighbor, visited);
+    }
 }
 
 bool parseVisited(vector<int>& visited)
