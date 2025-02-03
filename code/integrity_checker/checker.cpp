@@ -10,7 +10,7 @@ int main() {
     // Build a DAG from CSV
     dag = buildDag(dag);
     // Check if the DAG is acyclic
-    //bfs(dag);
+    connectivityChecker(dag);
     // Delete the DAG
 
     // Load Csv data in memory as graph eventually from a backup

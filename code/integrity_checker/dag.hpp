@@ -10,22 +10,22 @@ void push_out(DAG& dag, int indexListElem, int elementOut, string conditionDataP
     {
         for (int elementInList : dag.parents[indexListElem])
         {
-            k++;
             if (elementInList == elementOut)
             {
                 dag.parents[indexListElem].erase(dag.parents[indexListElem].begin()+k);
             }
+            k++;
         }
     }
     if (conditionDataParent == "parents")
     {
         for (int elementInList : dag.data[indexListElem])
         {
-            k++;
             if (elementInList == elementOut)
             {
                 dag.data[indexListElem].erase(dag.data[indexListElem].begin()+k);
             }
+            k++;
         }
     }
 }
@@ -129,6 +129,7 @@ bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode)
             push_out(dag, node, visitedNode, "data");
             push_out(dag, visitedNode, visitedNode, "parents");
             dag.parents[visitedNode].push_back(node);
+            return false;
             
         }
         if (visited[neighbor] == 0 and dfs(neighbor, dag, visited, node)) 
@@ -139,6 +140,7 @@ bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode)
             push_out(dag, node, visitedNode, "data");
             push_out(dag, visitedNode, visitedNode, "parents");
             dag.parents[visitedNode].push_back(node);
+            return false;
         }
     }
 /*
