@@ -46,10 +46,16 @@
 #include <atomic>
 #include <algorithm>
 #include <locale>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <cstring>
+
+#ifdef _WIN32
+    #include <winsock2.h>
+    #pragma comment(lib, "ws2_32.lib")  // Link with Winsock library
+#else
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <unistd.h>
+#endif
 
 // Alias
 using namespace std;

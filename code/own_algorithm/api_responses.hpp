@@ -3,6 +3,15 @@
 
 #include "header.hpp"
 
+void close_socket(int client_socket) {
+    #ifdef _WIN32
+        closesocket(client_socket);
+        WSACleanup();
+    #else
+        close(client_socket);
+    #endif
+}
+
 void send_path(Path& g_path, int client_socket) {
     stringstream ss;
 
@@ -35,6 +44,7 @@ void send_path(Path& g_path, int client_socket) {
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
+    close_socket(client_socket);
 }
 
 void send_endpoint_error(int client_socket) {
@@ -68,7 +78,7 @@ void send_endpoint_error(int client_socket) {
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close(client_socket);
+    close_socket(client_socket);
 }
 
 void send_wrong_format(int client_socket) {
@@ -103,7 +113,7 @@ void send_wrong_format(int client_socket) {
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close(client_socket);
+    close_socket(client_socket);
 }
 
 void send_error(int client_socket, int error_code, int kind = 1, string node = "undefined") {
@@ -252,7 +262,7 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close(client_socket);
+    close_socket(client_socket);
 }
 
 void send_cmd_error (int client_socket, int error_code, int kind = 1, string node = "undefined") {
@@ -364,7 +374,7 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close(client_socket);
+    close_socket(client_socket);
 }
 
 #endif // API_RESPONSES_HPP

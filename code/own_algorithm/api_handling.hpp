@@ -110,10 +110,7 @@ void handle_path_request(int client_socket, const string& request) {
     find_path(g_graph, g_path, g_astar, g_timer);
     send_path(g_path, client_socket);
     savePathToCSV(g_graph, g_files, g_path);
-    reset_compute_data(g_graph, g_path, g_astar);
-
-    close(client_socket);
-    
+    reset_compute_data(g_graph, g_path, g_astar);    
 }
 
 void handle_cmd_request(int client_socket, const string& request) {
@@ -167,7 +164,7 @@ void handle_cmd_request(int client_socket, const string& request) {
     
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close(client_socket);
+    close_socket(client_socket);
         
 }
 
@@ -196,29 +193,39 @@ void handle_request(int client_socket) {
     }
 }
 
-
 void run_api_server() {
+#ifdef _WIN32
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        cerr << "WSAStartup failed" << endl;
+        return;
+    }
+#endif
 
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1) {
         perror("socket failed");
         return;
     }
+
     sockaddr_in address;
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
+
     if (::bind(server_fd, (struct sockaddr*)&address, sizeof(address)) == -1) {
         perror("bind failed");
-        return;
-    }
-    if (listen(server_fd, 100) < 0) { // Augmenter la queue
-        perror("listen failed");
+        close_socket(server_fd);
         return;
     }
 
-    // ensure that the global variables are reset before any calculation
+    if (listen(server_fd, 100) < 0) {
+        perror("listen failed");
+        close_socket(server_fd);
+        return;
+    }
+
     reset_compute_data(g_graph, g_path, g_astar);
 
     cout << "API server running on port " << PORT << endl;
@@ -232,8 +239,12 @@ void run_api_server() {
             perror("accept failed");
             continue;
         }
+
         thread(handle_request, client_socket).detach();
     }
+
+    close_socket(server_fd);
 }
+
 
 #endif
