@@ -5,21 +5,33 @@
 
 void checker(DAG& dag, int node, vector<int>& visited)
 {
-    cout << node << endl;
     if(dag.data.size() >= node or dag.parents.size() >= node);
         if(visited[node] == 1)
             return;
     visited[node] = 1;
     if(dag.parents.size() >= node)
     {
-        for(int neighbor: dag.data[node])
-            checker(dag, neighbor, visited);
+        if(dag.data.size()>0)
+        {
+            for(int neighbor: dag.data[node])
+            {
+                if(visited[neighbor]==0)
+                    checker(dag, neighbor, visited);
+            }
+        }
     }
     if(dag.data.size() >= node)
     {
-        for(int neighbor: dag.parents[node])
-            checker(dag, neighbor, visited);
+        if(dag.parents.size()>0)
+        {
+            for(int neighbor: dag.parents[node])
+            {
+                if(visited[neighbor]==0)
+                    checker(dag, neighbor, visited);
+            }
+        }
     }
+    return;
 }
 
 bool parseVisited(vector<int>& visited)
@@ -37,6 +49,7 @@ void connectivityChecker(DAG& dag)
     cout << "7" << endl;
     bool fullyConnected;
     vector<int> visited(NODE_MAX_VALUE, 0);
+    visited[0] = 1;
     checker(dag, 1, visited);
     cout << "8" << endl;
     fullyConnected = parseVisited(visited);
