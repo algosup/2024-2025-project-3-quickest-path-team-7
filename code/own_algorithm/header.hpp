@@ -47,6 +47,7 @@
 #include <algorithm>
 #include <locale>
 #include <cstring>
+#include <filesystem>
 
 #ifdef _WIN32
     #include <winsock2.h>

@@ -45,10 +45,9 @@ void displayResults(Path& path_data) {
 
     // Output results
     cout << "Total Distance     : "   << formatWithSpaces(path_data.distance)   << endl;
-    cout << "Estimated Distance : " << formatWithSpaces(path_data.estimated_distance) << endl;
-    cout << "Percentage Error   : "  << formatWithSpaces((path_data.distance - path_data.estimated_distance) * 100 / path_data.estimated_distance) << "%" << endl;
     cout << "Number of edges    : "   << formatWithSpaces(path_data.path.size() - 1) << endl;
     cout << "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
+    cout << "Path saved to      : "   << "file://"  << filesystem::absolute(g_files.output).string() << endl;
 }
 
 #endif

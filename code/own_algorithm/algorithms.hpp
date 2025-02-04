@@ -43,7 +43,7 @@ int estimate_distance(Graph& graph, int source, int destination) {
         }
     }
 
-    return estimation;
+    return estimation * heuristic_weight;
 }
 
 void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
@@ -73,8 +73,6 @@ void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
     }
 
     int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
-    path_data.estimated_distance = start_to_end_estimation;
-    start_to_end_estimation *= heuristic_weight;
 
     Node current_node = {path_data.start, 0, start_to_end_estimation};
     astar.pq.push(current_node);
@@ -102,7 +100,7 @@ void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
                 astar.node_before[graph.edges[i].id] = {current_node.id, graph.edges[i].weight};
                 astar.cost_from_start[graph.edges[i].id] = local_cost;
 
-                int estimated_cost = local_cost +  heuristic_weight * estimate_distance(graph, graph.edges[i].id, path_data.end);
+                int estimated_cost = local_cost + estimate_distance(graph, graph.edges[i].id, path_data.end);
                 Node neighbor = {graph.edges[i].id, graph.edges[i].weight, estimated_cost};
                 astar.pq.push(neighbor);
             }
