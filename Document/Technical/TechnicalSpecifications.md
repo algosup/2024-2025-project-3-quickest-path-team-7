@@ -3,108 +3,120 @@
 # Table of Contents
 - [Technical Specifications Document](#technical-specifications-document)
 - [Table of Contents](#table-of-contents)
-	- [Executive Summary](#executive-summary)
-	- [Project Overview](#project-overview)
-	- [System Requirements](#system-requirements)
-		- [Programming Language](#programming-language)
-		- [Dependencies](#dependencies)
-		- [Hardware](#hardware)
-	- [System Architecture](#system-architecture)
-		- [Overview](#overview)
-		- [Component Details](#component-details)
-			- [Data Loader \& Validator](#data-loader--validator)
-			- [Pathfinding Engine](#pathfinding-engine)
-			- [HTTP Server](#http-server)
-			- [Response Formatter](#response-formatter)
-		- [Key Optimizations](#key-optimizations)
-		- [Query Handling Flow](#query-handling-flow)
-	- [Core Algorithms](#core-algorithms)
-		- [Bidirectional Dijkstra](#bidirectional-dijkstra)
-		- [Approximation Heuristics](#approximation-heuristics)
-			- [Early Termination with Bidirectional Dijkstra](#early-termination-with-bidirectional-dijkstra)
-			- [Bidirectional A\* with Bounded Heuristics](#bidirectional-a-with-bounded-heuristics)
-			- [Contraction Hierarchies (CH Lite)](#contraction-hierarchies-ch-lite)
-		- [Algorithm Comparison](#algorithm-comparison)
-		- [Example Implementation (Bidirectional A\* Snippet)](#example-implementation-bidirectional-a-snippet)
-		- [Validation of Approximations](#validation-of-approximations)
-	- [Data Handling](#data-handling)
-		- [Input Format](#input-format)
-		- [Data Integrity Verification](#data-integrity-verification)
-			- [Validation Pipeline](#validation-pipeline)
-			- [Implementation Notes](#implementation-notes)
-		- [Load Balancing](#load-balancing)
-		- [Thread Safety](#thread-safety)
-		- [Error Handling](#error-handling)
-		- [Performance Validation](#performance-validation)
-		- [Key C++23 Features Used](#key-c23-features-used)
-	- [REST API Specifications](#rest-api-specifications)
-		- [Endpoint: `GET /path`](#endpoint-get-path)
-	- [Error Handling](#error-handling-1)
-		- [HTTP Status Codes \& Responses](#http-status-codes--responses)
-		- [Input Validation](#input-validation)
-		- [Security \& Abuse Prevention](#security--abuse-prevention)
-		- [Data Validation Failures](#data-validation-failures)
-		- [Server-Side Errors](#server-side-errors)
-		- [Logging Strategy](#logging-strategy)
-		- [Client Examples](#client-examples)
-	- [Scalability Considerations](#scalability-considerations)
-		- [Memory Efficiency](#memory-efficiency)
-		- [Computational Scalability](#computational-scalability)
-		- [Concurrency \& Distributed Systems](#concurrency--distributed-systems)
-		- [Caching Strategies](#caching-strategies)
-		- [Performance Benchmarks](#performance-benchmarks)
-		- [Real-World Testing](#real-world-testing)
-		- [Failover \& Redundancy](#failover--redundancy)
-	- [C++23 Features Used](#c23-features-used)
-		- [Deducing `this` (P0847R7)](#deducing-this-p0847r7)
-		- [`std::mdspan` (P0009R18)](#stdmdspan-p0009r18)
-		- [`if consteval` (P1938R3)](#if-consteval-p1938r3)
-		- [`[[assume]]` Attribute (P1774R8)](#assume-attribute-p1774r8)
-		- [`std::expected` (P0323R12)](#stdexpected-p0323r12)
-		- [`std::print` (P2093R14)](#stdprint-p2093r14)
-		- [Rationale for Excluded Features](#rationale-for-excluded-features)
-		- [Compiler Requirements](#compiler-requirements)
-	- [How to Re-Implement the Project](#how-to-re-implement-the-project)
-		- [System Prerequisites](#system-prerequisites)
-		- [Folder Structure](#folder-structure)
-		- [Build Instructions](#build-instructions)
-			- [Using CMake (recommended):](#using-cmake-recommended)
-			- [Using Make (alternative):](#using-make-alternative)
-		- [Data Loading \& Validation](#data-loading--validation)
-			- [Key Optimizations for Large Datasets:](#key-optimizations-for-large-datasets)
-			- [Example Loader Initialization:](#example-loader-initialization)
-		- [Core Algorithm Implementation](#core-algorithm-implementation)
-			- [Bidirectional Dijkstra Pseudocode:](#bidirectional-dijkstra-pseudocode)
-		- [HTTP Server Setup](#http-server-setup)
-			- [Concurrency Additions:](#concurrency-additions)
-		- [Testing \& Validation](#testing--validation)
-			- [Automated Tests:](#automated-tests)
-		- [Deployment \& Monitoring](#deployment--monitoring)
-			- [Docker Support (optional):](#docker-support-optional)
-			- [Logging:](#logging)
-		- [Troubleshooting](#troubleshooting)
-	- [Code Examples](#code-examples)
-		- [Data Validation](#data-validation)
-		- [Pathfinder](#pathfinder)
-		- [Server Implementation](#server-implementation)
-		- [Planned Improvements](#planned-improvements)
-	- [Contributors](#contributors)
-	- [License](#license)
-	- [Additional Implementation Considerations](#additional-implementation-considerations)
-		- [Security](#security)
-			- [Network Exposure](#network-exposure)
-			- [Input Validation](#input-validation-1)
-			- [Rate Limiting](#rate-limiting)
-			- [CORS Headers (For Web Browser Clients)](#cors-headers-for-web-browser-clients)
-		- [Logging and Monitoring](#logging-and-monitoring)
-		- [Performance Optimization](#performance-optimization)
-		- [Testing and Validation](#testing-and-validation)
-		- [Deployment and Maintenance](#deployment-and-maintenance)
-		- [Platform Compatibility](#platform-compatibility)
-		- [Compliance and Ethics](#compliance-and-ethics)
-		- [Documentation](#documentation)
-		- [Disaster Recovery](#disaster-recovery)
-	- [Glossary](#glossary)
+  - [Executive Summary](#executive-summary)
+  - [Project Overview](#project-overview)
+  - [System Requirements](#system-requirements)
+    - [Programming Language](#programming-language)
+    - [Dependencies](#dependencies)
+    - [Hardware](#hardware)
+  - [System Architecture](#system-architecture)
+    - [Overview](#overview)
+    - [Component Details](#component-details)
+      - [Data Loader \& Validator](#data-loader--validator)
+      - [Pathfinding Engine](#pathfinding-engine)
+      - [HTTP Server](#http-server)
+      - [Response Formatter](#response-formatter)
+    - [Key Optimizations](#key-optimizations)
+    - [Query Handling Flow](#query-handling-flow)
+  - [Core Algorithms](#core-algorithms)
+    - [Bidirectional Dijkstra](#bidirectional-dijkstra)
+    - [Approximation Heuristics](#approximation-heuristics)
+      - [Early Termination with Bidirectional Dijkstra](#early-termination-with-bidirectional-dijkstra)
+      - [Bidirectional A\* with Bounded Heuristics](#bidirectional-a-with-bounded-heuristics)
+      - [Contraction Hierarchies (CH Lite)](#contraction-hierarchies-ch-lite)
+    - [Algorithm Comparison](#algorithm-comparison)
+    - [Example Implementation (Bidirectional A\* Snippet)](#example-implementation-bidirectional-a-snippet)
+    - [Validation of Approximations](#validation-of-approximations)
+  - [Data Handling](#data-handling)
+    - [Input Format](#input-format)
+    - [Data Integrity Verification](#data-integrity-verification)
+      - [Validation Pipeline](#validation-pipeline)
+      - [Implementation Notes](#implementation-notes)
+    - [Load Balancing](#load-balancing)
+    - [Thread Safety](#thread-safety)
+    - [Error Handling](#error-handling)
+    - [Performance Validation](#performance-validation)
+    - [Key C++23 Features Used](#key-c23-features-used)
+  - [REST API Specifications](#rest-api-specifications)
+    - [Endpoint: `GET /path`](#endpoint-get-path)
+  - [Error Handling](#error-handling-1)
+    - [HTTP Status Codes \& Responses](#http-status-codes--responses)
+    - [Input Validation](#input-validation)
+    - [Security \& Abuse Prevention](#security--abuse-prevention)
+    - [Data Validation Failures](#data-validation-failures)
+    - [Server-Side Errors](#server-side-errors)
+    - [Logging Strategy](#logging-strategy)
+    - [Client Examples](#client-examples)
+  - [Scalability Considerations](#scalability-considerations)
+    - [Memory Efficiency](#memory-efficiency)
+    - [Computational Scalability](#computational-scalability)
+    - [Concurrency \& Distributed Systems](#concurrency--distributed-systems)
+    - [Caching Strategies](#caching-strategies)
+    - [Performance Benchmarks](#performance-benchmarks)
+    - [Real-World Testing](#real-world-testing)
+    - [Failover \& Redundancy](#failover--redundancy)
+  - [C++23 Features Used](#c23-features-used)
+    - [Deducing `this` (P0847R7)](#deducing-this-p0847r7)
+    - [`std::mdspan` (P0009R18)](#stdmdspan-p0009r18)
+    - [`if consteval` (P1938R3)](#if-consteval-p1938r3)
+    - [`[[assume]]` Attribute (P1774R8)](#assume-attribute-p1774r8)
+    - [`std::expected` (P0323R12)](#stdexpected-p0323r12)
+    - [`std::print` (P2093R14)](#stdprint-p2093r14)
+    - [Rationale for Excluded Features](#rationale-for-excluded-features)
+    - [Compiler Requirements](#compiler-requirements)
+  - [How to Re-Implement the Project](#how-to-re-implement-the-project)
+    - [System Prerequisites](#system-prerequisites)
+    - [Folder Structure](#folder-structure)
+    - [Build Instructions](#build-instructions)
+      - [Using CMake (recommended):](#using-cmake-recommended)
+      - [Using Make (alternative):](#using-make-alternative)
+    - [Data Loading \& Validation](#data-loading--validation)
+      - [Key Optimizations for Large Datasets:](#key-optimizations-for-large-datasets)
+      - [Example Loader Initialization:](#example-loader-initialization)
+    - [Core Algorithm Implementation](#core-algorithm-implementation)
+      - [Bidirectional Dijkstra Pseudocode:](#bidirectional-dijkstra-pseudocode)
+    - [HTTP Server Setup](#http-server-setup)
+      - [Concurrency Additions:](#concurrency-additions)
+    - [Testing \& Validation](#testing--validation)
+      - [Automated Tests:](#automated-tests)
+    - [Deployment \& Monitoring](#deployment--monitoring)
+      - [Docker Support (optional):](#docker-support-optional)
+      - [Logging:](#logging)
+    - [Troubleshooting](#troubleshooting)
+  - [Code Examples](#code-examples)
+    - [Data Validation](#data-validation)
+    - [Pathfinder](#pathfinder)
+    - [Server Implementation](#server-implementation)
+    - [Planned Improvements](#planned-improvements)
+  - [Contributors](#contributors)
+  - [License](#license)
+  - [Additional Implementation Considerations](#additional-implementation-considerations)
+    - [Security](#security)
+      - [Network Exposure](#network-exposure)
+      - [Input Validation](#input-validation-1)
+      - [Rate Limiting](#rate-limiting)
+      - [CORS Headers (For Web Browser Clients)](#cors-headers-for-web-browser-clients)
+    - [Logging and Monitoring](#logging-and-monitoring)
+    - [Performance Optimization](#performance-optimization)
+    - [Testing and Validation](#testing-and-validation)
+    - [Deployment and Maintenance](#deployment-and-maintenance)
+    - [Platform Compatibility](#platform-compatibility)
+    - [Compliance and Ethics](#compliance-and-ethics)
+    - [Documentation](#documentation)
+    - [Disaster Recovery](#disaster-recovery)
+  - [Coding Conventions](#coding-conventions)
+    - [Naming](#naming)
+    - [File Organization](#file-organization)
+    - [Indentation \& Formatting](#indentation--formatting)
+    - [Commenting and Documentation](#commenting-and-documentation)
+    - [Error Handling and Return Values](#error-handling-and-return-values)
+    - [Memory Management](#memory-management)
+    - [Language Features](#language-features)
+    - [Testing Conventions](#testing-conventions)
+    - [Logging](#logging-1)
+    - [Pull Requests and Reviews](#pull-requests-and-reviews)
+  - [Glossary](#glossary)
+  - [Approvals](#approvals)
 
 ## Executive Summary
 
@@ -1795,7 +1807,7 @@ void Server::shutdown() { impl_->shutdown(); }
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 ## Additional Implementation Considerations
 
@@ -2007,6 +2019,90 @@ Caution: Use `Access-Control-Allow-Origin: *` only if you trust all domains (e.g
 - **Failover**:  
   - Deploy redundant server instances behind a load balancer (e.g., NGINX) for high availability.  
 
+
+## Coding Conventions
+
+This section establishes general guidelines for code style, naming, and practices within the project, ensuring consistency and maintainability.
+
+### Naming
+
+- **Classes and Structs**: Use PascalCase (e.g., `RouteFinder`, `EdgeValidator`).
+- **Member Functions**: Use camelCase (e.g., `loadCsvFile`, `runServer`).
+- **Local Variables and Parameters**: Use lower_snake_case (e.g., `src_node`, `thread_count`).
+- **Constants and Enums**: Use UPPER_SNAKE_CASE (e.g., `MAX_THREADS`, `ERROR_CODE_INVALID`).
+- **Namespaces**: Use lowercase or lower_snake_case (e.g., `network`, `io_utils`).
+
+### File Organization
+
+- **Header Files** (`.hpp`):
+  - Contain class or struct **declarations** and minimal includes.
+  - Use header guards or `#pragma once` to prevent duplicate inclusion.
+- **Source Files** (`.cpp`):
+  - Include their corresponding header first.
+  - Group related method definitions logically (e.g., constructors, then public methods, then private methods).
+
+### Indentation & Formatting
+
+- Indent with **4 spaces**. Do not use tabs.
+- Place **opening braces** on the same line and **closing braces** on their own line:
+  ```cpp
+  if (condition) {
+      doSomething();
+  } else {
+      doSomethingElse();
+  }
+  ```
+- Keep **line length** to a reasonable limit (around 100–120 characters).
+- Insert **blank lines** to separate logical blocks of code, improving readability.
+
+### Commenting and Documentation
+
+- **Single-line comments**: Use `//` for concise explanations of non-obvious code.
+- **Function/Method Documentation**: Include short descriptions of what a function does and any important parameter/return info:
+  ```cpp
+  // Computes the shortest route between two nodes.
+  // Throws std::runtime_error if src or dst is invalid.
+  bool bidirectionalDijkstra(int src, int dst, std::vector<int>& pathOut);
+  ```
+- **Class or Struct Documentation**: Provide a brief overview of its purpose if it’s not self-explanatory (e.g., `/// Represents a node in the road network`).
+
+### Error Handling and Return Values
+
+- **Use Exceptions** for serious or unexpected failures (e.g., malformed input, invalid node IDs).
+- Return **booleans or optional types** (`std::optional`) for normal but non-success cases (e.g., path not found).
+- Ensure **throw-catch blocks** are localized; avoid throwing exceptions in trivial operations.
+
+### Memory Management
+
+- Favor **RAII** (Resource Acquisition Is Initialization) and standard containers (`std::vector`, `std::array`) over raw pointers.
+- Use **smart pointers** (`std::unique_ptr`, `std::shared_ptr`) when ownership semantics are unclear or shared.
+
+### Language Features
+
+- Use **C++23** capabilities responsibly (e.g., **structured bindings**, **`constexpr`** improvements).
+- Avoid heavily experimental features unless they demonstrably solve a real problem.
+- Write **clear, modern C++** (e.g., range-based for loops, `auto` for obvious types).
+
+### Testing Conventions
+
+- Write at least one **unit test** for every non-trivial function.
+- Use **descriptive test names** (e.g., `TEST(PathfinderTest, HandlesDisconnectedNodes)`).
+- Group related tests in the same file or test suite for logical cohesion.
+
+### Logging
+
+- Keep **logging statements** at a minimal, practical level (info for successful operations, warn for unusual cases, error/fatal for critical failures).
+- Use **structured or plain text logs** consistently across the codebase.
+- Ensure that excessive debugging logs can be disabled in production builds.
+
+### Pull Requests and Reviews
+
+- Keep **PRs** focused on a single topic (e.g., feature addition, bug fix).
+- Provide a **clear summary** of changes, referencing relevant tickets or issues.
+- Seek at least one **peer review** before merging into the main branch.
+
+
+
 ## Glossary
 
 **Adjacency List** [↩︎](#hardware)  
@@ -2080,3 +2176,27 @@ Caution: Use `Access-Control-Allow-Origin: *` only if you trust all domains (e.g
 
 **XML (eXtensible Markup Language)** [↩︎](#executive-summary)  
 : A markup language for encoding data in a human- and machine-readable way. Provided as an alternative output format to JSON when `format=xml` is requested.
+
+
+## Approvals
+
+This section confirms that key stakeholders have reviewed and approved the final Technical Specifications Document.
+
+**Approved by:**
+
+| Name                 | Title                     | Signature         | Date       |
+|----------------------|---------------------------|-------------------|------------|
+| Guillaume Deramchi   | Technical Lead            |                   |            |
+| Benoît De Keyn       | Software Engineer         |                   |            |
+| Axel David           | Software Engineer         |                   |            |
+| Tino Gabet           | Technical Writer          |                   |            |
+| Abderrazaq Makran    | Program Manager           |                   |            |
+| Elone Dellile        | Project Manager           |                   |            |
+| Pierre Gorin         | Quality Assurance         |                   |            |
+
+**Notes on Approval Process:**
+1. Each approver reviews the document in its entirety.
+2. Comments, revisions, or feedback are tracked in the project management tool.
+3. Once all requested changes are resolved, the approver signs in the table above (digital or physical signature).
+4. Document version is finalized and marked as approved.
+
