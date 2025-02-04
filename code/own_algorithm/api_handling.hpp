@@ -172,7 +172,11 @@ void handle_request(int client_socket) {
     cout << "New client connected" << endl;
 
     char buffer[4096] = {0};
-    read(client_socket, buffer, 4096);
+    #ifdef _WIN32
+        int bytes_read = recv(client_socket, buffer, sizeof(buffer) - 1, 0); // Windows uses recv()
+    #else
+        int bytes_read = read(client_socket, buffer, sizeof(buffer) - 1); // Unix uses read()
+    #endif
     string request(buffer);
 
     cout << "Request: \n" << request << endl;
