@@ -7,6 +7,8 @@ float   heuristic_weight    = WEIGHT;
 int     landmarks_qty       = LANDMARKS_QTY;
 int     root_landmark       = ROOT_LANDMARK;
 
+string response_format      = "json";
+
 struct Timer {
     chrono::high_resolution_clock::time_point start_time;
     chrono::high_resolution_clock::time_point end_time;
