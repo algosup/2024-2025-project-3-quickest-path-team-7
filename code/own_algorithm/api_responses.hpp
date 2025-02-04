@@ -186,4 +186,116 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
     close(client_socket);
 }
 
+void send_cmd_error (int client_socket, int error_code, int kind = 1, string node = "undefined") {
+    stringstream ss;
+
+    if (response_format == "xml") {
+        ss << "HTTP/1.1 " << error_code << " ";
+        switch (error_code) {
+            case 400:
+                ss << "Bad Request\nContent-Type: application/xml\n\n";
+                ss << "<status>\n";
+                ss << "  <message>Bad request</message>\n";
+                ss << "  <details>\n";
+                if (kind == 1) {
+                    ss << "    <error_type>Missing parameters</error_type>\n";
+                    ss << "    <missing_parameters>\n";
+                    ss << "      <parameter>command</parameter>\n";
+                    ss << "    </missing_parameters>\n";
+                } else if (kind == 2) {
+                    ss << "    <error_type>Invalid parameter format</error_type>\n";
+                    ss << "    <invalid_parameter>" << node << "</invalid_parameter>\n";
+                    ss << "    <resolution>This parameter requires a valid command.</resolution>\n";
+                }
+                ss << "    <documentation>https://example.com/docs#commands</documentation>\n";
+                ss << "    <example>GET /command?command=quickest-path&start=5&end=6</example>\n";
+                ss << "  </details>\n";
+                ss << "</status>\n";
+                break;
+
+            case 405:
+                ss << "Method Not Allowed\nContent-Type: application/xml\n\n";
+                ss << "<status>\n";
+                ss << "  <message>Method Not Allowed</message>\n";
+                ss << "  <details>\n";
+                ss << "    <method_used>POST</method_used>\n";
+                ss << "    <allowed_methods>\n";
+                ss << "      <method>GET</method>\n";
+                ss << "    </allowed_methods>\n";
+                ss << "    <resolution>Use the correct HTTP method. Refer to the API documentation.</resolution>\n";
+                ss << "    <documentation>https://example.com/docs#http-methods</documentation>\n";
+                ss << "    <example>GET /command?command=rebuild_graph</example>\n";
+                ss << "  </details>\n";
+                ss << "</status>\n";
+                break;
+
+            default: // 500 Internal Server Error
+                ss << "Internal Server Error\nContent-Type: application/xml\n\n";
+                ss << "<status>\n";
+                ss << "  <message>An unknown error occurred</message>\n";
+                ss << "  <details>\n";
+                ss << "    <error>Internal Server Error</error>\n";
+                ss << "    <resolution>Check server logs for detailed error information.</resolution>\n";
+                ss << "    <documentation>https://example.com/docs#errors</documentation>\n";
+                ss << "  </details>\n";
+                ss << "</status>\n";
+                break;
+        }
+
+    } else { // Default JSON Response
+
+        ss << "HTTP/1.1 " << error_code << " ";
+        switch (error_code) {
+            case 400:
+                ss << "Bad Request\nContent-Type: application/json\n\n";
+                ss << "{\n";
+                ss << "    \"status\": \"Bad request\",\n";
+                ss << "    \"details\": {\n";
+                if (kind == 1) {
+                    ss << "        \"error_type\": \"Missing parameters\",\n";
+                    ss << "        \"missing_parameters\": [\"command\"],\n";
+                } else if (kind == 2) {
+                    ss << "        \"error_type\": \"Invalid parameter format\",\n";
+                    ss << "        \"invalid_parameter\": \"" << node << "\",\n";
+                    ss << "        \"resolution\": \"This parameter requires a valid command.\",\n";
+                }
+                ss << "        \"documentation\": \"https://example.com/docs#commands\",\n";
+                ss << "        \"example\": \"GET /command?command=rebuild_graph\"\n";
+                ss << "    }\n";
+                ss << "}\n";
+                break;
+
+            case 405:
+                ss << "Method Not Allowed\nContent-Type: application/json\n\n";
+                ss << "{\n";
+                ss << "    \"status\": \"Method Not Allowed\",\n";
+                ss << "    \"details\": {\n";
+                ss << "        \"method_used\": \"POST\",\n";
+                ss << "        \"allowed_methods\": [\"GET\"],\n";
+                ss << "        \"resolution\": \"Use the correct HTTP method. Refer to the API documentation.\",\n";
+                ss << "        \"documentation\": \"https://example.com/docs#http-methods\",\n";
+                ss << "        \"example\": \"GET /command?command=rebuild_graph\"\n";
+                ss << "    }\n";
+                ss << "}\n";
+                break;
+
+            default: // 500 Internal Server Error
+                ss << "Internal Server Error\nContent-Type: application/json\n\n";
+                ss << "{\n";
+                ss << "    \"status\": \"An unknown error occurred\",\n";
+                ss << "    \"details\": {\n";
+                ss << "        \"error\": \"Internal Server Error\",\n";
+                ss << "        \"resolution\": \"Check server logs for detailed error information.\",\n";
+                ss << "        \"documentation\": \"https://example.com/docs#errors\"\n";
+                ss << "    }\n";
+                ss << "}\n";
+                break;
+        }
+    }
+
+    string response = ss.str();
+    send(client_socket, response.c_str(), response.size(), 0);
+    close(client_socket);
+}
+
 #endif // API_RESPONSES_HPP

@@ -3,23 +3,9 @@
 
 #include "header.hpp"
 
+void handle_path_request(int client_socket, const string& request) {
 
-void handle_request(int client_socket) {
-    cout << "\n\nNew client connected" << endl;
-
-    char buffer[4096] = {0};
-    read(client_socket, buffer, 4096);
-    string request(buffer);
-
-    cout << "\nRequest received: \n" << request << endl;
-
-    // Ensure the request is a GET request
-    if (request.find("GET") == string::npos) {
-        send_error(client_socket, 405);
-        return;
-    }
-
-    // Extract query parameters
+    // Extract parameters
     size_t start_pos = request.find("?start=");
     size_t end_pos = request.find("&end=");
     size_t format_pos = request.find("&format=");
@@ -119,15 +105,86 @@ void handle_request(int client_socket) {
         send_error(client_socket, 401, 3, to_string(g_path.end));
         return;
     }
-        
+    
+    // Calculate the shortest path, output results and reset the data
     find_path(g_graph, g_path, g_astar, g_timer);
-
     send_path(g_path, client_socket);
-
+    savePathToCSV(g_graph, g_files, g_path);
     reset_compute_data(g_graph, g_path, g_astar);
 
     close(client_socket);
     
+}
+
+void handle_cmd_request(int client_socket, const string& request) {
+    // Extract command parameter
+    size_t cmd_pos = request.find("?command=");
+    size_t format_pos = request.find("&format=");
+    size_t limit_pos = request.find(" HTTP");
+
+    if (cmd_pos == string::npos) {
+        send_cmd_error(client_socket, 400, 1);
+        return;
+    }
+
+    string command = request.substr(cmd_pos + 9, request.find(" ", cmd_pos) - cmd_pos - 9);
+
+    // Default format = JSON
+    string format_param = "json";
+    if (format_pos != string::npos) {
+        format_param = request.substr(format_pos + 8, limit_pos - format_pos - 8);
+        if (format_param != "json" && format_param != "xml") {
+            send_cmd_error(client_socket, 400, 2, format_param);
+            return;
+        }
+    }
+
+    // Redirect each command to its function
+    stringstream ss;
+
+    if (response_format == "xml") {
+        ss  << "HTTP/1.1 200 OK\nContent-Type: application/xml\n\n"
+            << "<response>\n"
+            << "    <command>" << command << "</command>\n"
+            << "    <response>Commands are not yet handled by the server.</response>\n"
+            << "</response>\n";
+    } else {
+        ss  << "HTTP/1.1 200 OK\nContent-Type: application/" << format_param << "\n\n"
+            << "{\n"
+            << "    \"command\": \"" << command << "\",\n"
+            << "    \"response\": \"Commands are not yet handled by the server.\"\n"
+            << "}\n";
+    }
+    
+    string response = ss.str();
+    send(client_socket, response.c_str(), response.size(), 0);
+    close(client_socket);
+        
+}
+
+void handle_request(int client_socket) {
+    cout << "New client connected" << endl;
+
+    char buffer[4096] = {0};
+    read(client_socket, buffer, 4096);
+    string request(buffer);
+
+    cout << "Request: \n" << request << endl;
+
+    // Ensure request is a GET request
+    if (request.find("GET") == string::npos) {
+        send_error(client_socket, 405); // Method Not Allowed
+        return;
+    }
+
+    // Determine if request is for /path or /cmd
+    if (request.find("GET /path?") != string::npos) {
+        handle_path_request(client_socket, request);
+    } else if (request.find("GET /cmd?") != string::npos) {
+        handle_cmd_request(client_socket, request);
+    } else {
+        send_error(client_socket, 400, 3, "Invalid endpoint"); // Bad request
+    }
 }
 
 
