@@ -65,6 +65,7 @@ const int INF = numeric_limits<int>::max();
 #include "landmarks.hpp"
 #include "graph.hpp"
 #include "input.hpp"
-#include "api.hpp"
+#include "api_responses.hpp"
+#include "api_handling.hpp"
 
 #endif
