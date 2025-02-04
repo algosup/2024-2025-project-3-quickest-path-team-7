@@ -222,7 +222,7 @@ void run_api_server() {
     reset_compute_data(g_graph, g_path, g_astar);
 
     cout << "API server running on port " << PORT << endl;
-    cout << "-> http://localhost:" << PORT << "/path?start=1&end=4" << endl;
+    cout << "-> http://localhost:" << PORT << "/path?start=9588784&end=2720178" << endl;
 
     while (true) {
         sockaddr_in client_addr;
