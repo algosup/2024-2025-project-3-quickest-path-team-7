@@ -122,22 +122,31 @@ void handle_cmd_request(int client_socket, const string& request) {
     size_t format_pos = request.find("&format=");
     size_t limit_pos = request.find(" HTTP");
 
+    // Default format = JSON
+    response_format = "json";
+    if (format_pos != string::npos) {
+        response_format = request.substr(format_pos + 8, limit_pos - format_pos - 8);
+        if (response_format != "json" && response_format != "xml") {
+            send_wrong_format(client_socket);
+            return;
+        }
+    }
+    cout << "Response format: " << response_format << endl;
+
     if (cmd_pos == string::npos) {
         send_cmd_error(client_socket, 400, 1);
         return;
     }
 
-    string command = request.substr(cmd_pos + 9, request.find(" ", cmd_pos) - cmd_pos - 9);
-
-    // Default format = JSON
-    string format_param = "json";
+    // extract the command parameter
+    string command;
     if (format_pos != string::npos) {
-        format_param = request.substr(format_pos + 8, limit_pos - format_pos - 8);
-        if (format_param != "json" && format_param != "xml") {
-            send_cmd_error(client_socket, 400, 2, format_param);
-            return;
-        }
+        command = request.substr(cmd_pos + 9, format_pos - cmd_pos - 9);
+    } else { 
+        command = request.substr(cmd_pos + 9, limit_pos - cmd_pos - 9);
     }
+
+    cout << "Command: " << command << endl;
 
     // Redirect each command to its function
     stringstream ss;
@@ -149,7 +158,7 @@ void handle_cmd_request(int client_socket, const string& request) {
             << "    <response>Commands are not yet handled by the server.</response>\n"
             << "</response>\n";
     } else {
-        ss  << "HTTP/1.1 200 OK\nContent-Type: application/" << format_param << "\n\n"
+        ss  << "HTTP/1.1 200 OK\nContent-Type: application/" << response_format << "\n\n"
             << "{\n"
             << "    \"command\": \"" << command << "\",\n"
             << "    \"response\": \"Commands are not yet handled by the server.\"\n"
@@ -183,7 +192,7 @@ void handle_request(int client_socket) {
     } else if (request.find("GET /cmd?") != string::npos) {
         handle_cmd_request(client_socket, request);
     } else {
-        send_error(client_socket, 400, 3, "Invalid endpoint"); // Bad request
+        send_endpoint_error(client_socket); // Bad request
     }
 }
 
@@ -199,7 +208,7 @@ void run_api_server() {
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(8080);
+    address.sin_port = htons(PORT);
     if (::bind(server_fd, (struct sockaddr*)&address, sizeof(address)) == -1) {
         perror("bind failed");
         return;
@@ -212,7 +221,9 @@ void run_api_server() {
     // ensure that the global variables are reset before any calculation
     reset_compute_data(g_graph, g_path, g_astar);
 
-    cout << "API server running on port 8080" << endl;
+    cout << "API server running on port " << PORT << endl;
+    cout << "-> http://localhost:" << PORT << "/path?start=1&end=4" << endl;
+
     while (true) {
         sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);

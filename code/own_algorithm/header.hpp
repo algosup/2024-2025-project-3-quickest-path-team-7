@@ -2,13 +2,14 @@
 #define HEADER_H
 
 #define CSV_LINES           28854312
+#define PORT                9500
 
 #define ROOT_LANDMARK       1
 #define LANDMARKS_QTY       10
 // WEIGHT is the coefficient aplied to the heuristic cost for A star :
 // Using 1 : provides the quickest path, but can take time to calculate
-// Using 1.1 : provides a good balance between speed and accuracy (< 5% longer path)
-#define WEIGHT              1.1
+// Using 1.02 : provides a good balance between speed and accuracy (< 1% longer path than dijkstra)
+#define WEIGHT              1.02
 
 #define MAP_BACKUP          "map-backup.bin"
 #define LANDMARKS_BACKUP    "landmarks-backup"

@@ -25,8 +25,6 @@ int main() {
     }
 
     thread(run_api_server).detach();
-
-    cout << " Example of usage: \nGET /quickest-path?start_id=1&end_id=4" << endl;
     
     // Maintenir le programme actif
     while (true) {

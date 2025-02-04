@@ -37,6 +37,75 @@ void send_path(Path& g_path, int client_socket) {
     send(client_socket, response.c_str(), response.size(), 0);
 }
 
+void send_endpoint_error(int client_socket) {
+    stringstream ss;
+
+    if (response_format == "xml") {
+        ss << "HTTP/1.1 400 Bad Request\nContent-Type: application/xml\n\n";
+        ss << "<status>\n";
+        ss << "  <message>Bad request</message>\n";
+        ss << "  <details>\n";
+        ss << "    <error_type>Invalid endpoint</error_type>\n";
+        ss << "    <resolution>Check the API documentation for valid endpoints.</resolution>\n";
+        ss << "    <documentation>https://example.com/docs#endpoints</documentation>\n";
+        ss << "    <example>GET /path?start=1&end=4</example>\n";
+        ss << "    <example>GET /command?command=rebuild_graph</example>\n";
+        ss << "  </details>\n";
+        ss << "</status>\n";
+    } else {
+        ss << "HTTP/1.1 400 Bad Request\nContent-Type: application/json\n\n";
+        ss << "{\n";
+        ss << "    \"status\": \"Bad request\",\n";
+        ss << "    \"details\": {\n";
+        ss << "        \"error_type\": \"Invalid endpoint\",\n";
+        ss << "        \"resolution\": \"Check the API documentation for valid endpoints.\",\n";
+        ss << "        \"documentation\": \"https://example.com/docs#endpoints\",\n";
+        ss << "        \"example\": \"GET /path?start=1&end=4\"\n";
+        ss << "        \"example\": \"GET /command?command=rebuild_graph\"\n";
+        ss << "    }\n";
+        ss << "}\n";
+    }
+
+    string response = ss.str();
+    send(client_socket, response.c_str(), response.size(), 0);
+    close(client_socket);
+}
+
+void send_wrong_format(int client_socket) {
+
+    stringstream ss;
+
+    if (response_format == "xml") {
+        ss << "HTTP/1.1 400 Bad Request\nContent-Type: application/xml\n\n";
+        ss << "<status>\n";
+        ss << "  <message>Bad request</message>\n";
+        ss << "  <details>\n";
+        ss << "    <error_type>Invalid response format</error_type>\n";
+        ss << "    <resolution>Only 'json' and 'xml' are accepted formats. If any format specified, json is selected by default</resolution>\n";
+        ss << "    <documentation>https://example.com/docs#response-format</documentation>\n";
+        ss << "    <example>GET /path?start=1&end=4</example>\n";
+        ss << "    <example>GET /path?start=1&end=4&format=xml</example>\n";
+        ss << "  </details>\n";
+        ss << "</status>\n";
+    } else {
+        ss << "HTTP/1.1 400 Bad Request\nContent-Type: application/json\n\n";
+        ss << "{\n";
+        ss << "    \"status\": \"Bad request\",\n";
+        ss << "    \"details\": {\n";
+        ss << "        \"error_type\": \"Invalid response format\",\n";
+        ss << "        \"resolution\": \"Only 'json' and 'xml' are accepted formats. If any format specified, json is selected by default\",\n";
+        ss << "        \"documentation\": \"https://example.com/docs#response-format\",\n";
+        ss << "        \"example\": \"GET /path?start=1&end=4\",\n";
+        ss << "        \"example\": \"GET /path?start=1&end=4&format=xml\"\n";
+        ss << "    }\n";
+        ss << "}\n";
+    }
+
+    string response = ss.str();
+    send(client_socket, response.c_str(), response.size(), 0);
+    close(client_socket);
+}
+
 void send_error(int client_socket, int error_code, int kind = 1, string node = "undefined") {
     stringstream ss;
 
