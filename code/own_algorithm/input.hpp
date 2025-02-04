@@ -12,11 +12,13 @@ void takeFolderInput(Files& files, bool ask_folder = SKIP) {
     files.root_landmarks_backup = LANDMARKS_BACKUP;
 
     if (ask_folder){
-        #ifdef PATH_MAX
-        char cwd[PATH_MAX];
-        if (getcwd(cwd, sizeof(cwd)) != NULL) {
-            cout << "Working Directory: " << cwd << endl;
-        }
+        #ifndef WIN32
+            #ifdef PATH_MAX
+                char cwd[PATH_MAX];
+                if (getcwd(cwd, sizeof(cwd)) != NULL) {
+                    cout << "Working Directory: " << cwd << endl;
+                }
+            #endif
         #endif
         cout << "Do you want to use a specific relative path ? (y/n) ";
         string answer;

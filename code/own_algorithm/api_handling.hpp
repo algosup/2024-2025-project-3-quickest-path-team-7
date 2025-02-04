@@ -244,7 +244,10 @@ void run_api_server() {
     }
 
     close_socket(server_fd);
-}
 
+#ifdef _WIN32
+    WSACleanup();
+#endif
+}
 
 #endif

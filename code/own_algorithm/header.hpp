@@ -50,7 +50,9 @@
 
 #ifdef _WIN32
     #include <winsock2.h>
+    #include <ws2tcpip.h>
     #pragma comment(lib, "ws2_32.lib")  // Link with Winsock library
+    typedef int socklen_t; // Windows does not define socklen_t
 #else
     #include <sys/socket.h>
     #include <netinet/in.h>
