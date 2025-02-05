@@ -42,7 +42,7 @@ void send_path(Path& g_path, int client_socket) {
                 ss << ", ";
             }
         }
-        ss << "],\n";
+        ss << "]\n";
         ss << "}\n";
     }
 
