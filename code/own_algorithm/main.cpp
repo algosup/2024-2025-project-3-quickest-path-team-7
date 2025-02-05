@@ -1,4 +1,4 @@
-#include "header.hpp"
+#include "headers/header.hpp"
 
 int main() {
     // To allow special characters in cout such as 'µ'

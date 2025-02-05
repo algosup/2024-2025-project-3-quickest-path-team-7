@@ -1,10 +1,10 @@
 #ifndef HEADER_H
 #define HEADER_H
 
-#define CSV_LINES           28854312
+#define CSV_LINES           28854312 // Serve only to display the loading progress in the console
 #define PORT                9500
 
-#define ROOT_LANDMARK       1
+#define ROOT_LANDMARK       1 // The first landmark to be picked    
 #define LANDMARKS_QTY       10
 // WEIGHT is the coefficient aplied to the heuristic cost for A star :
 // Using 1 : provides the quickest path, but can take time to calculate
@@ -15,7 +15,10 @@
 #define LANDMARKS_BACKUP    "landmarks-backup"
 #define DATASET             "USA-roads.csv"
 #define OUTPUT              "shortest-path.csv"
+#define FOLDER              "files/"
 
+#define LIGHT               false
+#define FULL                true
 #define FAIL                false
 #define SUCCESS             true
 #define FORCE_BUILD         true

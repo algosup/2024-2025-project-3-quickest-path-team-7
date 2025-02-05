@@ -3,7 +3,7 @@
 
 #include "header.hpp"
 
-void handle_path_request(int client_socket, const string& request) {
+void handle_path_request(int client_socket, const string& request, bool full_path = LIGHT) {
 
     cout << "\n\nFind path from API:" << endl;
     // Extract parameters
@@ -113,7 +113,11 @@ void handle_path_request(int client_socket, const string& request) {
         g_path.end = int_end;
         find_path(g_graph, g_path, g_astar, g_timer);
         displayResults(g_path, true);
-        send_path(g_path, client_socket);        
+        if (full_path) {
+            send_full_path(g_path, client_socket);
+        } else {
+            send_path(g_path, client_socket);
+        }   
         savePathToCSV(g_files, g_path);
         reset_compute_data(g_graph, g_path, g_astar);
 
@@ -199,10 +203,16 @@ void handle_request(int client_socket) {
     }
 
     // Determine if request is for /path or /cmd
-    if (request.find("GET /path?") != string::npos) {
-        handle_path_request(client_socket, request);
+    if (request.find("GET /favicon.ico") != string::npos) {
+        send_favicon(client_socket);
     } else if (request.find("GET /cmd?") != string::npos) {
         handle_cmd_request(client_socket, request);
+    } else if (request.find("GET /path?") != string::npos) {
+        handle_path_request(client_socket, request, LIGHT);
+    } else if (request.find("GET /full_path?") != string::npos) {
+        handle_path_request(client_socket, request, FULL);
+    } else if (request.find("GET /comp_path?") != string::npos) {
+        send_endpoint_error(client_socket); // Bad request
     } else {
         send_endpoint_error(client_socket); // Bad request
     }

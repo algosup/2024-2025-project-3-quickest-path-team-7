@@ -12,6 +12,43 @@ void close_socket(int client_socket) {
     #endif
 }
 
+// just for fun
+void send_favicon(int client_socket) {
+    ifstream favicon_file("favicon.ico", ios::binary | ios::ate);
+    if (!favicon_file) {
+        // Return 404 if file not found
+        const char *favicon_response =
+            "HTTP/1.1 404 Not Found\r\n"
+            "Content-Length: 0\r\n"
+            "Connection: close\r\n"
+            "\r\n";
+        send(client_socket, favicon_response, strlen(favicon_response), 0);
+        close_socket(client_socket);
+        return;
+    }
+
+    // Get file size
+    streamsize size = favicon_file.tellg();
+    favicon_file.seekg(0, ios::beg);
+
+    // Read file into buffer
+    vector<char> buffer(size);
+    if (favicon_file.read(buffer.data(), size)) {
+        string header = 
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: image/x-icon\r\n"
+            "Content-Length: " + to_string(size) + "\r\n"
+            "Connection: close\r\n"
+            "\r\n";
+        
+        send(client_socket, header.c_str(), header.size(), 0);
+        send(client_socket, buffer.data(), buffer.size(), 0);
+    }
+
+    close_socket(client_socket);
+    return;
+}
+
 void send_path(Path& g_path, int client_socket) {
     stringstream ss;
 
@@ -43,6 +80,57 @@ void send_path(Path& g_path, int client_socket) {
             }
         }
         ss << "]\n";
+        ss << "}\n";
+    }
+
+    string response = ss.str();
+    send(client_socket, response.c_str(), response.size(), 0);
+    close_socket(client_socket);
+}
+
+// Send full path with all the details such as distance for each node, number of nodes, execution time in addition to the path itself
+void send_full_path(Path& g_path, int client_socket) {
+    stringstream ss;
+
+    if (response_format == "xml") {
+        // XML Response
+        ss << "HTTP/1.1 200 OK\n"
+           << "Content-Type: application/xml\n"
+           << "Access-Control-Allow-Origin: *\n\n";
+        ss << "<response>\n";
+        ss << "  <path_length>" << g_path.distance << "</path_length>\n";
+        ss << "  <nodes_quantity>" << g_path.path.size() << "</nodes_quantity>\n";
+        ss << "  <calculation_time>" << g_path.calculation_time << "</calculation_time>\n";
+        ss << "  <path>\n";
+        for (const auto& node : g_path.path) {
+            ss << "    <node>\n";
+            ss << "      <id>" << node.first << "</id>\n";
+            ss << "      <distance>" << node.second << "</distance>\n";
+            ss << "    </node>\n";
+        }
+        ss << "  </path>\n";
+        ss << "</response>\n";
+    } else {
+        // JSON Response (Default)
+        ss << "HTTP/1.1 200 OK\n"
+           << "Content-Type: application/json\n"
+           << "Access-Control-Allow-Origin: *\n\n";
+        ss << "{\n";
+        ss << "    \"path_length\"     : \"" << g_path.distance         << "\",\n";
+        ss << "    \"nodes_quantity\"  : \"" << g_path.path.size()      << "\",\n";
+        ss << "    \"calculation_time\": \"" << g_path.calculation_time << "\",\n";
+        ss << "    \"path\": [\n";
+        for (size_t i = 0; i < g_path.path.size(); i++) {
+            ss << "        {\n";
+            ss << "            \"id\": \"" << g_path.path[i].first << "\",\n";
+            ss << "            \"distance\": \"" << g_path.path[i].second << "\"\n";
+            ss << "        }";
+            if (i < g_path.path.size() - 1) {
+                ss << ",";
+            }
+            ss << endl;
+        }
+        ss << "    ]\n";
         ss << "}\n";
     }
 

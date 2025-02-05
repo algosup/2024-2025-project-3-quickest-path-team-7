@@ -5,29 +5,27 @@
 
 void takeFolderInput(Files& files, bool ask_folder = SKIP) {
 
-    files.folder_path = "";
-    files.dataset = DATASET;
-    files.output = OUTPUT;
-    files.map_backup = MAP_BACKUP;
-    files.root_landmarks_backup = LANDMARKS_BACKUP;
+    files.folder_path = FOLDER;
 
     if (ask_folder){
         cout << "Working Directory: " << filesystem::current_path() << endl;
-        cout << "Do you want to use a specific relative path (n = retry) ? (y/n) ";
+        cout << "Do you want to use another specific relative path (n = retry) ? (y/n) ";
         string answer;
         cin >> answer;
         if (answer == "y") {
             cout << "Please provide a relative path : ";
             cin >> files.folder_path;
-            files.dataset = files.folder_path + "/" + DATASET;
-            files.output = files.folder_path + "/" + OUTPUT;
-            files.map_backup = files.folder_path + "/" + MAP_BACKUP;
-            files.root_landmarks_backup = files.folder_path + "/" + LANDMARKS_BACKUP;
+            files.folder_path += "/";
+            
         } else {
             cout << "Trying again in the current folder ... " << endl;
         }
     }
 
+    files.dataset = files.folder_path + DATASET;
+    files.output = files.folder_path + OUTPUT;
+    files.map_backup = files.folder_path + MAP_BACKUP;
+    files.root_landmarks_backup = files.folder_path + LANDMARKS_BACKUP;
     files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
 }
 
