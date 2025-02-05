@@ -5,7 +5,7 @@
 
 // Function to save the path to a CSV file
 // Containning all the displayed information
-void savePathToCSV(Graph& graph, Files& files, Path& path_data) {
+void savePathToCSV(Files& files, Path& path_data) {
 
     ofstream file(files.output);
     if (!file.is_open()) {
@@ -29,7 +29,7 @@ void savePathToCSV(Graph& graph, Files& files, Path& path_data) {
     file.close();
 }
 
-void displayResults(Path& path_data) {
+void displayResults(Path& path_data, bool from_api = false) {
     // If there is no path between the two nodes, output a message
     if (path_data.path.empty()) {
         cout << "No path found between node " << formatWithSpaces(path_data.start) << " and node " << formatWithSpaces(path_data.end) << "." << endl;
@@ -44,10 +44,11 @@ void displayResults(Path& path_data) {
     }
 
     // Output results
-    cout << "Total Distance     : "   << formatWithSpaces(path_data.distance)   << endl;
-    cout << "Number of edges    : "   << formatWithSpaces(path_data.path.size() - 1) << endl;
+    cout << "Path lenght        : "   << formatWithSpaces(path_data.distance)   << endl;
+    cout << "Number of nodes    : "   << formatWithSpaces(path_data.path.size()) << endl;
     cout << "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
-    cout << "Path saved to      : "   << "file://"  << filesystem::absolute(g_files.output).string() << endl;
+    cout << "Full info saved to : "   << "file://"  << filesystem::absolute(g_files.output).string() << flush;
+    from_api ? cout << "\n\n\nEnter a command or the start node : " << flush : cout << endl;
 }
 
 #endif

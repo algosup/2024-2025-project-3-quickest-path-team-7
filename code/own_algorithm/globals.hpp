@@ -7,6 +7,9 @@ float   heuristic_weight    = WEIGHT;
 int     landmarks_qty       = LANDMARKS_QTY;
 int     root_landmark       = ROOT_LANDMARK;
 
+mutex graph_path_file_access;
+atomic <bool> api_ready(false);
+
 string response_format      = "json";
 
 struct Timer {

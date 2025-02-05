@@ -141,7 +141,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         return INVALID_NODE; // Invalid node
     }
 
-    cout << "Enter the end node: ";
+    cout << "Enter the end node                : ";
     cin >> path.end;
     if ( !(1 <= path.end <= graph.nodes_qty) || graph.adjacency_start[path.end]==graph.adjacency_start[path.end+1]){
         return INVALID_NODE; // Invalid node

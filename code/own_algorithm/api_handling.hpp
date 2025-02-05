@@ -5,6 +5,7 @@
 
 void handle_path_request(int client_socket, const string& request) {
 
+    cout << "Find path from API:" << endl;
     // Extract parameters
     size_t start_pos = request.find("?start=");
     size_t end_pos = request.find("&end=");
@@ -14,7 +15,6 @@ void handle_path_request(int client_socket, const string& request) {
     // Default to JSON if format parameter is not provided
     response_format = "json";
     if (format_pos != string::npos) {
-        cout << limit_pos - format_pos - 8 << endl;
         response_format = request.substr(format_pos + 8, limit_pos - format_pos - 8);
 
         // Validate format (only accept "json" or "xml")
@@ -25,7 +25,7 @@ void handle_path_request(int client_socket, const string& request) {
         }
     }
 
-    cout << "Response format: " << response_format << endl;
+    cout << "Response format    : " << response_format << endl;
 
     // Check if the start and end parameters are present
     if (start_pos == string::npos || end_pos == string::npos) {
@@ -52,7 +52,8 @@ void handle_path_request(int client_socket, const string& request) {
 
 
     // display the parameters in the console
-    cout << "Start: " << start_param << "\nEnd: " << end_param << "\n" << endl;
+    cout << "Start node         : " << start_param << endl;
+    cout << "End node           : " << end_param << "\n" << endl;
 
     // check if either the start or end parameters are not integers
     if (start_param.find(".") != string::npos || 
@@ -71,46 +72,57 @@ void handle_path_request(int client_socket, const string& request) {
     }
 
     // convert the parameters to integers
+    int int_start, int_end;
     try { 
-        g_path.start = stoi(start_param);
+        int_start = stoi(start_param);
     } 
     catch (const exception& e) {
         send_error(client_socket, 400, 2, start_param);
     }
     try {
-        g_path.end = stoi(end_param);
+        int_end = stoi(end_param);
     }
     catch (const exception& e) {
         send_error(client_socket, 400, 2, end_param);
     }
 
     // Check of the node validity in graph
-    if (g_path.start < 1 || g_path.start > g_graph.nodes_qty) {
-        send_error(client_socket, 404, 2, to_string(g_path.start));
+    if (int_start < 1 || int_start > g_graph.nodes_qty) {
+        send_error(client_socket, 404, 2, to_string(int_start));
         return;
     }
-    if (g_path.end < 1 || g_path.end > g_graph.nodes_qty) {
-        send_error(client_socket, 404, 2, to_string(g_path.end));
+    if (int_end < 1 || int_end > g_graph.nodes_qty) {
+        send_error(client_socket, 404, 2, to_string(int_end));
         return;
     }
-    if (g_graph.adjacency_start[g_path.start] == g_graph.adjacency_start[g_path.start + 1]) {
-        send_error(client_socket, 404, 1, to_string(g_path.start));
+    if (g_graph.adjacency_start[int_start] == g_graph.adjacency_start[int_start + 1]) {
+        send_error(client_socket, 404, 1, to_string(int_start));
         return;
     }
-    if (g_graph.adjacency_start[g_path.end] == g_graph.adjacency_start[g_path.end + 1]) {
-        send_error(client_socket, 404, 1, to_string(g_path.end));
+    if (g_graph.adjacency_start[int_end] == g_graph.adjacency_start[int_end + 1]) {
+        send_error(client_socket, 404, 1, to_string(int_end));
         return;
     }
-    if (g_path.start == g_path.end) {
-        send_error(client_socket, 401, 3, to_string(g_path.end));
+    if (int_start == int_end) {
+        send_error(client_socket, 401, 3, to_string(int_end));
         return;
+    }
+
+    {
+        lock_guard<mutex> lock(graph_path_file_access);
+
+        // Calculate the shortest path, output results and reset the data
+        g_path.start = int_start;
+        g_path.end = int_end;
+        find_path(g_graph, g_path, g_astar, g_timer);
+        displayResults(g_path, true);
+        send_path(g_path, client_socket);        
+        savePathToCSV(g_files, g_path);
+        reset_compute_data(g_graph, g_path, g_astar);
+
     }
     
-    // Calculate the shortest path, output results and reset the data
-    find_path(g_graph, g_path, g_astar, g_timer);
-    send_path(g_path, client_socket);
-    savePathToCSV(g_graph, g_files, g_path);
-    reset_compute_data(g_graph, g_path, g_astar);    
+        
 }
 
 void handle_cmd_request(int client_socket, const string& request) {
@@ -195,45 +207,63 @@ void handle_request(int client_socket) {
     } else {
         send_endpoint_error(client_socket); // Bad request
     }
+
 }
 
 void run_api_server() {
-#ifdef _WIN32
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        cerr << "WSAStartup failed" << endl;
-        return;
+
+    cout << "Starting the API service..." << endl;
+    api_ready = false;
+    int server_fd = -1;
+
+    while (!api_ready) {
+
+        this_thread::sleep_for(chrono::milliseconds(100));
+
+        #ifdef _WIN32
+        WSADATA wsaData;
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+            cerr << "WSAStartup failed" << endl;
+            return;
+        }
+        #endif
+
+        server_fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_fd == -1) {
+            perror("socket failed");
+            continue;
+        }
+
+        sockaddr_in address;
+        memset(&address, 0, sizeof(address));
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(PORT);
+
+        if (::bind(server_fd, (struct sockaddr*)&address, sizeof(address)) == -1) {
+            //perror("bind failed");
+            //close_socket(server_fd);
+            continue;
+        }
+
+        if (listen(server_fd, 100) < 0) {
+            perror("listen failed");
+            close_socket(server_fd);
+            continue;
+        }
+
+        {
+            lock_guard<mutex> lock(graph_path_file_access);
+            reset_compute_data(g_graph, g_path, g_astar);
+        }
+
+        cout << "API server running on port " << PORT << endl;
+        cout << "Try the longest path -> http://localhost:" << PORT << "/path?start=9588784&end=2720178" << endl;
+
+        api_ready = true;
+        
     }
-#endif
 
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == -1) {
-        perror("socket failed");
-        return;
-    }
-
-    sockaddr_in address;
-    memset(&address, 0, sizeof(address));
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
-
-    if (::bind(server_fd, (struct sockaddr*)&address, sizeof(address)) == -1) {
-        perror("bind failed");
-        close_socket(server_fd);
-        return;
-    }
-
-    if (listen(server_fd, 100) < 0) {
-        perror("listen failed");
-        close_socket(server_fd);
-        return;
-    }
-
-    reset_compute_data(g_graph, g_path, g_astar);
-
-    cout << "API server running on port " << PORT << endl;
-    cout << "-> http://localhost:" << PORT << "/path?start=9588784&end=2720178" << endl;
 
     while (true) {
         sockaddr_in client_addr;

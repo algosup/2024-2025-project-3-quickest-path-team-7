@@ -115,7 +115,6 @@ void find_path(Graph& graph, Path& path_data, Astar& astar, Timer& timer) {
     stop_timer(timer);
 
     path_data.calculation_time = timer.time;
-    displayResults(path_data);
 
 }
 

@@ -23,15 +23,57 @@ int main() {
                 return 1;
         }
     }
-
+    api_ready = false;
     thread(run_api_server).detach();
     
-    // Maintenir le programme actif
+    // Main loop for terminal access to the server
     while (true) {
-        string command;
-        cout << "\nEnter 'exit' to quit: ";
-        getline(cin, command);
-        if (command == "exit") break;
+        
+        // wait for the API to be ready
+        while (!api_ready) {
+            continue;
+        }
+
+        {
+            lock_guard<mutex> lock(graph_path_file_access);
+            // Reset the path data and the Astar data   
+            reset_compute_data(g_graph, g_path, g_astar); 
+        }
+
+        // Take user input for the start and end nodes or any extra command (you can check it out)
+        switch (takeUserInput(g_graph, g_path, g_files))
+        {
+            case INVALID_NODE :
+                cout << "Invalid node, please try again." << endl;
+                continue;
+                break;
+            case INVALID_COMMAND :
+                cout << "Invalid command, please try again." << endl;
+                continue;
+                break;
+            case EXIT :
+                cout << "Exiting... (user ask)" << endl;
+                return 0;
+                break;
+            case PATH :
+                cout << "Find path from terminal...\n" << endl;
+                break;
+            case COMMAND :
+                continue;
+                break;
+            default:
+                break;
+        }
+
+        {
+            lock_guard<mutex> lock(graph_path_file_access);
+            // Calculate the shortest path, output results and reset the data
+            
+            find_path(g_graph, g_path, g_astar, g_timer);
+            displayResults(g_path);
+            savePathToCSV(g_files, g_path);
+            reset_compute_data(g_graph, g_path, g_astar);
+        }
     }
 
     return 0;
