@@ -88,7 +88,7 @@ void send_path(Path& g_path, int client_socket) {
     close_socket(client_socket);
 }
 
-// Send full path with all the details such as distance for each node, number of nodes, execution time in addition to the path itself
+// Send full path with all the details such as distance for each node, number of nodes, execution time , and so on
 void send_full_path(Path& g_path, int client_socket) {
     stringstream ss;
 
@@ -98,14 +98,22 @@ void send_full_path(Path& g_path, int client_socket) {
            << "Content-Type: application/xml\n"
            << "Access-Control-Allow-Origin: *\n\n";
         ss << "<response>\n";
+        ss << "  <start>" << g_path.start << "</start>\n";
+        ss << "  <end>" << g_path.end << "</end>\n";
         ss << "  <path_length>" << g_path.distance << "</path_length>\n";
-        ss << "  <nodes_quantity>" << g_path.path.size() << "</nodes_quantity>\n";
         ss << "  <calculation_time>" << g_path.calculation_time << "</calculation_time>\n";
+        ss << "  <landmarks_quantity>" << landmarks_qty << "</landmarks_quantity>\n";
+        ss << "  <landmarks>\n";
+        for (const auto& lm : g_graph.landmarks) {
+            ss << "    <landmark>" << lm << "</landmark>\n";
+        }
+        ss << "  </landmarks>\n";
+        ss << "  <nodes_quantity>" << g_path.path.size() << "</nodes_quantity>\n";
         ss << "  <path>\n";
         for (const auto& node : g_path.path) {
             ss << "    <node>\n";
             ss << "      <id>" << node.first << "</id>\n";
-            ss << "      <distance>" << node.second << "</distance>\n";
+            ss << "      <weight>" << node.second << "</weight>\n";
             ss << "    </node>\n";
         }
         ss << "  </path>\n";
@@ -116,14 +124,26 @@ void send_full_path(Path& g_path, int client_socket) {
            << "Content-Type: application/json\n"
            << "Access-Control-Allow-Origin: *\n\n";
         ss << "{\n";
+        ss << "    \"start\"           : \"" << g_path.start << "\",\n";
+        ss << "    \"end\"             : \"" << g_path.end << "\",\n";
         ss << "    \"path_length\"     : \"" << g_path.distance         << "\",\n";
-        ss << "    \"nodes_quantity\"  : \"" << g_path.path.size()      << "\",\n";
         ss << "    \"calculation_time\": \"" << g_path.calculation_time << "\",\n";
+        ss << "    \"landmarks_quantity\": \"" << landmarks_qty << "\",\n";
+        ss << "    \"landmarks\": [\n";
+        for (size_t i = 0; i < g_graph.landmarks.size(); i++) {
+            ss << "        \"" << g_graph.landmarks[i] << "\"";
+            if (i < g_graph.landmarks.size() - 1) {
+                ss << ",";
+            }
+            ss << endl;
+        }
+        ss << "    ],\n";
+        ss << "    \"nodes_quantity\"  : \"" << g_path.path.size()      << "\",\n";
         ss << "    \"path\": [\n";
         for (size_t i = 0; i < g_path.path.size(); i++) {
             ss << "        {\n";
             ss << "            \"id\": \"" << g_path.path[i].first << "\",\n";
-            ss << "            \"distance\": \"" << g_path.path[i].second << "\"\n";
+            ss << "            \"weight\": \"" << g_path.path[i].second << "\"\n";
             ss << "        }";
             if (i < g_path.path.size() - 1) {
                 ss << ",";
