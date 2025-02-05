@@ -23,14 +23,15 @@ int main() {
                 return 1;
         }
     }
-    api_ready = false;
+    
+    api_ready.store(false);
     thread(run_api_server).detach();
     
     // Main loop for terminal access to the server
     while (true) {
         
         // wait for the API to be ready
-        while (!api_ready) {
+        while (!api_ready.load()) {
             continue;
         }
 

@@ -9,7 +9,9 @@ int     root_landmark       = ROOT_LANDMARK;
 
 mutex graph_path_file_access;
 atomic <bool> api_ready(false);
+atomic <bool> kill_api(false);
 
+int    port                 = PORT;
 string response_format      = "json";
 
 struct Timer {

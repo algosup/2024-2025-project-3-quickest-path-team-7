@@ -5,7 +5,7 @@
 
 void handle_path_request(int client_socket, const string& request) {
 
-    cout << "Find path from API:" << endl;
+    cout << "\n\nFind path from API:" << endl;
     // Extract parameters
     size_t start_pos = request.find("?start=");
     size_t end_pos = request.find("&end=");
@@ -181,7 +181,11 @@ void handle_cmd_request(int client_socket, const string& request) {
 }
 
 void handle_request(int client_socket) {
-    cout << "New client connected" << endl;
+
+    if (kill_api.load()) {
+        close_socket(client_socket);
+        return;
+    }
 
     char buffer[4096] = {0};
     #ifdef _WIN32
@@ -190,8 +194,6 @@ void handle_request(int client_socket) {
         int bytes_read = read(client_socket, buffer, sizeof(buffer) - 1); // Unix uses read()
     #endif
     string request(buffer);
-
-    cout << "Request: \n" << request << endl;
 
     // Ensure request is a GET request
     if (request.find("GET") == string::npos) {
@@ -212,11 +214,13 @@ void handle_request(int client_socket) {
 
 void run_api_server() {
 
+    kill_api.store(false);
+
     cout << "Starting the API service..." << endl;
-    api_ready = false;
+    api_ready.store(false);
     int server_fd = -1;
 
-    while (!api_ready) {
+    while (!api_ready.load()) {
 
         this_thread::sleep_for(chrono::milliseconds(100));
 
@@ -238,7 +242,7 @@ void run_api_server() {
         memset(&address, 0, sizeof(address));
         address.sin_family = AF_INET;
         address.sin_addr.s_addr = INADDR_ANY;
-        address.sin_port = htons(PORT);
+        address.sin_port = htons(port);
 
         if (::bind(server_fd, (struct sockaddr*)&address, sizeof(address)) == -1) {
             //perror("bind failed");
@@ -257,15 +261,15 @@ void run_api_server() {
             reset_compute_data(g_graph, g_path, g_astar);
         }
 
-        cout << "API server running on port " << PORT << endl;
-        cout << "Try the longest path -> http://localhost:" << PORT << "/path?start=9588784&end=2720178" << endl;
+        cout << "API server running on port " << port << endl;
+        cout << "Try the longest path -> http://localhost:" << port << "/path?start=9588784&end=2720178" << endl;
 
-        api_ready = true;
+        api_ready.store(true);
         
     }
 
 
-    while (true) {
+    while (!kill_api.load()) {
         sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
         int client_socket = accept(server_fd, (sockaddr*)&client_addr, &client_len);
@@ -282,6 +286,7 @@ void run_api_server() {
 #ifdef _WIN32
     WSACleanup();
 #endif
+
 }
 
 #endif

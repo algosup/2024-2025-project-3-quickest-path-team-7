@@ -106,6 +106,14 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         cout << "Landmarks backup: " << files.landmarks_backup << endl;
         return COMMAND;
     }
+    if (input == "port") {
+        cout << "Enter the new port number: ";
+        cin >> port;
+        cout << "Port set to " << port << endl;
+        kill_api.store(true);
+        thread(run_api_server).detach();
+        return COMMAND;
+    }
     if (input == "exit") {
         return EXIT;
     }
