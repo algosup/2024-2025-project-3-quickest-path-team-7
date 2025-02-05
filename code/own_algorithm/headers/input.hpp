@@ -25,6 +25,7 @@ void takeFolderInput(Files& files, bool ask_folder = SKIP) {
     files.dataset = files.folder_path + DATASET;
     files.output = files.folder_path + OUTPUT;
     files.map_backup = files.folder_path + MAP_BACKUP;
+    files.api_icon = files.folder_path + API_ICON;
     files.root_landmarks_backup = files.folder_path + LANDMARKS_BACKUP;
     files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
 }
@@ -94,6 +95,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         files.map_backup = files.folder_path + "/" + MAP_BACKUP;
         files.root_landmarks_backup = files.folder_path + "/" + LANDMARKS_BACKUP;
         files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
+        files.api_icon = files.folder_path + "/" + API_ICON;
         cout << "Files path changed to " << files.folder_path << endl;
         return COMMAND;
     }

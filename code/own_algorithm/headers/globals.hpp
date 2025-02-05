@@ -81,6 +81,7 @@ struct Files {
     string landmarks_backup;
     string root_landmarks_backup;
     string output;
+    string api_icon;
 };
 
 // Function to format a number with spaces between each group of three digits

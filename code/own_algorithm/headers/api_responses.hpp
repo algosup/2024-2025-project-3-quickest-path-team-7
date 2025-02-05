@@ -14,7 +14,7 @@ void close_socket(int client_socket) {
 
 // just for fun
 void send_favicon(int client_socket) {
-    ifstream favicon_file("favicon.ico", ios::binary | ios::ate);
+    ifstream favicon_file(g_files.api_icon, ios::binary | ios::ate);
     if (!favicon_file) {
         // Return 404 if file not found
         const char *favicon_response =

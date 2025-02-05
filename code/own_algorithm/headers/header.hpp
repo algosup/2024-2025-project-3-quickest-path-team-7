@@ -15,6 +15,7 @@
 #define LANDMARKS_BACKUP    "landmarks-backup"
 #define DATASET             "USA-roads.csv"
 #define OUTPUT              "shortest-path.csv"
+#define API_ICON            "favicon.ico"
 #define FOLDER              "files/"
 
 #define LIGHT               false
