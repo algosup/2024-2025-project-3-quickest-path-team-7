@@ -16,8 +16,10 @@ void send_path(Path& g_path, int client_socket) {
     stringstream ss;
 
     if (response_format == "xml") {
-        // XML Response
-        ss << "HTTP/1.1 200 OK\nContent-Type: application/xml\n\n";
+       // XML Response
+        ss << "HTTP/1.1 200 OK\n"
+           << "Content-Type: application/xml\n"
+           << "Access-Control-Allow-Origin: *\n\n";
         ss << "<response>\n";
         ss << "  <path_length>" << g_path.distance << "</path_length>\n";
         ss << "  <path>\n";
@@ -28,12 +30,14 @@ void send_path(Path& g_path, int client_socket) {
         ss << "</response>\n";
     } else {
         // JSON Response (Default)
-        ss << "HTTP/1.1 200 OK\nContent-Type: application/json\n\n";
+        ss << "HTTP/1.1 200 OK\n"
+           << "Content-Type: application/json\n"
+           << "Access-Control-Allow-Origin: *\n\n";
         ss << "{\n";
-        ss << "    \"path_length\": " << g_path.distance << ",\n";
+        ss << "    \"path_length\": " << "\"" << g_path.distance << "\",\n";
         ss << "    \"path\": [";
         for (size_t i = 0; i < g_path.path.size(); i++) {
-            ss << g_path.path[i].first;
+            ss << "\"" << g_path.path[i].first << "\"" << endl;
             if (i < g_path.path.size() - 1) {
                 ss << ", ";
             }
