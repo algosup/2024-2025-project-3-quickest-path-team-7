@@ -102,6 +102,7 @@ void send_full_path(Path& g_path, int client_socket) {
         ss << "  <end>" << g_path.end << "</end>\n";
         ss << "  <path_length>" << g_path.distance << "</path_length>\n";
         ss << "  <calculation_time>" << g_path.calculation_time << "</calculation_time>\n";
+        ss << "  <heuristic_weight>" << heuristic_weight << "</heuristic_weight>\n";
         ss << "  <landmarks_quantity>" << landmarks_qty << "</landmarks_quantity>\n";
         ss << "  <landmarks>\n";
         for (const auto& lm : g_graph.landmarks) {
@@ -128,6 +129,7 @@ void send_full_path(Path& g_path, int client_socket) {
         ss << "    \"end\"             : \"" << g_path.end << "\",\n";
         ss << "    \"path_length\"     : \"" << g_path.distance         << "\",\n";
         ss << "    \"calculation_time\": \"" << g_path.calculation_time << "\",\n";
+        ss << "    \"heuristic_weight\": \"" << heuristic_weight        << "\",\n";
         ss << "    \"landmarks_quantity\": \"" << landmarks_qty << "\",\n";
         ss << "    \"landmarks\": [\n";
         for (size_t i = 0; i < g_graph.landmarks.size(); i++) {

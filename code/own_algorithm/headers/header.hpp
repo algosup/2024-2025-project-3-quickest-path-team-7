@@ -2,14 +2,14 @@
 #define HEADER_H
 
 #define CSV_LINES           28854312 // Serve only to display the loading progress in the console
-#define PORT                9500
-
+#define WEIGHT              1.02
 #define ROOT_LANDMARK       1 // The first landmark to be picked    
 #define LANDMARKS_QTY       10
 // WEIGHT is the coefficient aplied to the heuristic cost for A star :
 // Using 1 : provides the quickest path, but can take time to calculate
 // Using 1.02 : provides a good balance between speed and accuracy (< 1% longer path than dijkstra)
-#define WEIGHT              1.02
+
+#define PORT                9500
 
 #define MAP_BACKUP          "map-backup.bin"
 #define LANDMARKS_BACKUP    "landmarks-backup"
