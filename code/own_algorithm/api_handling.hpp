@@ -12,20 +12,17 @@ void handle_path_request(int client_socket, const string& request) {
     size_t format_pos = request.find("&format=");
     size_t limit_pos = request.find(" HTTP");
 
-    // Default to JSON if format parameter is not provided
+    // Default format = JSON
     response_format = "json";
     if (format_pos != string::npos) {
         response_format = request.substr(format_pos + 8, limit_pos - format_pos - 8);
-
-        // Validate format (only accept "json" or "xml")
         if (response_format != "json" && response_format != "xml") {
-            cout << "Invalid response format: " << response_format << endl;
-            send_error(client_socket, 400, 2);
+            cout << "Invalid response format" << endl;
+            send_wrong_format(client_socket);
             return;
         }
     }
-
-    cout << "Response format    : " << response_format << endl;
+    cout << "Response format: " << response_format << endl;
 
     // Check if the start and end parameters are present
     if (start_pos == string::npos || end_pos == string::npos) {

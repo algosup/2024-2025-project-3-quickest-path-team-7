@@ -19,10 +19,10 @@ void send_path(Path& g_path, int client_socket) {
         // XML Response
         ss << "HTTP/1.1 200 OK\nContent-Type: application/xml\n\n";
         ss << "<response>\n";
-        ss << "  <time>" << g_path.distance << "</time>\n";
+        ss << "  <path_length>" << g_path.distance << "</path_length>\n";
         ss << "  <path>\n";
-        for (const auto& landmark : g_path.path) {
-            ss << "    <landmark>" << landmark.first << "</landmark>\n";
+        for (const auto& node : g_path.path) {
+            ss << "    <node>" << node.first << "</node>\n";
         }
         ss << "  </path>\n";
         ss << "</response>\n";
@@ -30,15 +30,15 @@ void send_path(Path& g_path, int client_socket) {
         // JSON Response (Default)
         ss << "HTTP/1.1 200 OK\nContent-Type: application/json\n\n";
         ss << "{\n";
+        ss << "    \"path_length\": " << g_path.distance << ",\n";
         ss << "    \"path\": [";
         for (size_t i = 0; i < g_path.path.size(); i++) {
-            ss << "\"" << g_path.path[i].first << "\"";
+            ss << g_path.path[i].first;
             if (i < g_path.path.size() - 1) {
                 ss << ", ";
             }
         }
         ss << "],\n";
-        ss << "    \"travel_time\": " << g_path.distance << "\n";
         ss << "}\n";
     }
 
