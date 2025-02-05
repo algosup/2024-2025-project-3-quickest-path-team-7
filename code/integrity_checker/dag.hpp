@@ -53,7 +53,6 @@ void loadDag(DAG& dag)
         dag.data[node] = neighbors;
     }
     file.close();
-    cout << "dag data loaded" << endl;
 }
 
 void loadParents(DAG& dag) 
@@ -66,7 +65,6 @@ void loadParents(DAG& dag)
             dag.parents[neighbor].push_back(i);
         }
     } 
-    cout << "dag parents loaded" << endl;
 }
 
 void afficheData(DAG& dag) 
@@ -164,25 +162,14 @@ void buildDag(DAG& dag)
     cout << "3" << endl;
     //afficheData(dag);
     //afficheParents(dag);
-    cout << "DAG loaded" << endl;
     // To track the state of the nodes during DFS (0 = unvisited, 1 = visiting, 2 = visited)
     int n = dag.data.size();
     cout << "4" << endl;
-    unsigned int counter = 0;
-    unsigned int progression = 0;
-    unsigned int progression_backup = 0;
     vector<int> visited(n, 0);  // 0 = unvisited, 1 = visiting, 2 = visited
     cout << "5" << endl;
     // Check for cycles in the graph
     for (int i = 1; i < n; ++i) 
     {
-        counter++;
-        progression = (counter / CSV_LINES)*100;
-        if (progression != progression_backup) 
-        {
-            cout << "\rDag checked at ... " << progression << " %" << flush;
-            progression_backup = progression;
-        }
         if (visited[i] == 0) 
         {  // If the node is not visited
             if (dfs(i, dag, visited, 0)) 
