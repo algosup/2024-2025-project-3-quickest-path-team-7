@@ -3,16 +3,20 @@
 
 #include "header.hpp"
 
-void checker(DAG& dag, int node, vector<int>& visited)
+void checker(DAG& dag, int node, vector<bool>& visited)
 {
-    visited[node] = 1;
+    cout << node << endl;
+    visited[node] = true;
     if(not dag.parents[node].empty())
     {
         for(int neigbhour: dag.parents[node])
         {
-            if(visited[neigbhour] == 0)
+            if (1<=neigbhour<=NODE_MAX_VALUE) 
             {
-                checker(dag, neigbhour, visited);
+                    if(not visited[neigbhour])
+                {
+                    checker(dag, neigbhour, visited);
+                }
             }
         }
     }
@@ -20,35 +24,42 @@ void checker(DAG& dag, int node, vector<int>& visited)
     {
         for(int neigbhour: dag.data[node])
         {
-            if(visited[neigbhour] == 0)
+            if (1<=neigbhour<=NODE_MAX_VALUE)
             {
-                checker(dag, neigbhour, visited);
+                    if(not visited[neigbhour])
+                {
+                    checker(dag, neigbhour, visited);
+                }
             }
         }
     }
 }
 
-bool parseVisited(vector<int>& visited)
+void parseVisited(vector<bool>& visited, bool& good)
 {
-    for(int i : visited)
+    int k = 0;
+    for(bool i : visited)
     {
-        if(i == 0)
-            return false;
+        k++;
+        if(not i) 
+        {
+            cout << "Disconnected : " << k << endl;
+            good = false;
+        }
     }
-    return true;
+    return;
 }
-
 void connectivityChecker(DAG& dag) 
 {
     cout << "7" << endl;
-    bool fullyConnected;
-    vector<int> visited(dag.data.size(), 0);
-    visited[0] = 1;
-    checker(dag, 20000000, visited);
+    vector<bool> visited(dag.data.size(), 0);
+    visited[0] = true;
+    checker(dag, 1, visited);
     cout << "8" << endl;
-    fullyConnected = parseVisited(visited);
+    bool good = true;
+    parseVisited(visited, good);
     cout << "9" << endl;
-    if(fullyConnected == true)
+    if(good)
         cout << "graph is fully connected" << endl;
     else
         cout << "graph isn't fully connected" << endl;
