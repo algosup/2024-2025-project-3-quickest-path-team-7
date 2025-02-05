@@ -111,6 +111,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         cin >> port;
         cout << "Port set to " << port << endl;
         kill_api.store(true);
+        api_ready.store(false);
         thread(run_api_server).detach();
         return COMMAND;
     }
