@@ -30,10 +30,9 @@ void checker(Graph& graph, vector<bool>& visited, priority_queue<int>& pq)
 
 void parseGraph(Graph& graph, int node, vector<bool>& visited)
 {
-    
     priority_queue<int> pq;
-    visited[1] = true;
     pq.push(1);
+    visited[1] = true;
     checker(graph, visited, pq);
     return;
 }
