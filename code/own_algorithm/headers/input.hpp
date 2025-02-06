@@ -132,6 +132,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         cout << " - display-lm      : display the landmarks" << endl;
         cout << " - chfolder        : change the folder path for input/output files" << endl;
         cout << " - display-files   : display the current files paths" << endl;
+        cout << " - port            : change the port number" << endl;
         cout << " - stop            : exit the program" << endl;
         cout << endl;
         return COMMAND;
