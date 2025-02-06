@@ -45,11 +45,13 @@ int main() {
         switch (takeUserInput(g_graph, g_path, g_files))
         {
             case INVALID_NODE :
-                cout << "Invalid node, please try again." << endl;
+                cout << "Invalid node, must be between 1 and " << g_graph.nodes_qty << endl;
+                cout << "Please try again." << endl;
                 continue;
                 break;
             case INVALID_COMMAND :
                 cout << "Invalid command, please try again." << endl;
+                display_help();
                 continue;
                 break;
             case EXIT :

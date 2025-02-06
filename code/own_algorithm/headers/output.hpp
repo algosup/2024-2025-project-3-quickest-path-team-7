@@ -48,7 +48,6 @@ void displayResults(Path& path_data, bool from_api = false) {
     cout << "Number of nodes    : "   << formatWithSpaces(path_data.path.size()) << endl;
     cout << "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
     cout << "Full info saved to : "   << "file://"  << filesystem::absolute(g_files.output).string() << flush;
-    from_api ? cout << "\n\n\nEnter a command or the start node : " << flush : cout << endl;
 }
 
 #endif

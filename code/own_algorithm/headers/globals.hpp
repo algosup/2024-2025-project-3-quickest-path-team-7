@@ -11,8 +11,13 @@ mutex graph_path_file_access;
 atomic <bool> api_ready(false);
 atomic <bool> kill_api(false);
 
-int    port                 = PORT;
-string response_format      = "json";
+int    port                     = PORT;
+string response_format          = "json";
+bool display_valid_requests     = DISP_VALID_REQ;
+bool display_bad_requests       = DISP_BAD_REQ;
+bool display_valid_responses    = DISP_VALID_RES;
+bool display_error_responses    = DISP_ERR_RES;
+string endpoint_adaptation          = ""; 
 
 struct Timer {
     chrono::high_resolution_clock::time_point start_time;

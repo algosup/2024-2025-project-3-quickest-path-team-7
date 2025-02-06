@@ -3,7 +3,7 @@
 
 #include "header.hpp"
 
-void handle_path_request(int client_socket, const string& request, bool full_path = LIGHT) {
+void handle_path_request(int client_socket, const string& request, int option = LIGHT) {
 
     cout << "\n\nFind path from API:" << endl;
     // Extract parameters
@@ -30,100 +30,87 @@ void handle_path_request(int client_socket, const string& request, bool full_pat
         return;
     }
 
-    string start_param = request.substr(start_pos + 7, end_pos - start_pos - 7);
-    string end_param;
+    // Structure for the parameters handling
+    vector<pair<string, int>> parameters(2); // {string_content, int_value} 2 parameters inside
+
+    // Extract the start and end parameters
+    parameters[0].first = request.substr(start_pos + 7, end_pos - start_pos - 7);
     if (format_pos != string::npos) {
-        end_param = request.substr(end_pos + 5, format_pos - end_pos - 5);
+        parameters[1].first = request.substr(end_pos + 5, format_pos - end_pos - 5);
     } else { 
-        end_param = request.substr(end_pos + 5, limit_pos - end_pos - 5);
+        parameters[1].first = request.substr(end_pos + 5, limit_pos - end_pos - 5);
+    }
+ 
+    // Complete check of the parameters validity
+    for (auto& [raw_content, int_value] : parameters) {
+        
+        // Remove URL encoding for spaces ("%20")
+        size_t temp_pos;
+        while ((temp_pos = raw_content.find("%20")) != string::npos) {
+            raw_content.erase(temp_pos, 3);
+        }
+
+        // check if either the start or end parameters are not integers
+        if (raw_content.find(".") != string::npos || 
+            raw_content.find(",") != string::npos || 
+            raw_content.find("-") != string::npos )
+        {
+            send_error(client_socket, 400, 2, raw_content);
+            return;
+        }
+
+        try {
+            int_value = stoi(raw_content);
+        } catch (const invalid_argument& e) {
+            send_error(client_socket, 400, 2, raw_content);
+        } catch (const out_of_range& e) {
+            send_error(client_socket, 404, 2, raw_content);
+        }
+
+        // Check of the node validity in graph
+        if (int_value < 1 || int_value > g_graph.nodes_qty) {
+            send_error(client_socket, 404, 2, to_string(int_value));
+            return;
+        }
+        if (g_graph.adjacency_start[int_value] == g_graph.adjacency_start[int_value + 1]) {
+            send_error(client_socket, 404, 1, to_string(int_value));
+            return;
+        }
     }
 
-    // Remove URL encoding for spaces ("%20")
-    size_t temp_pos;
-    while ((temp_pos = start_param.find("%20")) != string::npos) {
-        start_param.erase(temp_pos, 3);
-    }
-    while ((temp_pos = end_param.find("%20")) != string::npos) {
-        end_param.erase(temp_pos, 3);
-    }
+    g_path.start = parameters[0].second;
+    g_path.end   = parameters[1].second;
 
+    if (g_path.start == g_path.end) {
+        send_error(client_socket, 422, 0, to_string(g_path.start));
+        return;
+    }
 
     // display the parameters in the console
-    cout << "Start node         : " << start_param << endl;
-    cout << "End node           : " << end_param << "\n" << endl;
-
-    // check if either the start or end parameters are not integers
-    if (start_param.find(".") != string::npos || 
-        start_param.find(",") != string::npos || 
-        start_param.find("-") != string::npos )
-    {
-        send_error(client_socket, 400, 2, start_param);
-        return;
-    }
-    if (end_param.find(".") != string::npos || 
-        end_param.find(",") != string::npos || 
-        end_param.find("-") != string::npos )
-    {
-        send_error(client_socket, 400, 2, end_param);
-        return;
-    }
-
-    // convert the parameters to integers
-    int int_start, int_end;
-    try { 
-        int_start = stoi(start_param);
-    } 
-    catch (const exception& e) {
-        send_error(client_socket, 400, 2, start_param);
-    }
-    try {
-        int_end = stoi(end_param);
-    }
-    catch (const exception& e) {
-        send_error(client_socket, 400, 2, end_param);
-    }
-
-    // Check of the node validity in graph
-    if (int_start < 1 || int_start > g_graph.nodes_qty) {
-        send_error(client_socket, 404, 2, to_string(int_start));
-        return;
-    }
-    if (int_end < 1 || int_end > g_graph.nodes_qty) {
-        send_error(client_socket, 404, 2, to_string(int_end));
-        return;
-    }
-    if (g_graph.adjacency_start[int_start] == g_graph.adjacency_start[int_start + 1]) {
-        send_error(client_socket, 404, 1, to_string(int_start));
-        return;
-    }
-    if (g_graph.adjacency_start[int_end] == g_graph.adjacency_start[int_end + 1]) {
-        send_error(client_socket, 404, 1, to_string(int_end));
-        return;
-    }
-    if (int_start == int_end) {
-        send_error(client_socket, 401, 3, to_string(int_end));
-        return;
-    }
+    cout << "Start node         : " << g_path.start << endl;
+    cout << "End node           : " << g_path.start << "\n" << endl;
 
     {
         lock_guard<mutex> lock(graph_path_file_access);
 
-        // Calculate the shortest path, output results and reset the data
-        g_path.start = int_start;
-        g_path.end = int_end;
-        find_path(g_graph, g_path, g_astar, g_timer);
-        displayResults(g_path, true);
-        if (full_path) {
-            send_full_path(g_path, client_socket);
-        } else {
-            send_path(g_path, client_socket);
-        }   
-        savePathToCSV(g_files, g_path);
-        reset_compute_data(g_graph, g_path, g_astar);
-
-    }
+        if (option == COMPARE) {
     
-        
+            // TO BE FILLED with dijkstra
+
+        } else {
+            // Calculate the shortest path, output results and reset the data
+            find_path(g_graph, g_path, g_astar, g_timer);
+            displayResults(g_path, true);
+            if (option == FULL) {
+                send_full_path(g_path, client_socket);
+            } else {
+                send_path(g_path, client_socket);
+            }   
+            savePathToCSV(g_files, g_path);
+            reset_compute_data(g_graph, g_path, g_astar);
+
+        }
+    }   
 }
 
 void handle_cmd_request(int client_socket, const string& request) {
@@ -198,24 +185,40 @@ void handle_request(int client_socket) {
 
     // Ensure request is a GET request
     if (request.find("GET") == string::npos) {
-        send_error(client_socket, 405); // Method Not Allowed
+        display_bad_requests ? cout << "\nBAD REQUEST :\n" << request << endl : cout << "";
+        send_error(client_socket, 405);
         return;
     }
 
     // Determine if request is for /path or /cmd
     if (request.find("GET /favicon.ico") != string::npos) {
+        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
         send_favicon(client_socket);
-    } else if (request.find("GET /cmd?") != string::npos) {
+    } 
+    else if (request.find("GET /cmd?") != string::npos) {
+        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
         handle_cmd_request(client_socket, request);
-    } else if (request.find("GET /path?") != string::npos) {
+    } 
+    else if (request.find("GET /path?") != string::npos) {
+        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
+        endpoint_adaptation = "";
         handle_path_request(client_socket, request, LIGHT);
-    } else if (request.find("GET /full_path?") != string::npos) {
+    } 
+    else if (request.find("GET /full_path?") != string::npos) {
+        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
+        endpoint_adaptation = "full_";
         handle_path_request(client_socket, request, FULL);
-    } else if (request.find("GET /comp_path?") != string::npos) {
-        send_endpoint_error(client_socket); // Bad request
-    } else {
+    } 
+    else if (request.find("GET /comp_path?") != string::npos) {
+        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
+        endpoint_adaptation = "comp_";
+        handle_path_request(client_socket, request, COMPARE);
+    } 
+    else {
         send_endpoint_error(client_socket); // Bad request
     }
+
+    cout << "\n\n\nEnter a command or the start node : " << flush;
 
 }
 
@@ -286,6 +289,7 @@ void run_api_server() {
         }
 
         thread(handle_request, client_socket).detach();
+
     }
 
     close_socket(server_fd);

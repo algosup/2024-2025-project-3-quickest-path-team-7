@@ -36,6 +36,7 @@ void send_favicon(int client_socket) {
         string response = ss.str();
         send(client_socket, response.c_str(), response.size(), 0);
         close_socket(client_socket);
+        display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
         return;
     }
 
@@ -56,6 +57,8 @@ void send_favicon(int client_socket) {
         
         send(client_socket, header.c_str(), header.size(), 0);
         send(client_socket, buffer.data(), buffer.size(), 0);
+
+        display_valid_responses ? cout << "\n\nVALID response :\n" << header << endl : cout << "";
     }
 
     close_socket(client_socket);
@@ -99,6 +102,7 @@ void send_path(Path& g_path, int client_socket) {
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     close_socket(client_socket);
+    display_valid_responses ? cout << "\n\nVALID response :\n" << response << endl : cout << "";
 }
 
 // Send full path with all the details such as distance for each node, number of nodes, execution time , and so on
@@ -138,12 +142,12 @@ void send_full_path(Path& g_path, int client_socket) {
            << "Content-Type: application/json\n"
            << "Access-Control-Allow-Origin: *\n\n";
         ss << "{\n";
-        ss << "    \"start\"           : \"" << g_path.start << "\",\n";
-        ss << "    \"end\"             : \"" << g_path.end << "\",\n";
-        ss << "    \"path_length\"     : \"" << g_path.distance         << "\",\n";
-        ss << "    \"calculation_time\": \"" << g_path.calculation_time << "\",\n";
-        ss << "    \"heuristic_weight\": \"" << heuristic_weight        << "\",\n";
-        ss << "    \"landmarks_quantity\": \"" << landmarks_qty << "\",\n";
+        ss << "    \"start\"              : \"" << g_path.start << "\",\n";
+        ss << "    \"end\"                : \"" << g_path.end << "\",\n";
+        ss << "    \"path_length\"        : \"" << g_path.distance         << "\",\n";
+        ss << "    \"calculation_time\"   : \"" << g_path.calculation_time << "\",\n";
+        ss << "    \"heuristic_weight\"   : \"" << heuristic_weight        << "\",\n";
+        ss << "    \"landmarks_quantity\" : \"" << landmarks_qty << "\",\n";
         ss << "    \"landmarks\": [\n";
         for (size_t i = 0; i < g_graph.landmarks.size(); i++) {
             ss << "        \"" << g_graph.landmarks[i] << "\"";
@@ -153,12 +157,12 @@ void send_full_path(Path& g_path, int client_socket) {
             ss << endl;
         }
         ss << "    ],\n";
-        ss << "    \"nodes_quantity\"  : \"" << g_path.path.size()      << "\",\n";
+        ss << "    \"nodes_quantity\"    : \"" << g_path.path.size()      << "\",\n";
         ss << "    \"path\": [\n";
         for (size_t i = 0; i < g_path.path.size(); i++) {
             ss << "        {\n";
-            ss << "            \"id\": \"" << g_path.path[i].first << "\",\n";
-            ss << "            \"weight\": \"" << g_path.path[i].second << "\"\n";
+            ss << "            \"id\"     : \"" << g_path.path[i].first << "\",\n";
+            ss << "            \"weight\" : \"" << g_path.path[i].second << "\"\n";
             ss << "        }";
             if (i < g_path.path.size() - 1) {
                 ss << ",";
@@ -172,6 +176,8 @@ void send_full_path(Path& g_path, int client_socket) {
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     close_socket(client_socket);
+    display_valid_responses ? cout << "\n\nVALID response :\n" << response << endl : cout << "";
+
 }
 
 void send_endpoint_error(int client_socket) {
@@ -187,7 +193,7 @@ void send_endpoint_error(int client_socket) {
         ss << "    <error_type>Invalid endpoint</error_type>\n";
         ss << "    <resolution>Check the API documentation for valid endpoints.</resolution>\n";
         ss << "    <documentation>https://example.com/docs#endpoints</documentation>\n";
-        ss << "    <example>GET /path?start=1&end=4</example>\n";
+        ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&end=4</example>\n";
         ss << "    <example>GET /command?command=rebuild_graph</example>\n";
         ss << "  </details>\n";
         ss << "</status>\n";
@@ -201,7 +207,7 @@ void send_endpoint_error(int client_socket) {
         ss << "        \"error_type\": \"Invalid endpoint\",\n";
         ss << "        \"resolution\": \"Check the API documentation for valid endpoints.\",\n";
         ss << "        \"documentation\": \"https://example.com/docs#endpoints\",\n";
-        ss << "        \"example\": \"GET /path?start=1&end=4\"\n";
+        ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=1&end=4\"\n";
         ss << "        \"example\": \"GET /command?command=rebuild_graph\"\n";
         ss << "    }\n";
         ss << "}\n";
@@ -210,6 +216,8 @@ void send_endpoint_error(int client_socket) {
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     close_socket(client_socket);
+    display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
+
 }
 
 void send_wrong_format(int client_socket) {
@@ -226,8 +234,8 @@ void send_wrong_format(int client_socket) {
         ss << "    <error_type>Invalid response format</error_type>\n";
         ss << "    <resolution>Only 'json' and 'xml' are accepted formats. If any format specified, json is selected by default</resolution>\n";
         ss << "    <documentation>https://example.com/docs#response-format</documentation>\n";
-        ss << "    <example>GET /path?start=1&end=4</example>\n";
-        ss << "    <example>GET /path?start=1&end=4&format=xml</example>\n";
+        ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&end=4</example>\n";
+        ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&end=4&format=xml</example>\n";
         ss << "  </details>\n";
         ss << "</status>\n";
     } else {
@@ -240,8 +248,8 @@ void send_wrong_format(int client_socket) {
         ss << "        \"error_type\": \"Invalid response format\",\n";
         ss << "        \"resolution\": \"Only 'json' and 'xml' are accepted formats. If any format specified, json is selected by default\",\n";
         ss << "        \"documentation\": \"https://example.com/docs#response-format\",\n";
-        ss << "        \"example\": \"GET /path?start=1&end=4\",\n";
-        ss << "        \"example\": \"GET /path?start=1&end=4&format=xml\"\n";
+        ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=1&end=4\",\n";
+        ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=1&end=4&format=xml\"\n";
         ss << "    }\n";
         ss << "}\n";
     }
@@ -249,6 +257,8 @@ void send_wrong_format(int client_socket) {
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     close_socket(client_socket);
+    display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
+
 }
 
 void send_error(int client_socket, int error_code, int kind = 1, string node = "undefined") {
@@ -276,7 +286,7 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                     ss << "    <resolution>This parameter requires a positive 32-bit INTEGER.</resolution>\n";
                 }
                 ss << "    <documentation>https://example.com/docs#parameters</documentation>\n";
-                ss << "    <example>GET /path?start=5&end=6</example>\n";
+                ss << "    <example>GET /" << endpoint_adaptation << "path?start=5&end=6</example>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
                 break;
@@ -315,7 +325,23 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 ss << "    </allowed_methods>\n";
                 ss << "    <resolution>Use the correct HTTP method. Refer to the API documentation.</resolution>\n";
                 ss << "    <documentation>https://example.com/docs#http-methods</documentation>\n";
-                ss << "    <example>GET /path?start=5&end=6</example>\n";
+                ss << "    <example>GET /" << endpoint_adaptation << "path?start=5&end=6</example>\n";
+                ss << "  </details>\n";
+                ss << "</status>\n";
+                break;
+
+            // if start = end
+            case 422:
+                ss << "Unprocessable Entity\n";
+                ss << "Content-Type: application/xml\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
+                ss << "<status>\n";
+                ss << "  <message>Unprocessable Path</message>\n";
+                ss << "  <details>\n";
+                ss << "    <error_type>Start and end nodes are the same</error_type>\n";
+                ss << "    <parameter_value>" << node << "</parameter_value>\n";
+                ss << "    <resolution>Start and end nodes must be different.</resolution>\n";
+                ss << "    <documentation>https://example.com/docs#parameters</documentation>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
                 break;
@@ -352,7 +378,7 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                     ss << "        \"resolution\": \"This parameter requires a positive 32-bit INTEGER.\",\n";
                 }
                 ss << "        \"documentation\": \"https://example.com/docs#parameters\",\n";
-                ss << "        \"example\": \"GET /path?start=5&end=6\"\n";
+                ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=5&end=6\"\n";
                 ss << "    }\n";
                 ss << "}\n";
                 break;
@@ -389,7 +415,22 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 ss << "        \"allowed_methods\": [\"GET\"],\n";
                 ss << "        \"resolution\": \"Use the correct HTTP method. Refer to the API documentation.\",\n";
                 ss << "        \"documentation\": \"https://example.com/docs#http-methods\",\n";
-                ss << "        \"example\": \"GET /path?start=5&end=6\"\n";
+                ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=5&end=6\"\n";
+                ss << "    }\n";
+                ss << "}\n";
+                break;
+            
+            case 422:
+                ss << "Unprocessable Entity\n";
+                ss << "Content-Type: application/json\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
+                ss << "{\n";
+                ss << "    \"status\": \"Unprocessable Path\",\n";
+                ss << "    \"details\": {\n";
+                ss << "        \"error_type\": \"Start and end nodes are the same\",\n";
+                ss << "        \"parameter_value\": \"" << node << "\",\n";
+                ss << "        \"resolution\": \"Start and end nodes must be different.\",\n";
+                ss << "        \"documentation\": \"https://example.com/docs#parameters\",\n";
                 ss << "    }\n";
                 ss << "}\n";
                 break;
@@ -413,6 +454,7 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     close_socket(client_socket);
+    display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
 }
 
 void send_cmd_error (int client_socket, int error_code, int kind = 1, string node = "undefined") {
@@ -537,6 +579,7 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     close_socket(client_socket);
+    display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
 }
 
 #endif // API_RESPONSES_HPP

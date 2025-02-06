@@ -1,15 +1,16 @@
 #ifndef HEADER_H
 #define HEADER_H
 
-#define CSV_LINES           28854312 // Serve only to display the loading progress in the console
-#define WEIGHT              1.02
-#define ROOT_LANDMARK       1 // The first landmark to be picked    
-#define LANDMARKS_QTY       10
-// WEIGHT is the coefficient aplied to the heuristic cost for A star :
-// Using 1 : provides the quickest path, but can take time to calculate
-// Using 1.02 : provides a good balance between speed and accuracy (< 1% longer path than dijkstra)
+#define CSV_LINES           28854312    // Serve only to display the loading progress in the console
+#define WEIGHT              1.02        // The weight of the heuristic cost for A star
+#define ROOT_LANDMARK       1           // The first landmark to be picked    
+#define LANDMARKS_QTY       10          // The number of landmarks to be used
 
 #define PORT                9500
+#define DISP_BAD_REQ        false       // Display bad requests in terminal
+#define DISP_VALID_REQ      false       // Display valid requests in terminal
+#define DISP_VALID_RES      false       // Display valid responses in terminal
+#define DISP_ERR_RES        true        // Display error responses in terminal
 
 #define MAP_BACKUP          "map-backup.bin"
 #define LANDMARKS_BACKUP    "landmarks-backup"
@@ -18,21 +19,24 @@
 #define API_ICON            "favicon.ico"
 #define FOLDER              "files/"
 
-#define LIGHT               false
-#define FULL                true
-#define FAIL                false
-#define SUCCESS             true
-#define FORCE_BUILD         true
-#define ASK_FOLDER          true
-#define SKIP                false
+#define TIME_UNIT           microseconds
+#define TIME_UNIT_STR       "µs"
+
+// Options and return code encoding
+#define LIGHT               1
+#define FULL                2
+#define COMPARE             3
 #define COMMAND             -1
 #define EXIT                -2
 #define PATH                -3
 #define INVALID_COMMAND     -4
 #define INVALID_NODE        -5
 #define NO_DATASET          -1
-#define TIME_UNIT           microseconds
-#define TIME_UNIT_STR       "µs"
+#define FORCE_BUILD         true
+#define ASK_FOLDER          true
+#define SUCCESS             true
+#define FAIL                false
+#define SKIP                false
 
 #include <iostream>
 #include <vector>

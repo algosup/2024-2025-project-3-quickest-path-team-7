@@ -30,6 +30,25 @@ void takeFolderInput(Files& files, bool ask_folder = SKIP) {
     files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
 }
 
+void display_help(){
+    cout << "Commands: \n" << endl;
+    cout << " - (integer)       : ask for a node Y to calculate the path between X and Y" << endl;
+    cout << " - fast            : calculate the path between nodes 1 and 2" << endl;
+    cout << " - med             : calculate the path between nodes 1471291 and 9597648" << endl;
+    cout << " - long            : calculate the path between nodes 9489093 and 22377087" << endl;
+    cout << " - try             : calculate the path between nodes 1471291 and 22377087" << endl;
+    cout << " - weight          : change the heuristic weight" << endl;
+    cout << " - qty-lm          : change the number of landmarks" << endl;
+    cout << " - build-lm        : rebuild the landmarks" << endl;
+    cout << " - build-graph     : rebuild the graph" << endl;
+    cout << " - display-lm      : display the landmarks" << endl;
+    cout << " - chfolder        : change the folder path for input/output files" << endl;
+    cout << " - display-files   : display the current files paths" << endl;
+    cout << " - port            : change the port number" << endl;
+    cout << " - stop            : exit the program" << endl;
+    cout << endl;
+}
+
 int takeUserInput(Graph& graph, Path& path, Files& files) {
 
     string input;
@@ -115,45 +134,87 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         thread(run_api_server).detach();
         return COMMAND;
     }
+    if (input == "display-api") {
+        cout << "Which data do you want to display ?"       << endl;
+        cout << " 1/-1 : display/hide the valid requests"   << endl;
+        cout << " 2/-2 : display/hide the bad   requests"   << endl;
+        cout << " 3/-3 : display/hide the valid responses"  << endl;
+        cout << " 4/-4 : display/hide the error responses"  << endl;
+        cout << " 5/-5 : display/hide all the above"        << endl;
+        cout << "Option : ";
+
+        int option;
+        cin >> option;
+        switch (option) {
+
+        case 1:
+            display_valid_requests = true;
+            break;
+        case -1:
+            display_valid_requests = false;
+            break;
+        case 2:
+            display_bad_requests = true;
+            break;  
+        case -2:
+            display_bad_requests = false;
+            break;
+        case 3:
+            display_valid_responses = true;
+            break;
+        case -3:
+            display_valid_responses = false;
+            break;
+        case 4:
+            display_error_responses = true;
+            break;
+        case -4:
+            display_error_responses = false;
+            break;
+        case 5:
+            display_valid_requests = true;
+            display_bad_requests = true;
+            display_valid_responses = true;
+            display_error_responses = true;
+            break;
+        case -5:
+            display_valid_requests = false;
+            display_bad_requests = false;
+            display_valid_responses = false;
+            display_error_responses = false;
+            break;
+        default:
+            cout << "Invalid option" << endl;
+            break;
+        }
+
+        cout << "Display options updated" << endl;
+        return COMMAND;
+    }
+    if (input == "help") {
+        display_help();
+        return COMMAND;
+    }
     if (input == "exit") {
         return EXIT;
     }
-    if (input == "help") {
-        cout << "Commands: \n" << endl;
-        cout << " - (integer)       : ask for a node Y to calculate the path between X and Y" << endl;
-        cout << " - fast            : calculate the path between nodes 1 and 2" << endl;
-        cout << " - med             : calculate the path between nodes 1471291 and 9597648" << endl;
-        cout << " - long            : calculate the path between nodes 9489093 and 22377087" << endl;
-        cout << " - try             : calculate the path between nodes 1471291 and 22377087" << endl;
-        cout << " - weight          : change the heuristic weight" << endl;
-        cout << " - qty-lm          : change the number of landmarks" << endl;
-        cout << " - build-lm        : rebuild the landmarks" << endl;
-        cout << " - build-graph     : rebuild the graph" << endl;
-        cout << " - display-lm      : display the landmarks" << endl;
-        cout << " - chfolder        : change the folder path for input/output files" << endl;
-        cout << " - display-files   : display the current files paths" << endl;
-        cout << " - port            : change the port number" << endl;
-        cout << " - stop            : exit the program" << endl;
-        cout << endl;
-        return COMMAND;
-    }
 
-    // try to convert into an int, if it can't, it returns invalid node
+    // try to convert into an int
     try {
         path.start = stoi(input);
     } catch (const invalid_argument& e) {
-        return INVALID_COMMAND; // Invalid node
+        return INVALID_COMMAND; 
     } catch (const out_of_range& e) {
-        return INVALID_COMMAND; // Invalid node
+        return INVALID_NODE; 
     }
 
-    if ( !(1 <= path.start <= graph.nodes_qty) || graph.adjacency_start[path.start]==graph.adjacency_start[path.start+1]){
+    if ( (path.start < 1 || path.start > g_graph.nodes_qty) || graph.adjacency_start[path.start]==graph.adjacency_start[path.start+1]){
         return INVALID_NODE; // Invalid node
     }
 
     cout << "Enter the end node                : ";
     cin >> path.end;
-    if ( !(1 <= path.end <= graph.nodes_qty) || graph.adjacency_start[path.end]==graph.adjacency_start[path.end+1]){
+    if ( (path.start < 1 || path.start > g_graph.nodes_qty) || graph.adjacency_start[path.end]==graph.adjacency_start[path.end+1]){
         return INVALID_NODE; // Invalid node
     }
 
