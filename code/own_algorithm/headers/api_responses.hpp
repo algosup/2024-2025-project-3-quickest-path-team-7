@@ -17,12 +17,24 @@ void send_favicon(int client_socket) {
     ifstream favicon_file(g_files.api_icon, ios::binary | ios::ate);
     if (!favicon_file) {
         // Return 404 if file not found
-        const char *favicon_response =
-            "HTTP/1.1 404 Not Found\r\n"
-            "Content-Length: 0\r\n"
-            "Connection: close\r\n"
-            "\r\n";
-        send(client_socket, favicon_response, strlen(favicon_response), 0);
+        stringstream ss;
+        if (response_format == "xml") {
+            ss << "HTTP/1.1 404 Not Found\n"
+               << "Content-Type: application/xml\n\n"
+               << "Access-Control-Allow-Origin: *\n"
+               << "<response>\n"
+               << "    <error>File not found</error>\n"
+               << "</response>\n";
+        } else {
+            ss << "HTTP/1.1 404 Not Found\n"
+               << "Content-Type: application/json\n\n"
+               << "Access-Control-Allow-Origin: *\n"
+               << "{\n"
+               << "    \"error\": \"File not found\"\n"
+               << "}\n";
+        }
+        string response = ss.str();
+        send(client_socket, response.c_str(), response.size(), 0);
         close_socket(client_socket);
         return;
     }
@@ -38,6 +50,7 @@ void send_favicon(int client_socket) {
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: image/x-icon\r\n"
             "Content-Length: " + to_string(size) + "\r\n"
+            "Access-Control-Allow-Origin: *\r\n"
             "Connection: close\r\n"
             "\r\n";
         
@@ -165,7 +178,9 @@ void send_endpoint_error(int client_socket) {
     stringstream ss;
 
     if (response_format == "xml") {
-        ss << "HTTP/1.1 400 Bad Request\nContent-Type: application/xml\n\n";
+        ss << "HTTP/1.1 400 Bad Request\n";
+        ss << "Content-Type: application/xml\n";
+        ss << "Access-Control-Allow-Origin: *\n\n";
         ss << "<status>\n";
         ss << "  <message>Bad request</message>\n";
         ss << "  <details>\n";
@@ -177,7 +192,9 @@ void send_endpoint_error(int client_socket) {
         ss << "  </details>\n";
         ss << "</status>\n";
     } else {
-        ss << "HTTP/1.1 400 Bad Request\nContent-Type: application/json\n\n";
+        ss << "HTTP/1.1 400 Bad Request\n";
+        ss << "Content-Type: application/json\n";
+        ss << "Access-Control-Allow-Origin: *\n\n";
         ss << "{\n";
         ss << "    \"status\": \"Bad request\",\n";
         ss << "    \"details\": {\n";
@@ -200,7 +217,9 @@ void send_wrong_format(int client_socket) {
     stringstream ss;
 
     if (response_format == "xml") {
-        ss << "HTTP/1.1 400 Bad Request\nContent-Type: application/xml\n\n";
+        ss << "HTTP/1.1 400 Bad Request\n";
+        ss << "Content-Type: application/xml\n";
+        ss << "Access-Control-Allow-Origin: *\n\n";
         ss << "<status>\n";
         ss << "  <message>Bad request</message>\n";
         ss << "  <details>\n";
@@ -212,7 +231,9 @@ void send_wrong_format(int client_socket) {
         ss << "  </details>\n";
         ss << "</status>\n";
     } else {
-        ss << "HTTP/1.1 400 Bad Request\nContent-Type: application/json\n\n";
+        ss << "HTTP/1.1 400 Bad Request\n";
+        ss << "Content-Type: application/json\n";
+        ss << "Access-Control-Allow-Origin: *\n\n";
         ss << "{\n";
         ss << "    \"status\": \"Bad request\",\n";
         ss << "    \"details\": {\n";
@@ -237,7 +258,9 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
         ss << "HTTP/1.1 " << error_code << " ";
         switch (error_code) {
             case 400:
-                ss << "Bad Request\nContent-Type: application/xml\n\n";
+                ss << "Bad Request\n";
+                ss << "Content-Type: application/xml\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "<status>\n";
                 ss << "  <message>Bad request</message>\n";
                 ss << "  <details>\n";
@@ -259,7 +282,9 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 break;
 
             case 404:
-                ss << "Not Found\nContent-Type: application/xml\n\n";
+                ss << "Not Found\n";
+                ss << "Content-Type: application/xml\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "<status>\n";
                 ss << "  <message>Node not found</message>\n";
                 ss << "  <details>\n";
@@ -278,7 +303,9 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 break;
 
             case 405:
-                ss << "Method Not Allowed\nContent-Type: application/xml\n\n";
+                ss << "Method Not Allowed\n";
+                ss << "Content-Type: application/xml\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "<status>\n";
                 ss << "  <message>Method Not Allowed</message>\n";
                 ss << "  <details>\n";
@@ -294,8 +321,9 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 break;
 
             default: // 500 Internal Server Error
-                ss << "Internal Server Error\nContent-Type: application/xml\n\n";
-                ss << "<status>\n";
+                ss << "Internal Server Error\n";
+                ss << "Content-Type: application/xml\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "  <message>An unknown error occurred</message>\n";
                 ss << "  <details>\n";
                 ss << "    <error>Internal Server Error</error>\n";
@@ -309,7 +337,9 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
         ss << "HTTP/1.1 " << error_code << " ";
         switch (error_code) {
             case 400:
-                ss << "Bad Request\nContent-Type: application/json\n\n";
+                ss << "Bad Request\n";
+                ss << "Content-Type: application/json\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "{\n";
                 ss << "    \"status\": \"Bad request\",\n";
                 ss << "    \"details\": {\n";
@@ -328,7 +358,9 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 break;
 
             case 404:
-                ss << "Not Found\nContent-Type: application/json\n\n";
+                ss << "Not Found\n";
+                ss << "Content-Type: application/json\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "{\n";
                 ss << "    \"status\": \"Node not found\",\n";
                 ss << "    \"details\": {\n";
@@ -347,7 +379,9 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 break;
 
             case 405:
-                ss << "Method Not Allowed\nContent-Type: application/json\n\n";
+                ss << "Method Not Allowed\n";
+                ss << "Content-Type: application/json\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "{\n";
                 ss << "    \"status\": \"Method Not Allowed\",\n";
                 ss << "    \"details\": {\n";
@@ -361,7 +395,9 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 break;
 
             default: // 500 Internal Server Error
-                ss << "Internal Server Error\nContent-Type: application/json\n\n";
+                ss << "Internal Server Error\n";
+                ss << "Content-Type: application/json\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "{\n";
                 ss << "    \"status\": \"An unknown error occurred\",\n";
                 ss << "    \"details\": {\n";
@@ -386,7 +422,9 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
         ss << "HTTP/1.1 " << error_code << " ";
         switch (error_code) {
             case 400:
-                ss << "Bad Request\nContent-Type: application/xml\n\n";
+                ss << "Bad Request\n";
+                ss << "Content-Type: application/xml\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "<status>\n";
                 ss << "  <message>Bad request</message>\n";
                 ss << "  <details>\n";
@@ -407,7 +445,9 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
                 break;
 
             case 405:
-                ss << "Method Not Allowed\nContent-Type: application/xml\n\n";
+                ss << "Method Not Allowed\n";
+                ss << "Content-Type: application/xml\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "<status>\n";
                 ss << "  <message>Method Not Allowed</message>\n";
                 ss << "  <details>\n";
@@ -423,7 +463,9 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
                 break;
 
             default: // 500 Internal Server Error
-                ss << "Internal Server Error\nContent-Type: application/xml\n\n";
+                ss << "Internal Server Error";
+                ss << "Content-Type: application/xml\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "<status>\n";
                 ss << "  <message>An unknown error occurred</message>\n";
                 ss << "  <details>\n";
@@ -440,7 +482,9 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
         ss << "HTTP/1.1 " << error_code << " ";
         switch (error_code) {
             case 400:
-                ss << "Bad Request\nContent-Type: application/json\n\n";
+                ss << "Bad Request\n";
+                ss << "Content-Type: application/json\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "{\n";
                 ss << "    \"status\": \"Bad request\",\n";
                 ss << "    \"details\": {\n";
@@ -459,7 +503,9 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
                 break;
 
             case 405:
-                ss << "Method Not Allowed\nContent-Type: application/json\n\n";
+                ss << "Method Not Allowed\n";
+                ss << "Content-Type: application/json\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "{\n";
                 ss << "    \"status\": \"Method Not Allowed\",\n";
                 ss << "    \"details\": {\n";
@@ -473,7 +519,9 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
                 break;
 
             default: // 500 Internal Server Error
-                ss << "Internal Server Error\nContent-Type: application/json\n\n";
+                ss << "Internal Server Error\nC";
+                ss << "Content-Type: application/json\n";
+                ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "{\n";
                 ss << "    \"status\": \"An unknown error occurred\",\n";
                 ss << "    \"details\": {\n";
