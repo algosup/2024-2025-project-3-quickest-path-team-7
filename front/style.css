@@ -1,0 +1,438 @@
+/* style.css */
+
+/* -------------------------------------
+   1. RESET & BASE STYLES
+-------------------------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: #333;
+  line-height: 1.5;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+}
+
+:root {
+  --transition-speed: 0.3s;
+  --focus-outline-color: rgba(0, 123, 255, 0.5);
+  --primary-color: #007BFF;
+  --primary-contrast: #fff;
+  --error-color: #e63946;
+}
+
+/* 
+  A utility class to hide elements until we need them.
+  We'll remove this class in JS when we have a response.
+*/
+.hidden {
+  display: none !important;
+}
+
+/* -------------------------------------
+   2. HEADER + NAV
+-------------------------------------- */
+.site-header {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.site-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.nav-bar ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.nav-bar a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-speed);
+}
+
+.nav-bar a:hover {
+  color: #0056b3;
+}
+
+.nav-bar i {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+/* -------------------------------------
+   3. MAIN CONTENT
+-------------------------------------- */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
+}
+
+.container {
+  background-color: #fff;
+  padding: 2rem;
+  max-width: 550px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+  margin-bottom: 2rem;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-text {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: #444;
+}
+
+/* -------------------------------------
+   4. FORM ELEMENTS
+-------------------------------------- */
+.path-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.form-group i {
+  margin-right: 0.4rem;
+  font-size: 1rem;
+  color: #666;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color var(--transition-speed);
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--focus-outline-color);
+}
+
+button {
+  padding: 0.75rem;
+  background: var(--primary-color);
+  color: var(--primary-contrast);
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background var(--transition-speed), transform 0.1s ease-in-out;
+  margin-top: 0.5rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button i {
+  margin-right: 0.4rem;
+  font-size: 1rem;
+}
+
+button:hover {
+  background: linear-gradient(90deg, #0056b3, #007bff);
+  transform: scale(1.02);
+}
+
+/* -------------------------------------
+   5. LOADING & MESSAGING
+-------------------------------------- */
+.spinner {
+  margin: 1rem auto;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #ddd;
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  color: var(--error-color);
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+/* Original Request Info */
+.request-info {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f1f3f5;
+  color: #333;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  word-break: break-all;
+}
+
+/* Result container */
+.result {
+  margin-top: 1rem;
+}
+
+.result pre {
+  background-color: #f1f3f5;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+}
+
+/* -------------------------------------
+   6. ALGORITHM EXPLANATION SECTION
+-------------------------------------- */
+.algorithm-section {
+  max-width: 900px;
+  width: 100%;
+  margin-bottom: 2rem;
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.algorithm-section h2 {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.section-description {
+  text-align: center;
+  color: #555;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.algorithm-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding: 0 1rem;
+}
+
+/* Floating Card Style */
+.algorithm-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  display: flex;
+  flex-direction: column;
+}
+
+.algorithm-card h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.algorithm-card h3 i {
+  margin-right: 0.4rem;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.algorithm-card p {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+.algorithm-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* -------------------------------------
+   7. USER MANUAL PAGE: FLOATING CARDS
+-------------------------------------- */
+.user-manual .manual-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 800px;
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.user-manual .manual-card h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.user-manual .manual-card h2 i {
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+  color: var(--primary-color);
+}
+
+.user-manual .manual-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.user-manual .manual-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.user-manual .manual-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.user-manual .manual-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.user-manual .manual-card p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.visual-example {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.visual-example img {
+  border-radius: 5px;
+  max-width: 100%;
+  height: auto;
+}
+
+.step-list {
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.faq-list dt {
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.faq-list dd {
+  margin-left: 1rem;
+}
+
+@keyframes fadeInCard {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-manual .manual-card {
+  animation-name: fadeInCard;
+}
+
+/* -------------------------------------
+   8. FOOTER
+-------------------------------------- */
+.site-footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #f1f3f5;
+}
+
+/* -------------------------------------
+   9. RESPONSIVENESS
+-------------------------------------- */
+@media (max-width: 800px) {
+  .algorithm-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .nav-bar ul {
+    gap: 1rem;
+  }
+
+  .container {
+    padding: 1.5rem;
+  }
+
+  .algorithm-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-bar i {
+    font-size: 1rem;
+  }
+
+  .user-manual .manual-card {
+    padding: 1rem;
+  }
+}

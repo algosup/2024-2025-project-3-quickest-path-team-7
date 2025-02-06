@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quickest Path</title>
+
+  <!-- 
+    Google Font: Inter 
+    Font Awesome: for icons 
+  -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    integrity="sha512-ac50X5PVeQpSBOyFgkWG+RiPyKKDVN+4K+9D+Jd2P6v3+zDE5M/RwB48N7qm1S2ZJ0SRQLReMDm0E1OEvSVNMA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header / Hero Section -->
+  <header class="site-header">
+    <h1>Quickest Path</h1>
+    <nav class="nav-bar">
+      <ul>
+        <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="#"><i class="fas fa-rocket"></i> Features</a></li>
+        <li><a href="user-manual.html"><i class="fas fa-book-open"></i> User Manual</a></li>
+        <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Container for input form -->
+    <section class="container">
+      <p class="hero-text">
+        Enter two integers (1 to 23,947,347) to find the quickest route.
+      </p>
+
+      <form id="pathForm" class="path-form" novalidate>
+        <div class="form-group">
+          <label for="start">
+            <i class="fas fa-play"></i> Start (≥ 1):
+          </label>
+          <input type="text" id="start" placeholder="E.g., 1" />
+        </div>
+
+        <div class="form-group">
+          <label for="end">
+            <i class="fas fa-flag-checkered"></i> End (≥ 1):
+          </label>
+          <input type="text" id="end" placeholder="E.g., 150" />
+        </div>
+
+        <button id="submitBtn" type="submit">
+          <i class="fas fa-paper-plane"></i> Send Request
+        </button>
+
+        <!-- Loading Spinner (hidden by default) -->
+        <div id="loadingSpinner" class="spinner" aria-hidden="true"></div>
+
+        <!-- Error Message -->
+        <div class="error" id="errorMessage"></div>
+
+        <!-- 
+          NEW: Original Request Display 
+          Hidden by default via the "hidden" class 
+        -->
+        <div class="request-info hidden" id="requestInfo"></div>
+
+        <!-- 
+          JSON Result Output 
+          Hidden by default via the "hidden" class
+        -->
+        <div class="result hidden" id="resultDisplay">
+          <pre id="resultContent"></pre>
+        </div>
+      </form>
+    </section>
+
+    <!-- Algorithm Explanation Section -->
+    <section class="algorithm-section">
+      <h2>How Our Algorithm Works</h2>
+      <p class="section-description">
+        Our proprietary algorithm finds the quickest path between two integers by examining possible routes and selecting the most efficient option based on distance and connections.
+      </p>
+
+      <div class="algorithm-cards">
+        <div class="algorithm-card">
+          <h3><i class="fas fa-bolt"></i> Efficient Computation</h3>
+          <p>
+            By using advanced heuristics, the algorithm quickly narrows down potential routes, minimizing the number of calculations required.
+          </p>
+        </div>
+
+        <div class="algorithm-card">
+          <h3><i class="fas fa-database"></i> Optimized Data Structures</h3>
+          <p>
+            We leverage specialized data structures to store node relationships, ensuring lookups are fast and memory usage is minimal.
+          </p>
+        </div>
+
+        <div class="algorithm-card">
+          <h3><i class="fas fa-sync-alt"></i> Real-Time Updates</h3>
+          <p>
+            Our system can adapt if inputs change, instantly recalculating the best path without missing a beat.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>&copy; 2025 Quickest Path Inc.</p>
+  </footer>
+
+  <!-- External JS -->
+  <script src="main.js"></script>
+</body>
+</html>
