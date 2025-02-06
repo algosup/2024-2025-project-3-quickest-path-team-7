@@ -3,36 +3,36 @@
 
 #include "header.hpp"
 
-void checker(DAG& dag, int node, vector<bool>& visited)
+void checker(Graph& graph, int node, vector<bool>& visited, vector<int>& pq)
 {
-    cout << node << endl;
     visited[node] = true;
-    if(not dag.parents[node].empty())
+    for(int neigbhor: graph.data[node])
     {
-        for(int neigbhour: dag.parents[node])
+        if(!visited[neigbhor] and (count(pq.begin(), pq.end(), neigbhor) == 0))
         {
-            if (1<=neigbhour<=NODE_MAX_VALUE) 
-            {
-                    if(not visited[neigbhour])
-                {
-                    checker(dag, neigbhour, visited);
-                }
-            }
+            pq.push_back(neigbhor);
         }
     }
-    if(not dag.data[node].empty())
+    return;
+}
+
+void parseGraph(Graph& graph, int node, vector<bool>& visited)
+{
+    int k = 0;
+    vector<int> pq;
+    k++;
+    checker(graph, 1, visited, pq);
+    while(!pq.empty())
     {
-        for(int neigbhour: dag.data[node])
+        k++;
+        if (k % 1000000 == 0) 
         {
-            if (1<=neigbhour<=NODE_MAX_VALUE)
-            {
-                    if(not visited[neigbhour])
-                {
-                    checker(dag, neigbhour, visited);
-                }
-            }
+            cout << k << endl;
         }
+        checker(graph, pq[0], visited, pq);
+        pq.erase(pq.begin());
     }
+    return;
 }
 
 void parseVisited(vector<bool>& visited, bool& good)
@@ -49,21 +49,21 @@ void parseVisited(vector<bool>& visited, bool& good)
     }
     return;
 }
-void connectivityChecker(DAG& dag) 
+
+void connectivityChecker(Graph& graph) 
 {
-    cout << "7" << endl;
-    vector<bool> visited(dag.data.size(), 0);
+    cout << "Parse graph and note seen nodes" << endl;
+    vector<bool> visited(graph.data.size(), 0);
     visited[0] = true;
-    checker(dag, 1, visited);
-    cout << "8" << endl;
+    parseGraph(graph, 1, visited);
+    cout << "check if all nodes have been seen" << endl;
     bool good = true;
     parseVisited(visited, good);
-    cout << "9" << endl;
     if(good)
         cout << "graph is fully connected" << endl;
     else
         cout << "graph isn't fully connected" << endl;
-    cout << "10" << endl;
+    cout << "Connectivity check end" << endl;
     return;
 }
 

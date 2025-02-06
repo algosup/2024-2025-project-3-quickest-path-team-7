@@ -18,13 +18,14 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 
 // Alias
 using namespace std;
 using pii = pair<int, int>;
 
 #include "outputs.hpp"
-//#include "graph.hpp"
+#include "graph.hpp"
 #include "dag.hpp"
 #include "connectivityChecker.hpp"
 

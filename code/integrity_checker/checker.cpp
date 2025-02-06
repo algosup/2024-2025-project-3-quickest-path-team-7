@@ -2,9 +2,11 @@
 
 int main() {
     DAG dag;
-    cout << "phase 1" << endl;
+    Graph graph;
+    cout << "Build dag" << endl;
     buildDag(dag);
-    cout << "phase 2" << endl;
-    connectivityChecker(dag);
+    cout << "Check connectivity" << endl;
+    buildGraph(graph);
+    connectivityChecker(graph);
     return 0;
 }

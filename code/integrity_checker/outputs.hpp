@@ -4,7 +4,7 @@
 #include "header.hpp"
 
 struct Graph {
-    vector<vector<pii>> data;
+    vector<vector<int>> data;
     vector<int> start_indices;
     vector<int> neighbors;
     vector<int> weights;

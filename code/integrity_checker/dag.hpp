@@ -155,18 +155,16 @@ e.g. of output:
 
 void buildDag(DAG& dag) 
 {
-    cout << "1" << endl;
+    cout << "load nodes sons" << endl;
     loadDag(dag);
-    cout << "2" << endl;
+    cout << "load nodes parents" << endl;
     loadParents(dag);
-    cout << "3" << endl;
     //afficheData(dag);
     //afficheParents(dag);
     // To track the state of the nodes during DFS (0 = unvisited, 1 = visiting, 2 = visited)
     int n = dag.data.size();
-    cout << "4" << endl;
     vector<int> visited(n, 0);  // 0 = unvisited, 1 = visiting, 2 = visited
-    cout << "5" << endl;
+    cout << "check for cycles and fixes them if possible" << endl;
     // Check for cycles in the graph
     for (int i = 1; i < n; ++i) 
     {
@@ -180,7 +178,6 @@ void buildDag(DAG& dag)
             }
         }
     }
-    cout << "6" << endl;
     cout << "The graph is acyclic (DAG)." << endl;
     //cin.get();
     return;
