@@ -6,7 +6,7 @@ int main() {
     cout << "Build dag" << endl;
     buildDag(dag);
     cout << "Check connectivity" << endl;
-    buildGraph(graph);
-    connectivityChecker(graph);
+    //buildGraph(graph);
+    connectivityChecker(dag);
     return 0;
 }

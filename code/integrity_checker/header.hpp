@@ -27,6 +27,6 @@ using pii = pair<int, int>;
 #include "outputs.hpp"
 #include "graph.hpp"
 #include "dag.hpp"
-#include "connectivityChecker.hpp"
+#include "connectivityCheckerDAG.hpp"
 
 #endif
