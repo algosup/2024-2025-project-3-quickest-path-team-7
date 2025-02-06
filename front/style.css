@@ -16,7 +16,7 @@ body {
 
 body {
   font-family: 'Inter', sans-serif;
-  color: #333;
+  color: #cfb0b0;
   line-height: 1.5;
   background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
   display: flex;
@@ -26,7 +26,7 @@ body {
 :root {
   --transition-speed: 0.3s;
   --focus-outline-color: rgba(0, 123, 255, 0.5);
-  --primary-color: #007BFF;
+  --primary-color: #ffffff;
   --primary-contrast: #fff;
   --error-color: #e63946;
 }
@@ -47,6 +47,29 @@ body {
   padding: 3rem 1rem 2rem;
   background: #ffffff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Example: Site Header with a background image
+   that doesn't change the header's defined dimensions */
+
+/* Keep your existing .site-header styles, then add these properties: */
+
+.site-header {
+  /* Replace with your actual image URL */
+  background-image: url('https://plus.unsplash.com/premium_photo-1681929370657-2b465220b4d9?q=80&w=3133&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+  background-position: center;     /* Centers the image horizontally & vertically */
+  background-repeat: no-repeat;    /* Prevents tiling */
+  
+  /* Option 1: Ensure the image fills the header, with some cropping if needed */
+  background-size: cover;         
+  
+  /* Option 2 (optional): Show the entire image, but possibly leave empty space */
+  /* background-size: contain;     */
+
+  /* Retain any existing height/width from your current layout:
+     e.g. min-height or padding you might already have */
+   min-height: 200px; /* Example: keep your existing header height */
+  /* other existing .site-header rules remain */
 }
 
 .site-header h1 {
