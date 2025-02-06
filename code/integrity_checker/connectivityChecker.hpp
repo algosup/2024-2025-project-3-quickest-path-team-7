@@ -3,14 +3,26 @@
 
 #include "header.hpp"
 
-void checker(Graph& graph, int node, vector<bool>& visited, vector<int>& pq)
+void checker(Graph& graph, vector<bool>& visited, priority_queue<int>& pq)
 {
-    visited[node] = true;
-    for(int neigbhor: graph.data[node])
+    int k = 1;
+    int node;
+    while(!pq.empty())
     {
-        if(!visited[neigbhor] and (count(pq.begin(), pq.end(), neigbhor) == 0))
+        node = pq.top();
+        pq.pop();
+        k++;
+        if (k % 1000000 == 0) 
         {
-            pq.push_back(neigbhor);
+            cout << k << endl;
+        }
+        for(int neigbhor: graph.data[node])
+        {
+            if(!visited[neigbhor])
+            {
+                pq.push(neigbhor);
+                visited[neigbhor] = true;
+            }
         }
     }
     return;
@@ -18,20 +30,11 @@ void checker(Graph& graph, int node, vector<bool>& visited, vector<int>& pq)
 
 void parseGraph(Graph& graph, int node, vector<bool>& visited)
 {
-    int k = 0;
-    vector<int> pq;
-    k++;
-    checker(graph, 1, visited, pq);
-    while(!pq.empty())
-    {
-        k++;
-        if (k % 1000000 == 0) 
-        {
-            cout << k << endl;
-        }
-        checker(graph, pq[0], visited, pq);
-        pq.erase(pq.begin());
-    }
+    
+    priority_queue<int> pq;
+    visited[1] = true;
+    pq.push(1);
+    checker(graph, visited, pq);
     return;
 }
 
