@@ -179,6 +179,7 @@ void buildDag(DAG& dag)
         }
     }
     cout << "The graph is acyclic (DAG)." << endl;
+    cout << "DAG end" << endl;
     //cin.get();
     return;
 }

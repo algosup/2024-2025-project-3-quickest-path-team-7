@@ -5,17 +5,19 @@
 
 void checker(Graph& graph, vector<bool>& visited, priority_queue<int>& pq)
 {
-    int k = 1;
+    //int k = 1;
     int node;
     while(!pq.empty())
     {
         node = pq.top();
         pq.pop();
+        /*
         k++;
         if (k % 1000000 == 0) 
         {
             cout << k << endl;
-        }
+        } 
+        */
         for(int neigbhor: graph.data[node])
         {
             if(!visited[neigbhor])
