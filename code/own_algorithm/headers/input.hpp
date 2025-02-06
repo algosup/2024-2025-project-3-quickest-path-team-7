@@ -45,6 +45,7 @@ void display_help(){
     cout << " - chfolder        : change the folder path for input/output files" << endl;
     cout << " - display-files   : display the current files paths" << endl;
     cout << " - port            : change the port number" << endl;
+    cout << " - display-api     : display/hide the API responses and request specifically" << endl;
     cout << " - stop            : exit the program" << endl;
     cout << endl;
 }
