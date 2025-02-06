@@ -3,8 +3,9 @@
 
 #include "header.hpp"
 
-void loadGraph(Graph& graph) 
+void buildGraph(Graph& graph) 
 {
+    cout << "Load graph" << endl;
     ifstream file(DATASET);
     string line;
     unordered_map<int, vector<int>> data;
@@ -27,13 +28,6 @@ void loadGraph(Graph& graph)
         graph.data[node] = neighbors;
     }
     file.close();
-    return;
-}
-
-void buildGraph(Graph& graph) 
-{
-    cout << "Load graph" << endl;
-    loadGraph(graph);
     return;
 }
 
