@@ -1,5 +1,5 @@
-#ifndef INPUT_HPP
-#define INPUT_HPP
+#ifndef MENU_HPP
+#define MENU_HPP
 
 #include "header.hpp"
 

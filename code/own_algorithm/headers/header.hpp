@@ -87,6 +87,6 @@ const int INF = numeric_limits<int>::max();
 #include "graph.hpp"
 #include "api_responses.hpp"
 #include "api_handling.hpp"
-#include "input.hpp"
+#include "menu.hpp"
 
 #endif
