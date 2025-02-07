@@ -5,7 +5,7 @@
 
 void display_help(){
     cout << "Commands: \n" << endl;
-    cout << " - (integer)       : ask for a node Y to calculate the path between X and Y" << endl;
+    cout << " - [integer]       : ask for a node Y to calculate the path between X and Y" << endl;
     cout << " - fast            : calculate the path between nodes 1 and 2" << endl;
     cout << " - med             : calculate the path between nodes 1471291 and 9597648" << endl;
     cout << " - long            : calculate the path between nodes 9489093 and 22377087" << endl;
@@ -223,7 +223,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         return INVALID_NODE; 
     }
     if ( (path.start < 1 || path.start > g_graph.nodes_qty) || graph.adjacency_start[path.end]==graph.adjacency_start[path.end+1]){
-        return INVALID_NODE; // Invalid node
+        return INVALID_NODE;
     }
 
     return PATH;
