@@ -69,42 +69,23 @@ void loadParents(DAG& dag)
     } 
 }
 
-void afficheData(DAG& dag) 
-{
-    for (int i = 0; i < NODE_MAX_VALUE; i++) 
-    {
-        cout << "Node " << i << " neighbors are " << endl;
-        if(dag.data[i].empty())
-        {
-            cout << "No neighbors" << endl;
-            continue;
-        }
-        for (const auto& neighbor : dag.data[i]) 
-        {
-            cout << neighbor << endl;
-        }
-    }
-}
-
-void afficheParents(DAG& dag) 
-{
-    for (int i = 0; i < NODE_MAX_VALUE; i++) 
-    {
-        cout << "Node " << i << " parents are " << endl;
-        if(dag.parents[i].empty())
-        {
-            cout << "No parents" << endl;
-            continue;
-        }
-        for (const auto& parent : dag.parents[i]) 
-        {
-            cout << parent << endl;
-        }
-    }
-}
-
 bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode) 
 {
+/*
+when cycle is detected,
+
+node where cycle is detected: 
+    node 1 -> node x -> node 2 -> node 1
+    node 1 has node 2 as parent
+    node 2 has node 1 as son
+
+    change node 2 as son of node 1 and node 1 as parent of node 2
+
+e.g. of output:
+    node 2 <- node 1 -> node x -> node 2
+    node 1 has node 2 as son
+    node 2 has node 1 as parent
+*/
     visited[node] = visited[node]+1;
     if (dag.data[node].empty()) 
     {
@@ -130,21 +111,6 @@ bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode)
             return false;
         }
     }
-/*
-when cycle is detected,
-
-node where cycle is detected: 
-    node 1 -> node x -> node 2 -> node 1
-    node 1 has node 2 as parent
-    node 2 has node 1 as son
-
-    change node 2 as son of node 1 and node 1 as parent of node 2
-
-e.g. of output:
-    node 2 <- node 1 -> node x -> node 2
-    node 1 has node 2 as son
-    node 2 has node 1 as parent
-*/
     visited[node] = dag.parents[node].size()+1;
     return false;
 }
@@ -155,8 +121,6 @@ void buildDag(DAG& dag)
     loadDag(dag);
     cout << "load nodes parents" << endl;
     loadParents(dag);
-    //afficheData(dag);
-    //afficheParents(dag);
     int n = dag.data.size();
     vector<int> visited(n, 0);
     cout << "check for cycles and fixes them if possible" << endl;

@@ -5,19 +5,11 @@
 
 void checker(DAG& dag, vector<bool>& visited, priority_queue<int>& pq)
 {
-    //int k = 1;
     int node;
     while(!pq.empty())
     {
         node = pq.top();
         pq.pop();
-        /*
-        k++;
-        if (k % 1000000 == 0) 
-        {
-            cout << k << endl;
-        } 
-        */
         if(!dag.data.empty())
         {    
             for(int neigbhor: dag.data[node])

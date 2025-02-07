@@ -8,7 +8,6 @@
 #define DATASET "USA-roads.csv"
 #define OUTPUT "shortest_path.csv"
 
-
 #include <iostream>
 #include <iomanip>
 #include <vector>
