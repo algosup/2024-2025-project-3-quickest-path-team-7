@@ -92,7 +92,7 @@ async function handleSubmit(event) {
   }
 
   // Construct the API URL
-  const url = `http://77.90.39.156/path?start=${encodeURIComponent(startValue)}&end=${encodeURIComponent(endValue)}&format=json`;
+  const url = `http://localhost:9500/path?start=${encodeURIComponent(startValue)}&end=${encodeURIComponent(endValue)}&format=json`;
 
   try {
     startLoading();
