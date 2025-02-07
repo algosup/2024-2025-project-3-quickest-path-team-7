@@ -297,8 +297,12 @@ void run_api_server() {
 
     while (!kill_api.load()) {
         sockaddr_in client_addr;
+        cout << "s_addr : " << client_addr.sin_addr.s_addr << endl;
+        cout << "sin_port : " << client_addr.sin_port << endl;
         socklen_t client_len = sizeof(client_addr);
+        cout << "client_len : " << client_len << endl;
         int client_socket = accept(server_fd, (sockaddr*)&client_addr, &client_len);
+        cout << "client socket" << client_socket << endl;
         if (client_socket < 0) {
             if (errno == EWOULDBLOCK || errno == EAGAIN) {
                 // No incoming connections, continue the loop
@@ -310,6 +314,7 @@ void run_api_server() {
             }
         }
 
+        cout << "New connection" << endl;
         thread([client_socket]() {
             handle_request(client_socket);
             close_socket(client_socket); // Ensure the socket is closed after handling the request
