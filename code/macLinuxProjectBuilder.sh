@@ -46,5 +46,5 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Compilation successful. Running main and opening HTML file..."
-xdg-open "$FRONT_DIR/index.html" 2>/dev/null || open "$FRONT_DIR/index.html" 2>/dev/null &
-"$PATH_FINDER_DIR/main"
+xdg-open "$FRONT_DIR/index.html" 2>/dev/null || open "$FRONT_DIR/index.html" 2>/dev/null
+cd "$PATH_FINDER_DIR" && ./main
