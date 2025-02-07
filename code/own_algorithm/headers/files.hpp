@@ -24,8 +24,9 @@ void build_files_path(Files& files) {
                          + ".bin";
     // for the graph backup file
     files.graph.full = dataset_no_ext + files.graph.base + ".bin";
-    // for the output file
+    // for the output files
     files.output.full = files.folder + files.output.base + ".csv";
+    files.comp_output.full = files.folder + files.comp_output.base + ".csv";
     // for the API icon
     files.api_icon.full = files.folder + files.api_icon.base;
 }

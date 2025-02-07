@@ -93,23 +93,36 @@ void handle_path_request(int client_socket, const string& request, int option = 
     {
         lock_guard<mutex> lock(graph_path_file_access);
 
-        if (option == COMPARE) {
-    
-            // TO BE FILLED with dijkstra
-
-        } else {
-            // Calculate the shortest path, output results and reset the data
-            find_path(g_graph, g_path, g_astar, g_timer);
-            displayResults(g_path, true);
-            if (option == FULL) {
-                send_full_path(g_path, client_socket);
-            } else {
-                send_path(g_path, client_socket);
-            }   
+        // Calculate the shortest path, output results and reset the data
+        find_path(g_graph, g_path, g_astar, g_timer);
+        
+        if      (option == LIGHT) {
+            send_path(g_path, client_socket);
+            displayResults(g_path);
             savePathToCSV(g_files, g_path);
-            reset_compute_data(g_graph, g_path, g_astar);
+        } 
+        else if (option == DEBUG) {   
+            send_full_path(g_path, client_socket);
+            displayResults(g_path);
+            savePathToCSV(g_files, g_path);
+        } 
+        else if (option == COMPARE) {
+            Path perfect_path;
+            Astar precise_astar;
+            Timer perfect_timer;
+            perfect_path.start = g_path.start;
+            perfect_path.end = g_path.end;
+            reset_compute_data(g_graph, perfect_path, precise_astar); // serves as initialization too
+            find_path(g_graph, perfect_path, precise_astar, perfect_timer, NULL_HEURISTIC);
+            send_compared_path(g_path, perfect_path, client_socket);
+            display_comparison_results(g_path, perfect_path);
+            saveComparedPathToCSV(g_files, g_path, perfect_path);
+        } 
+        else {
+            cout << "Invalid option" << endl;
+        } 
 
-        }
+        reset_compute_data(g_graph, g_path, g_astar);
     }   
 }
 
@@ -207,7 +220,7 @@ void handle_request(int client_socket) {
     else if (request.find("GET /debug_path?") != string::npos) {
         display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
         endpoint_adaptation = "debug_";
-        handle_path_request(client_socket, request, FULL);
+        handle_path_request(client_socket, request, DEBUG);
     } 
     else if (request.find("GET /comp_path?") != string::npos) {
         display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";

@@ -127,6 +127,101 @@ void send_full_path(Path& g_path, int client_socket) {
 
 }
 
+void send_compared_path(Path& g_path, Path& perfect_path, int client_socket) {
+    stringstream ss;
+
+    if (response_format == "xml") {
+        // XML Response
+        ss << "HTTP/1.1 200 OK\n"
+           << "Content-Type: application/xml\n"
+           << "Access-Control-Allow-Origin: *\n\n";
+        ss << "<response>\n";
+        ss << "  <start>" << g_path.start << "</start>\n";
+        ss << "  <end>" << g_path.end << "</end>\n";
+        ss << "  <dijkstra_path_length>" << g_path.distance << "</dijkstra_path_length>\n";
+        ss << "  <astar_path_length>" << perfect_path.distance << "</astar_path_length>\n";
+        ss << "  <calculation_time>" << g_path.calculation_time << "</calculation_time>\n";
+        ss << "  <heuristic_weight>" << heuristic_weight << "</heuristic_weight>\n";
+        ss << "  <landmarks_quantity>" << landmarks_qty << "</landmarks_quantity>\n";
+        ss << "  <landmarks>\n";
+        for (const auto& lm : g_graph.landmarks) {
+            ss << "    <landmark>" << lm << "</landmark>\n";
+        }
+        ss << "  </landmarks>\n";
+        ss << "  <nodes_quantity>" << g_path.path.size() << "</nodes_quantity>\n";
+        ss << "  <dijkstra_path>\n";
+        for (const auto& node : g_path.path) {
+            ss << "    <node>\n";
+            ss << "      <id>" << node.first << "</id>\n";
+            ss << "      <weight>" << node.second << "</weight>\n";
+            ss << "    </node>\n";
+        }
+        ss << "  </dijkstra_path>\n";
+        ss << "  <astar_path>\n";
+        for (const auto& node : perfect_path.path) {
+            ss << "    <node>\n";
+            ss << "      <id>" << node.first << "</id>\n";
+            ss << "      <weight>" << node.second << "</weight>\n";
+            ss << "    </node>\n";
+        }
+        ss << "  </astar_path>\n";
+        ss << "</response>\n";
+    } else {
+        // JSON Response (Default)
+        ss << "HTTP/1.1 200 OK\n"
+           << "Content-Type: application/json\n"
+           << "Access-Control-Allow-Origin: *\n\n";
+        ss << "{\n";
+        ss << "    \"start\"              : \"" << g_path.start << "\",\n";
+        ss << "    \"end\"                : \"" << g_path.end << "\",\n";
+        ss << "    \"dijkstra_path_length\": \"" << g_path.distance         << "\",\n";
+        ss << "    \"astar_path_length\"   : \"" << perfect_path.distance     << "\",\n";
+        ss << "    \"calculation_time\"   : \"" << g_path.calculation_time << "\",\n";
+        ss << "    \"heuristic_weight\"   : \"" << heuristic_weight        << "\",\n";
+        ss << "    \"landmarks_quantity\" : \"" << landmarks_qty << "\",\n";
+        ss << "    \"landmarks\": [\n";
+        for (size_t i = 0; i < g_graph.landmarks.size(); i++) {
+            ss << "        \"" << g_graph.landmarks[i] << "\"";
+            if (i < g_graph.landmarks.size() - 1) {
+                ss << ",";
+            }
+            ss << endl;
+        }
+        ss << "    ],\n";
+        ss << "    \"nodes_quantity\"    : \"" << g_path.path.size()      << "\",\n";
+        ss << "    \"dijkstra_path\": [\n";
+        for (size_t i = 0; i < g_path.path.size(); i++) {
+            ss << "        {\n";
+            ss << "            \"id\"     : \"" << g_path.path[i].first << "\",\n";
+            ss << "            \"weight\" : \"" << g_path.path[i].second << "\"\n";
+            ss << "        }";
+            if (i < g_path.path.size() - 1) {
+                ss << ",";
+            }
+            ss << endl;
+        }
+        ss << "    ],\n";
+        ss << "    \"astar_path\": [\n";
+        for (size_t i = 0; i < perfect_path.path.size(); i++) {
+            ss << "        {\n";
+            ss << "            \"id\"     : \"" << perfect_path.path[i].first << "\",\n";
+            ss << "            \"weight\" : \"" << perfect_path.path[i].second << "\"\n";
+            ss << "        }";
+            if (i < perfect_path.path.size() - 1) {
+                ss << ",";
+            }
+            ss << endl;
+        }
+        ss << "    ]\n";
+        ss << "}\n";
+    }
+
+    string response = ss.str();
+    send(client_socket, response.c_str(), response.size(), 0);
+    close_socket(client_socket);
+    display_valid_responses ? cout << "\n\nVALID response :\n" << response << endl : cout << "";
+}
+
 void send_endpoint_error(int client_socket) {
     stringstream ss;
 

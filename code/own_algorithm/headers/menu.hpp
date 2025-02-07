@@ -64,21 +64,21 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         cout << "Weight set to " << heuristic_weight << endl;
         return COMMAND;
     }
-    if (input == "qty-lm") {
+    if (input == "qty lm") {
         cout << "Enter the number of landmarks: ";
         cin >> landmarks_qty;
         loadLandmarks(graph, files);
         return COMMAND;
     }
-    if (input == "build-lm") {
+    if (input == "build lm") {
         loadLandmarks(graph, files, FORCE_BUILD);
         return COMMAND;
     }
-    if (input == "build-graph") {
+    if (input == "build graph") {
         loadGraph(graph, files, FORCE_BUILD);
         return COMMAND;
     }
-    if (input == "display-lm") {
+    if (input == "display lm") {
         cout << "Landmarks: " << endl;
         for (int lm : graph.landmarks) {
             cout << " - " << lm << " " << endl;
@@ -98,11 +98,14 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         cout << "Files path changed to " << files.folder << endl;
         return COMMAND;
     }
-    if (input == "display-files") {
+    if (input == "display files") {
         cout << "Dataset          : " << files.dataset.full << endl;
-        cout << "Result output    : " << files.output.full << endl;
         cout << "graph backup     : " << files.graph.full << endl;
         cout << "Landmarks backup : " << files.landmarks.full << endl;
+        cout << "Result output    : " << files.output.full << endl;
+        cout << "Compared output  : " << files.comp_output.full << endl;
+        cout << "API icon         : " << files.api_icon.full << endl;
+
         return COMMAND;
     }
     if (input == "dataset") {
@@ -126,7 +129,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         thread(run_api_server).detach();
         return COMMAND;
     }
-    if (input == "display-api") {
+    if (input == "display api") {
         cout << "Which data do you want to display ?"       << endl;
         cout << " 1/-1 : display/hide the valid requests"   << endl;
         cout << " 2/-2 : display/hide the bad   requests"   << endl;

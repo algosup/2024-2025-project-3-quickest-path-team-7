@@ -89,6 +89,7 @@ struct Files {
     file_path   graph       = { GRAPH_BACKUP, "" };
     file_path   landmarks   = { LANDMARKS_BACKUP, "" };
     file_path   output      = { OUTPUT, "" };
+    file_path   comp_output = { COMP_OUTPUT, "" };
     file_path   api_icon    = { API_ICON, "" };
 };
 

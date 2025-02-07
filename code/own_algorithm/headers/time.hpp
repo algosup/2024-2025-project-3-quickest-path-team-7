@@ -3,6 +3,15 @@
 
 #include "header.hpp"
 
+// Function to get the current time as a string
+string get_current_timestamp() {
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", ltm);
+    return string(buffer);
+}
+
 void start_timer(Timer& timer) {
     timer.start_time = chrono::high_resolution_clock::now();
 }

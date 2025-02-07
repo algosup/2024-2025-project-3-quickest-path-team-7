@@ -27,7 +27,9 @@ void reset_compute_data(Graph& graph, Path& path_data, Astar& astar) {
 }
 
 // Function to estimate the distance between two nodes using landmarks
-int estimate_distance(Graph& graph, int source, int destination) {
+int estimate_distance(Graph& graph, int source, int destination, bool null_heuristic = false) {
+
+    if (null_heuristic) return 0; // Serves to disable the heuristic so astar is reduced to a dijkstra algorithm
 
     int estimation = 0;
     int source_index = source * landmarks_qty;
@@ -61,7 +63,7 @@ void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
 }
 
 // A* derived algorithm to find the shortest path between two nodes
-void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
+void astar_algorithm(Graph& graph, Path& path_data, Astar& astar, bool null_heuristic = false) {
 
     if (! graph.loaded) {
         cout << "ERROR : Graph not loaded, please load it first." << endl;
@@ -72,7 +74,7 @@ void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
         return;
     }
 
-    int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end);
+    int start_to_end_estimation = estimate_distance(graph, path_data.start, path_data.end, null_heuristic);
 
     Node current_node = {path_data.start, 0, start_to_end_estimation};
     astar.pq.push(current_node);
@@ -100,7 +102,7 @@ void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
                 astar.node_before[graph.edges[i].id] = {current_node.id, graph.edges[i].weight};
                 astar.cost_from_start[graph.edges[i].id] = local_cost;
 
-                int estimated_cost = local_cost + estimate_distance(graph, graph.edges[i].id, path_data.end);
+                int estimated_cost = local_cost + estimate_distance(graph, graph.edges[i].id, path_data.end, null_heuristic);
                 Node neighbor = {graph.edges[i].id, graph.edges[i].weight, estimated_cost};
                 astar.pq.push(neighbor);
             }
@@ -108,15 +110,17 @@ void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
     }
 } 
 
-void find_path(Graph& graph, Path& path_data, Astar& astar, Timer& timer) {
+void find_path(Graph& graph, Path& path_data, Astar& astar, Timer& timer, bool null_heuristic = false) {
 
     start_timer(timer);
-    astar_algorithm(graph, path_data, astar);
+    astar_algorithm(graph, path_data, astar, null_heuristic);
     stop_timer(timer);
 
     path_data.calculation_time = timer.time;
 
 }
+
+
 
 // Function to return the list of all the shortest paths from the source node to every other node. So distances[i] will contain the shortest distance from the source node to node i
 vector<int> shortestPaths(Graph& graph, int source) {

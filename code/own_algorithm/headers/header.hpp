@@ -19,14 +19,15 @@
 #define GRAPH_BACKUP        "-graph-backup"
 #define LANDMARKS_BACKUP    "-X-landmarks-backup"
 #define OUTPUT              "shortest-path"
+#define COMP_OUTPUT         "compared-shortest-path"
 #define API_ICON            "favicon.ico"
 
 #define TIME_UNIT           microseconds
 #define TIME_UNIT_STR       "µs"
 
-// Options and return code encoding
+// Encoding of options and return codes
 #define LIGHT               1
-#define FULL                2
+#define DEBUG               2
 #define COMPARE             3
 #define COMMAND             -1
 #define EXIT                -2
@@ -34,6 +35,7 @@
 #define INVALID_COMMAND     -4
 #define INVALID_NODE        -5
 #define NO_DATASET          -1
+#define NULL_HEURISTIC      true
 #define FORCE_BUILD         true
 #define ASK_FOLDER          true
 #define SUCCESS             true
@@ -58,6 +60,7 @@
 #include <locale>
 #include <cstring>
 #include <filesystem>
+#include <ctime>
 
 #ifdef _WIN32
     #include <winsock2.h>
