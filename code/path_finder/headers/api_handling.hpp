@@ -2,6 +2,9 @@
 #define API_HANDLING_HPP
 
 #include "header.hpp"
+#include <thread> // Include the thread library
+#include <chrono> // Include the chrono library
+#include <cerrno> // Include the errno library
 
 void handle_path_request(int client_socket, const string& request, int option = LIGHT) {
 
@@ -269,7 +272,7 @@ void run_api_server() {
 
         if (::bind(server_fd, (struct sockaddr*)&address, sizeof(address)) == -1) {
             //perror("bind failed");
-            //close_socket(server_fd);
+            close_socket(server_fd);
             continue;
         }
 
@@ -297,12 +300,20 @@ void run_api_server() {
         socklen_t client_len = sizeof(client_addr);
         int client_socket = accept(server_fd, (sockaddr*)&client_addr, &client_len);
         if (client_socket < 0) {
-            perror("accept failed");
-            continue;
+            if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                // No incoming connections, continue the loop
+                std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Add a delay before retrying
+                continue;
+            } else {
+                perror("accept failed");
+                break; // Break the loop on other errors
+            }
         }
 
-        thread(handle_request, client_socket).detach();
-
+        thread([client_socket]() {
+            handle_request(client_socket);
+            close_socket(client_socket); // Ensure the socket is closed after handling the request
+        }).detach();
     }
 
     close_socket(server_fd);
