@@ -244,41 +244,7 @@ void loadGraph(Graph& graph, Files& files, bool force = false) {
     }
 
     // Otherwise, build the graph from CSV file directly
-
-    // Try to open the dataset
-    bool csv_found = false;
-    while(!csv_found) {
-        ifstream test(files.dataset.full);
-        if (!test.is_open()) {
-            cout << "Dataset " << files.dataset.full << " not found !" << endl;
-            cout << "Please provide : " << endl;
-            cout << " 1 - A new dataset file" << endl;
-            cout << " 2 - The correct path to the dataset" << endl;
-            cout << " 3 - Retry" << endl;
-            cout << "Option : ";
-            int option;
-            cin >> option;
-            switch (option) {
-                case 1:
-                    cout << "Enter the new dataset name: ";
-                    cin.ignore();
-                    getline(cin, files.dataset.base);
-                    build_files_path(files);
-                    break;
-                case 2:
-                    takeFolderInput(files);
-                    break;
-                case 3:
-                    return;
-                default:
-                    cout << "Invalid option" << endl;
-                    return;
-            }
-        } else {
-            csv_found = true;
-        }
-        test.close();
-    }
+    require_dataset(files);
 
     // Build the graph from CSV
     if(!buildGraphFromCSV(graph, files)) {

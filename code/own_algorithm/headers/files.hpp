@@ -48,4 +48,41 @@ void takeFolderInput(Files& files) {
     build_files_path(files);
 
 }
+
+void require_dataset(Files& files) {
+    // Try to open the dataset
+    bool csv_found = false;
+    while(!csv_found) {
+        ifstream test(files.dataset.full);
+        if (!test.is_open()) {
+            cout << "Dataset " << files.dataset.full << " not found !" << endl;
+            cout << "Please provide : " << endl;
+            cout << " 1 - A new dataset file" << endl;
+            cout << " 2 - The correct path to the dataset" << endl;
+            cout << " 3 - Retry" << endl;
+            cout << "Option : ";
+            int option;
+            cin >> option;
+            switch (option) {
+                case 1:
+                    cout << "Enter the new dataset name: ";
+                    cin.ignore();
+                    getline(cin, files.dataset.base);
+                    build_files_path(files);
+                    break;
+                case 2:
+                    takeFolderInput(files);
+                    break;
+                case 3:
+                    break;
+                default:
+                    cout << "Invalid option" << endl;
+                    break;
+            }
+        } else {
+            csv_found = true;
+        }
+        test.close();
+    }
+}
 #endif

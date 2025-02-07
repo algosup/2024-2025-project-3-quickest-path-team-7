@@ -28,9 +28,12 @@ void display_help(){
 int takeUserInput(Graph& graph, Path& path, Files& files) {
 
     string input;
-    // Ask and check for the start and end nodes to calculate the shortest path
     cout << "\n\nEnter a command or the start node : ";
-    cin >> input;
+    // cin. ignore if necessary :
+    while (cin.peek() == '\n') {
+        cin.ignore();
+    }
+    getline(cin, input);
    
     // Check for preloaded paths
     if (input == "fast") {
@@ -109,6 +112,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         getline(cin, new_dataset);
         files.dataset.base = new_dataset;
         build_files_path(files);
+        require_dataset(files);
         cout << "Dataset set to " << files.dataset.full << endl;
         loadGraph(graph, files);
         return COMMAND;
@@ -187,7 +191,9 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         return EXIT;
     }
 
-    // try to convert into an int
+    // Remove spaces between digits from input
+    input.erase(remove(input.begin(), input.end(), ' '), input.end());
+     // try to convert into an int
     try {
         path.start = stoi(input);
     } catch (const invalid_argument& e) {
@@ -200,8 +206,22 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         return INVALID_NODE; // Invalid node
     }
 
+    input = "";
     cout << "Enter the end node                : ";
-    cin >> path.end;
+    while (cin.peek() == '\n') {
+        cin.ignore();
+    }
+    getline(cin, input);
+    // Remove spaces between digits from input
+    input.erase(remove(input.begin(), input.end(), ' '), input.end());
+     // try to convert into an int
+    try {
+        path.end = stoi(input);
+    } catch (const invalid_argument& e) {
+        return INVALID_NODE; 
+    } catch (const out_of_range& e) {
+        return INVALID_NODE; 
+    }
     if ( (path.start < 1 || path.start > g_graph.nodes_qty) || graph.adjacency_start[path.end]==graph.adjacency_start[path.end+1]){
         return INVALID_NODE; // Invalid node
     }
