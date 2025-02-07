@@ -66,6 +66,7 @@ void send_full_path(Path& g_path, int client_socket) {
         ss << "  <start>" << g_path.start << "</start>\n";
         ss << "  <end>" << g_path.end << "</end>\n";
         ss << "  <path_length>" << g_path.distance << "</path_length>\n";
+        ss << "  <time_unit>" << TIME_UNIT_FULL_STR << "</time_unit>\n";
         ss << "  <calculation_time>" << g_path.calculation_time << "</calculation_time>\n";
         ss << "  <heuristic_weight>" << heuristic_weight << "</heuristic_weight>\n";
         ss << "  <landmarks_quantity>" << landmarks_qty << "</landmarks_quantity>\n";
@@ -94,6 +95,7 @@ void send_full_path(Path& g_path, int client_socket) {
         ss << "    \"start\"              : \"" << g_path.start << "\",\n";
         ss << "    \"end\"                : \"" << g_path.end << "\",\n";
         ss << "    \"path_length\"        : \"" << g_path.distance         << "\",\n";
+        ss << "    \"time_unit\"          : \"" << TIME_UNIT_FULL_STR     << "\",\n";
         ss << "    \"calculation_time\"   : \"" << g_path.calculation_time << "\",\n";
         ss << "    \"heuristic_weight\"   : \"" << heuristic_weight        << "\",\n";
         ss << "    \"landmarks_quantity\" : \"" << landmarks_qty << "\",\n";
