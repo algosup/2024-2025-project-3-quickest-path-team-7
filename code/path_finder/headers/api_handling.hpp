@@ -269,7 +269,7 @@ void run_api_server() {
 
         if (::bind(server_fd, (struct sockaddr*)&address, sizeof(address)) == -1) {
             //perror("bind failed");
-            //close_socket(server_fd);
+            close_socket(server_fd);
             continue;
         }
 
@@ -297,12 +297,14 @@ void run_api_server() {
         socklen_t client_len = sizeof(client_addr);
         int client_socket = accept(server_fd, (sockaddr*)&client_addr, &client_len);
         if (client_socket < 0) {
-            perror("accept failed");
-            continue;
+            //perror("accept failed");
+            continue; // Break the loop on other errors
         }
 
-        thread(handle_request, client_socket).detach();
-
+        thread([client_socket]() {
+            handle_request(client_socket);
+            close_socket(client_socket); // Ensure the socket is closed after handling the request
+        }).detach();
     }
 
     close_socket(server_fd);
