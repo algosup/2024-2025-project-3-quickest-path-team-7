@@ -297,8 +297,8 @@ void run_api_server() {
 
     while (!kill_api.load()) {
         sockaddr_in client_addr;
-        cout << "s_addr : " << client_addr.sin_addr.s_addr << endl;
-        cout << "sin_port : " << client_addr.sin_port << endl;
+        cout << "s_addr : " << inet_ntoa(client_addr.sin_addr) << endl;
+        cout << "sin_port : " << ntohs(client_addr.sin_port) << endl;
         socklen_t client_len = sizeof(client_addr);
         cout << "client_len : " << client_len << endl;
         int client_socket = accept(server_fd, (sockaddr*)&client_addr, &client_len);
@@ -310,7 +310,7 @@ void run_api_server() {
                 continue;
             } else {
                 perror("accept failed");
-                break; // Break the loop on other errors
+                continue; // Break the loop on other errors
             }
         }
 
