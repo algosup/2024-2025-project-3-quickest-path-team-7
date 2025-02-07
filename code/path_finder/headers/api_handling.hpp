@@ -3,7 +3,7 @@
 
 #include "header.hpp"
 
-void handle_path_request(int client_socket, const string& request, int option = LIGHT) {
+void handlePathRequest(int client_socket, const string& request, int option = LIGHT) {
 
     cout << "\n\nFind path from API:" << endl;
     // Extract parameters
@@ -18,7 +18,7 @@ void handle_path_request(int client_socket, const string& request, int option = 
         response_format = request.substr(format_pos + 8, limit_pos - format_pos - 8);
         if (response_format != "json" && response_format != "xml") {
             cout << "Invalid response format" << endl;
-            send_wrong_format(client_socket);
+            sendWrongFormat(client_socket);
             return;
         }
     }
@@ -26,7 +26,7 @@ void handle_path_request(int client_socket, const string& request, int option = 
 
     // Check if the start and end parameters are present
     if (start_pos == string::npos || end_pos == string::npos) {
-        send_error(client_socket, 400, MISSING_PARAMETER);
+        sendError(client_socket, 400, MISSING_PARAMETER);
         return;
     }
 
@@ -55,78 +55,78 @@ void handle_path_request(int client_socket, const string& request, int option = 
             raw_parameter.find(",") != string::npos || 
             raw_parameter.find("-") != string::npos )
         {
-            send_error(client_socket, 400, INVALID_PARAMETER, raw_parameter);
+            sendError(client_socket, 400, INVALID_PARAMETER, raw_parameter);
             return;
         }
 
         try {
             int_value = stoi(raw_parameter);
         } catch (const invalid_argument& e) {
-            send_error(client_socket, 400, INVALID_PARAMETER, raw_parameter);
+            sendError(client_socket, 400, INVALID_PARAMETER, raw_parameter);
         } catch (const out_of_range& e) {
-            send_error(client_socket, 404, NODE_OUT_OF_RANGE, raw_parameter);
+            sendError(client_socket, 404, NODE_OUT_OF_RANGE, raw_parameter);
         }
 
         // Check of the node validity in graph
-        if (int_value < 1 || int_value > g_graph.nodes_qty) {
-            send_error(client_socket, 404, NODE_OUT_OF_RANGE, to_string(int_value));
+        if (int_value < 1 || int_value > GlobalGraph.nodes_qty) {
+            sendError(client_socket, 404, NODE_OUT_OF_RANGE, to_string(int_value));
             return;
         }
-        if (g_graph.adjacency_start[int_value] == g_graph.adjacency_start[int_value + 1]) {
-            send_error(client_socket, 404, NODE_NOT_FOUND, to_string(int_value));
+        if (GlobalGraph.adjacency_start[int_value] == GlobalGraph.adjacency_start[int_value + 1]) {
+            sendError(client_socket, 404, NODE_NOT_FOUND, to_string(int_value));
             return;
         }
     }
 
-    g_path.start = parameters[0].second;
-    g_path.end   = parameters[1].second;
+    GlobalPath.start = parameters[0].second;
+    GlobalPath.end   = parameters[1].second;
 
-    if (g_path.start == g_path.end) {
-        send_error(client_socket, 400, SAME_NODE, to_string(g_path.start));
+    if (GlobalPath.start == GlobalPath.end) {
+        sendError(client_socket, 400, SAME_NODE, to_string(GlobalPath.start));
         return;
     }
 
     // display the parameters in the console
-    cout << "Start node         : " << g_path.start << endl;
-    cout << "End node           : " << g_path.end << "\n" << endl;
+    cout << "Start node         : " << GlobalPath.start << endl;
+    cout << "End node           : " << GlobalPath.end << "\n" << endl;
 
     {
         lock_guard<mutex> lock(graph_path_file_access);
 
         // Calculate the shortest path, output results and reset the data
-        find_path(g_graph, g_path, g_astar, g_timer);
+        findPath(GlobalGraph, GlobalPath, GlobalAstar, GlobalTimer);
         
         if      (option == LIGHT) {
-            send_path(g_path, client_socket);
-            displayResults(g_path);
-            savePathToCSV(g_files, g_path);
+            sendPath(GlobalPath, client_socket);
+            displayResults(GlobalPath);
+            savePathToCSV(GlobalFiles, GlobalPath);
         } 
         else if (option == DEBUG) {   
-            send_full_path(g_path, client_socket);
-            displayResults(g_path);
-            savePathToCSV(g_files, g_path);
+            sendFullPath(GlobalPath, client_socket);
+            displayResults(GlobalPath);
+            savePathToCSV(GlobalFiles, GlobalPath);
         } 
         else if (option == COMPARE) {
-            Path dijkstra_path;
-            Astar dijkstra_struct;
-            Timer dijkstra_timer;
-            reset_compute_data(g_graph, dijkstra_path, dijkstra_struct); // serves as initialization too
-            dijkstra_path.start = g_path.start;
-            dijkstra_path.end = g_path.end;
-            find_path(g_graph, dijkstra_path, dijkstra_struct, dijkstra_timer, NULL_HEURISTIC);
-            send_compared_path(g_path, dijkstra_path, client_socket);
-            display_comparison_results(g_path, dijkstra_path);
-            saveComparedPathToCSV(g_files, g_path, dijkstra_path);
+            Path DijkstraPath;
+            Astar DijkstraStruct;
+            Timer DijkstraTimer;
+            resetComputeData(GlobalGraph, DijkstraPath, DijkstraStruct); // serves as initialization too
+            DijkstraPath.start = GlobalPath.start;
+            DijkstraPath.end = GlobalPath.end;
+            findPath(GlobalGraph, DijkstraPath, DijkstraStruct, DijkstraTimer, NULL_HEURISTIC);
+            sendComparedPath(GlobalPath, DijkstraPath, client_socket);
+            displayComparisonResults(GlobalPath, DijkstraPath);
+            saveComparedPathToCSV(GlobalFiles, GlobalPath, DijkstraPath);
         } 
         else {
             cout << "Invalid option" << endl;
         } 
 
-        reset_compute_data(g_graph, g_path, g_astar);
+        resetComputeData(GlobalGraph, GlobalPath, GlobalAstar);
     }   
 }
 
-void handle_cmd_request(int client_socket, const string& request) {
+void handleCmdRequest(int client_socket, const string& request) {
     // Extract command parameter
     size_t cmd_pos = request.find("?command=");
     size_t format_pos = request.find("&format=");
@@ -137,14 +137,14 @@ void handle_cmd_request(int client_socket, const string& request) {
     if (format_pos != string::npos) {
         response_format = request.substr(format_pos + 8, limit_pos - format_pos - 8);
         if (response_format != "json" && response_format != "xml") {
-            send_wrong_format(client_socket);
+            sendWrongFormat(client_socket);
             return;
         }
     }
     cout << "Response format: " << response_format << endl;
 
     if (cmd_pos == string::npos) {
-        send_cmd_error(client_socket, 400, MISSING_PARAMETER);
+        sendCmdError(client_socket, 400, MISSING_PARAMETER);
         return;
     }
 
@@ -177,14 +177,14 @@ void handle_cmd_request(int client_socket, const string& request) {
     
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close_socket(client_socket);
+    closeSocket(client_socket);
         
 }
 
-void handle_request(int client_socket) {
+void handleRequest(int client_socket) {
 
     if (kill_api.load()) {
-        close_socket(client_socket);
+        closeSocket(client_socket);
         return;
     }
 
@@ -199,43 +199,43 @@ void handle_request(int client_socket) {
     // Ensure request is a GET request
     if (request.find("GET") == string::npos) {
         display_bad_requests ? cout << "\nBAD REQUEST :\n" << request << endl : cout << "";
-        send_error(client_socket, 405);
+        sendError(client_socket, 405);
         return;
     }
 
     // Determine if request is for /path or /cmd
     if (request.find("GET /favicon.ico") != string::npos) {
         display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
-        send_favicon(client_socket);
+        sendFavicon(client_socket);
     } 
     else if (request.find("GET /cmd?") != string::npos) {
         display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
-        handle_cmd_request(client_socket, request);
+        handleCmdRequest(client_socket, request);
     } 
     else if (request.find("GET /path?") != string::npos) {
         display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
         endpoint_adaptation = "";
-        handle_path_request(client_socket, request, LIGHT);
+        handlePathRequest(client_socket, request, LIGHT);
     } 
-    else if (request.find("GET /debug_path?") != string::npos) {
+    else if (request.find("GET /debuGlobalPath?") != string::npos) {
         display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
         endpoint_adaptation = "debug_";
-        handle_path_request(client_socket, request, DEBUG);
+        handlePathRequest(client_socket, request, DEBUG);
     } 
     else if (request.find("GET /comp_path?") != string::npos) {
         display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
         endpoint_adaptation = "comp_";
-        handle_path_request(client_socket, request, COMPARE);
+        handlePathRequest(client_socket, request, COMPARE);
     } 
     else {
-        send_endpoint_error(client_socket); // Bad request
+        sendEndpointError(client_socket); // Bad request
     }
 
     cout << "\n\n\nEnter a command or the start node : " << flush;
 
 }
 
-void run_api_server() {
+void runApiServer() {
 
     kill_api.store(false);
 
@@ -269,19 +269,19 @@ void run_api_server() {
 
         if (::bind(server_fd, (struct sockaddr*)&address, sizeof(address)) == -1) {
             //perror("bind failed");
-            close_socket(server_fd);
+            closeSocket(server_fd);
             continue;
         }
 
         if (listen(server_fd, 100) < 0) {
             perror("listen failed");
-            close_socket(server_fd);
+            closeSocket(server_fd);
             continue;
         }
 
         {
             lock_guard<mutex> lock(graph_path_file_access);
-            reset_compute_data(g_graph, g_path, g_astar);
+            resetComputeData(GlobalGraph, GlobalPath, GlobalAstar);
         }
 
         cout << "API server running on port " << port << endl;
@@ -302,12 +302,12 @@ void run_api_server() {
         }
 
         thread([client_socket]() {
-            handle_request(client_socket);
-            close_socket(client_socket); // Ensure the socket is closed after handling the request
+            handleRequest(client_socket);
+            closeSocket(client_socket); // Ensure the socket is closed after handling the request
         }).detach();
     }
 
-    close_socket(server_fd);
+    closeSocket(server_fd);
 
 #ifdef _WIN32
     WSACleanup();

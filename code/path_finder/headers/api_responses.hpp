@@ -3,7 +3,7 @@
 
 #include "header.hpp"
 
-void close_socket(int client_socket) {
+void closeSocket(int client_socket) {
     #ifdef _WIN32
         closesocket(client_socket);
     #else
@@ -11,7 +11,7 @@ void close_socket(int client_socket) {
     #endif
 }
 
-void send_path(Path& g_path, int client_socket) {
+void sendPath(Path& GlobalPath, int client_socket) {
     stringstream ss;
 
     if (response_format == "xml") {
@@ -20,9 +20,9 @@ void send_path(Path& g_path, int client_socket) {
            << "Content-Type: application/xml\n"
            << "Access-Control-Allow-Origin: *\n\n";
         ss << "<response>\n";
-        ss << "  <path_length>" << g_path.distance << "</path_length>\n";
+        ss << "  <path_length>" << GlobalPath.distance << "</path_length>\n";
         ss << "  <path>\n";
-        for (const auto& node : g_path.path) {
+        for (const auto& node : GlobalPath.path) {
             ss << "    <node>" << node.first << "</node>\n";
         }
         ss << "  </path>\n";
@@ -33,11 +33,11 @@ void send_path(Path& g_path, int client_socket) {
            << "Content-Type: application/json\n"
            << "Access-Control-Allow-Origin: *\n\n";
         ss << "{\n";
-        ss << "    \"path_length\": " << "\"" << g_path.distance << "\",\n";
+        ss << "    \"path_length\": " << "\"" << GlobalPath.distance << "\",\n";
         ss << "    \"path\": [";
-        for (size_t i = 0; i < g_path.path.size(); i++) {
-            ss << "\"" << g_path.path[i].first << "\"" << endl;
-            if (i < g_path.path.size() - 1) {
+        for (size_t i = 0; i < GlobalPath.path.size(); i++) {
+            ss << "\"" << GlobalPath.path[i].first << "\"" << endl;
+            if (i < GlobalPath.path.size() - 1) {
                 ss << ", ";
             }
         }
@@ -47,12 +47,12 @@ void send_path(Path& g_path, int client_socket) {
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close_socket(client_socket);
+    closeSocket(client_socket);
     display_valid_responses ? cout << "\n\nVALID response :\n" << response << endl : cout << "";
 }
 
 // Send full path with all the details such as distance for each node, number of nodes, execution time , and so on
-void send_full_path(Path& g_path, int client_socket) {
+void sendFullPath(Path& GlobalPath, int client_socket) {
     stringstream ss;
 
     if (response_format == "xml") {
@@ -61,22 +61,22 @@ void send_full_path(Path& g_path, int client_socket) {
            << "Content-Type: application/xml\n"
            << "Access-Control-Allow-Origin: *\n\n";
         ss << "<response>\n";
-        ss << "  <dataset>" << g_files.dataset.base << "</dataset>\n";
-        ss << "  <start>" << g_path.start << "</start>\n";
-        ss << "  <end>" << g_path.end << "</end>\n";
-        ss << "  <path_length>" << g_path.distance << "</path_length>\n";
+        ss << "  <dataset>" << GlobalFiles.dataset.base << "</dataset>\n";
+        ss << "  <start>" << GlobalPath.start << "</start>\n";
+        ss << "  <end>" << GlobalPath.end << "</end>\n";
+        ss << "  <path_length>" << GlobalPath.distance << "</path_length>\n";
         ss << "  <time_unit>" << TIME_UNIT_FULL_STR << "</time_unit>\n";
-        ss << "  <calculation_time>" << g_path.calculation_time << "</calculation_time>\n";
+        ss << "  <calculation_time>" << GlobalPath.calculation_time << "</calculation_time>\n";
         ss << "  <heuristic_weight>" << heuristic_weight << "</heuristic_weight>\n";
         ss << "  <landmarks_quantity>" << landmarks_qty << "</landmarks_quantity>\n";
         ss << "  <landmarks>\n";
-        for (const auto& lm : g_graph.landmarks) {
+        for (const auto& lm : GlobalGraph.landmarks) {
             ss << "    <landmark>" << lm << "</landmark>\n";
         }
         ss << "  </landmarks>\n";
-        ss << "  <nodes_quantity>" << g_path.path.size() << "</nodes_quantity>\n";
+        ss << "  <nodes_quantity>" << GlobalPath.path.size() << "</nodes_quantity>\n";
         ss << "  <path>\n";
-        for (const auto& node : g_path.path) {
+        for (const auto& node : GlobalPath.path) {
             ss << "    <node>\n";
             ss << "      <id>" << node.first << "</id>\n";
             ss << "      <weight>" << node.second << "</weight>\n";
@@ -90,31 +90,31 @@ void send_full_path(Path& g_path, int client_socket) {
            << "Content-Type: application/json\n"
            << "Access-Control-Allow-Origin: *\n\n";
         ss << "{\n";
-        ss << "    \"dataset\"            : \"" << g_files.dataset.base << "\",\n";
-        ss << "    \"start\"              : \"" << g_path.start << "\",\n";
-        ss << "    \"end\"                : \"" << g_path.end << "\",\n";
-        ss << "    \"path_length\"        : \"" << g_path.distance         << "\",\n";
+        ss << "    \"dataset\"            : \"" << GlobalFiles.dataset.base << "\",\n";
+        ss << "    \"start\"              : \"" << GlobalPath.start << "\",\n";
+        ss << "    \"end\"                : \"" << GlobalPath.end << "\",\n";
+        ss << "    \"path_length\"        : \"" << GlobalPath.distance         << "\",\n";
         ss << "    \"time_unit\"          : \"" << TIME_UNIT_FULL_STR     << "\",\n";
-        ss << "    \"calculation_time\"   : \"" << g_path.calculation_time << "\",\n";
+        ss << "    \"calculation_time\"   : \"" << GlobalPath.calculation_time << "\",\n";
         ss << "    \"heuristic_weight\"   : \"" << heuristic_weight        << "\",\n";
         ss << "    \"landmarks_quantity\" : \"" << landmarks_qty << "\",\n";
         ss << "    \"landmarks\": [\n";
-        for (size_t i = 0; i < g_graph.landmarks.size(); i++) {
-            ss << "        \"" << g_graph.landmarks[i] << "\"";
-            if (i < g_graph.landmarks.size() - 1) {
+        for (size_t i = 0; i < GlobalGraph.landmarks.size(); i++) {
+            ss << "        \"" << GlobalGraph.landmarks[i] << "\"";
+            if (i < GlobalGraph.landmarks.size() - 1) {
                 ss << ",";
             }
             ss << endl;
         }
         ss << "    ],\n";
-        ss << "    \"nodes_quantity\"    : \"" << g_path.path.size()      << "\",\n";
+        ss << "    \"nodes_quantity\"    : \"" << GlobalPath.path.size()      << "\",\n";
         ss << "    \"path\": [\n";
-        for (size_t i = 0; i < g_path.path.size(); i++) {
+        for (size_t i = 0; i < GlobalPath.path.size(); i++) {
             ss << "        {\n";
-            ss << "            \"id\"     : \"" << g_path.path[i].first << "\",\n";
-            ss << "            \"weight\" : \"" << g_path.path[i].second << "\"\n";
+            ss << "            \"id\"     : \"" << GlobalPath.path[i].first << "\",\n";
+            ss << "            \"weight\" : \"" << GlobalPath.path[i].second << "\"\n";
             ss << "        }";
-            if (i < g_path.path.size() - 1) {
+            if (i < GlobalPath.path.size() - 1) {
                 ss << ",";
             }
             ss << endl;
@@ -125,12 +125,12 @@ void send_full_path(Path& g_path, int client_socket) {
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close_socket(client_socket);
+    closeSocket(client_socket);
     display_valid_responses ? cout << "\n\nVALID response :\n" << response << endl : cout << "";
 
 }
 
-void send_compared_path(Path& g_path, Path& dijkstra_path, int client_socket) {
+void sendComparedPath(Path& GlobalPath, Path& DijkstraPath, int client_socket) {
     stringstream ss;
 
     if (response_format == "xml") {
@@ -139,29 +139,29 @@ void send_compared_path(Path& g_path, Path& dijkstra_path, int client_socket) {
            << "Content-Type: application/xml\n"
            << "Access-Control-Allow-Origin: *\n\n";
         ss << "<response>\n";
-        ss << "  <dataset>" << g_files.dataset.base << "</dataset>\n";
-        ss << "  <start>" << g_path.start << "</start>\n";
-        ss << "  <end>" << g_path.end << "</end>\n";
-        ss << "  <oversize_percentage>" << comparisonPercentage(g_path.distance, dijkstra_path.distance) << "</oversize_percentage>\n";
-        ss << "  <dijkstra_path_length>" << dijkstra_path.distance << "</dijkstra_path_length>\n";
-        ss << "  <astar_path_length>" << g_path.distance << "</astar_path_length>\n";
+        ss << "  <dataset>" << GlobalFiles.dataset.base << "</dataset>\n";
+        ss << "  <start>" << GlobalPath.start << "</start>\n";
+        ss << "  <end>" << GlobalPath.end << "</end>\n";
+        ss << "  <oversize_percentage>" << comparisonPercentage(GlobalPath.distance, DijkstraPath.distance) << "</oversize_percentage>\n";
+        ss << "  <DijkstraPath_length>" << DijkstraPath.distance << "</DijkstraPath_length>\n";
+        ss << "  <astar_path_length>" << GlobalPath.distance << "</astar_path_length>\n";
         ss << "  <time_unit>" << TIME_UNIT_FULL_STR << "</time_unit>\n";
-        ss << "  <astar_calculation_time>" << g_path.calculation_time << "</astar_calculation_time>\n";
-        ss << "  <dijkstra_calculation_time>" << dijkstra_path.calculation_time << "</dijkstra_calculation_time>\n";
-        ss << "  <astar_nodes_quantity>" << g_path.path.size() << "</astar_nodes_quantity>\n";
-        ss << "  <dijkstra_nodes_quantity>" << dijkstra_path.path.size() << "</dijkstra_nodes_quantity>\n";
+        ss << "  <astar_calculation_time>" << GlobalPath.calculation_time << "</astar_calculation_time>\n";
+        ss << "  <dijkstra_calculation_time>" << DijkstraPath.calculation_time << "</dijkstra_calculation_time>\n";
+        ss << "  <astar_nodes_quantity>" << GlobalPath.path.size() << "</astar_nodes_quantity>\n";
+        ss << "  <dijkstra_nodes_quantity>" << DijkstraPath.path.size() << "</dijkstra_nodes_quantity>\n";
         ss << "  <heuristic_weight>" << heuristic_weight << "</heuristic_weight>\n";
         ss << "  <landmarks_quantity>" << landmarks_qty << "</landmarks_quantity>\n";
         ss << "  <compared_path>\n";
-        for (size_t i = 0; i < g_path.path.size(); i++) {
+        for (size_t i = 0; i < GlobalPath.path.size(); i++) {
             ss << "    <node>\n";
             ss << "      <astar>\n";
-            ss << "        <id>" << dijkstra_path.path[i].first << "</id>\n";
-            ss << "        <weight>" << dijkstra_path.path[i].second << "</weight>\n";
+            ss << "        <id>" << DijkstraPath.path[i].first << "</id>\n";
+            ss << "        <weight>" << DijkstraPath.path[i].second << "</weight>\n";
             ss << "      </astar>\n";
             ss << "      <dijkstra>\n";
-            ss << "        <id>" << g_path.path[i].first << "</id>\n";
-            ss << "        <weight>" << g_path.path[i].second << "</weight>\n";
+            ss << "        <id>" << GlobalPath.path[i].first << "</id>\n";
+            ss << "        <weight>" << GlobalPath.path[i].second << "</weight>\n";
             ss << "      </dijkstra>\n";
             ss << "    </node>\n";
         }
@@ -173,32 +173,32 @@ void send_compared_path(Path& g_path, Path& dijkstra_path, int client_socket) {
            << "Content-Type: application/json\n"
            << "Access-Control-Allow-Origin: *\n\n";
         ss << "{\n";
-        ss << "    \"dataset\"              : \"" << g_files.dataset.base << "\",\n";
-        ss << "    \"start\"                : \"" << g_path.start << "\",\n";
-        ss << "    \"end\"                  : \"" << g_path.end << "\",\n";
-        ss << "    \"oversize_percentage\"  : \"" << comparisonPercentage(g_path.distance, dijkstra_path.distance) << "\",\n";
-        ss << "    \"dijkstra_path_length\" : \"" << dijkstra_path.distance << "\",\n";
-        ss << "    \"astar_path_length\"    : \"" << g_path.distance << "\",\n";
+        ss << "    \"dataset\"              : \"" << GlobalFiles.dataset.base << "\",\n";
+        ss << "    \"start\"                : \"" << GlobalPath.start << "\",\n";
+        ss << "    \"end\"                  : \"" << GlobalPath.end << "\",\n";
+        ss << "    \"oversize_percentage\"  : \"" << comparisonPercentage(GlobalPath.distance, DijkstraPath.distance) << "\",\n";
+        ss << "    \"DijkstraPath_length\" : \"" << DijkstraPath.distance << "\",\n";
+        ss << "    \"astar_path_length\"    : \"" << GlobalPath.distance << "\",\n";
         ss << "    \"time_unit\"            : \"" << TIME_UNIT_FULL_STR << "\",\n";
-        ss << "    \"astar_calculation_time\": \"" << g_path.calculation_time << "\",\n";
-        ss << "    \"dijkstra_calculation_time\": \"" << dijkstra_path.calculation_time << "\",\n";
-        ss << "    \"astar_nodes_quantity\" : \"" << g_path.path.size() << "\",\n";
-        ss << "    \"dijkstra_nodes_quantity\" : \"" << dijkstra_path.path.size() << "\",\n";
+        ss << "    \"astar_calculation_time\": \"" << GlobalPath.calculation_time << "\",\n";
+        ss << "    \"dijkstra_calculation_time\": \"" << DijkstraPath.calculation_time << "\",\n";
+        ss << "    \"astar_nodes_quantity\" : \"" << GlobalPath.path.size() << "\",\n";
+        ss << "    \"dijkstra_nodes_quantity\" : \"" << DijkstraPath.path.size() << "\",\n";
         ss << "    \"heuristic_weight\"     : \"" << heuristic_weight << "\",\n";
         ss << "    \"landmarks_quantity\"   : \"" << landmarks_qty << "\",\n";
         ss << "    \"compared_path\": [\n";
-        for (size_t i = 0; i < g_path.path.size(); i++) {
+        for (size_t i = 0; i < GlobalPath.path.size(); i++) {
             ss << "        {\n";
             ss << "            \"astar\": {\n";
-            ss << "                \"id\": \"" << dijkstra_path.path[i].first << "\",\n";
-            ss << "                \"weight\": \"" << dijkstra_path.path[i].second << "\"\n";
+            ss << "                \"id\": \"" << DijkstraPath.path[i].first << "\",\n";
+            ss << "                \"weight\": \"" << DijkstraPath.path[i].second << "\"\n";
             ss << "            },\n";
             ss << "            \"dijkstra\": {\n";
-            ss << "                \"id\": \"" << g_path.path[i].first << "\",\n";
-            ss << "                \"weight\": \"" << g_path.path[i].second << "\"\n";
+            ss << "                \"id\": \"" << GlobalPath.path[i].first << "\",\n";
+            ss << "                \"weight\": \"" << GlobalPath.path[i].second << "\"\n";
             ss << "            }\n";
             ss << "        }";
-            if (i < g_path.path.size() - 1) {
+            if (i < GlobalPath.path.size() - 1) {
                 ss << ",";
             }
             ss << endl;
@@ -209,11 +209,11 @@ void send_compared_path(Path& g_path, Path& dijkstra_path, int client_socket) {
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close_socket(client_socket);
+    closeSocket(client_socket);
     display_valid_responses ? cout << "\n\nVALID response :\n" << response << endl : cout << "";
 }
 
-void send_endpoint_error(int client_socket) {
+void sendEndpointError(int client_socket) {
     stringstream ss;
 
     if (response_format == "xml") {
@@ -227,7 +227,7 @@ void send_endpoint_error(int client_socket) {
         ss << "    <resolution>Check the API documentation for valid endpoints.</resolution>\n";
         ss << "    <documentation>https://example.com/docs#endpoints</documentation>\n";
         ss << "    <example>GET /path?start=1&end=4</example>\n";
-        ss << "    <example>GET /debug_path?start=1&end=4</example>\n";
+        ss << "    <example>GET /debuGlobalPath?start=1&end=4</example>\n";
         ss << "    <example>GET /comp_path?start=1&end=4</example>\n";
         ss << "    <example>GET /command?command=rebuild_graph</example>\n";
         ss << "  </details>\n";
@@ -250,12 +250,12 @@ void send_endpoint_error(int client_socket) {
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close_socket(client_socket);
+    closeSocket(client_socket);
     display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
 
 }
 
-void send_wrong_format(int client_socket) {
+void sendWrongFormat(int client_socket) {
 
     stringstream ss;
 
@@ -291,12 +291,12 @@ void send_wrong_format(int client_socket) {
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close_socket(client_socket);
+    closeSocket(client_socket);
     display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
 
 }
 
-void send_error(int client_socket, int error_code, int kind = 1, string parameter= "undefined") {
+void sendError(int client_socket, int error_code, int kind = 1, string parameter= "undefined") {
     stringstream ss;
 
     if (response_format == "xml") {
@@ -355,7 +355,7 @@ void send_error(int client_socket, int error_code, int kind = 1, string paramete
                 } else if (kind == NODE_OUT_OF_RANGE) {
                     ss << "    <error_type>Node out of range</error_type>\n";
                     ss << "    <landmark_id>" << parameter << "</landmark_id>\n";
-                    ss << "    <resolution>Nodes of this dataset are between 1 and " << g_graph.nodes_qty << ".</resolution>\n";
+                    ss << "    <resolution>Nodes of this dataset are between 1 and " << GlobalGraph.nodes_qty << ".</resolution>\n";
                 }
                 ss << "    <documentation>https://example.com/docs#landmarks</documentation>\n";
                 ss << "  </details>\n";
@@ -446,7 +446,7 @@ void send_error(int client_socket, int error_code, int kind = 1, string paramete
                 } else if (kind == NODE_OUT_OF_RANGE) {
                     ss << "        \"error_type\": \"Node out of range\",\n";
                     ss << "        \"landmark_id\": \"" << parameter << "\",\n";
-                    ss << "        \"resolution\": \"Nodes of this dataset are between 1 and " << g_graph.nodes_qty << "\",\n";
+                    ss << "        \"resolution\": \"Nodes of this dataset are between 1 and " << GlobalGraph.nodes_qty << "\",\n";
                 }
                 ss << "        \"documentation\": \"https://example.com/docs#landmarks\"\n";
                 ss << "    }\n";
@@ -468,7 +468,7 @@ void send_error(int client_socket, int error_code, int kind = 1, string paramete
                 ss << "    }\n";
                 ss << "}\n";
                 break;
-
+            
             default: // 500 Internal Server Error
                 ss << "Internal Server Error\n";
                 ss << "Content-Type: application/json\n";
@@ -487,11 +487,11 @@ void send_error(int client_socket, int error_code, int kind = 1, string paramete
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close_socket(client_socket);
+    closeSocket(client_socket);
     display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
 }
 
-void send_cmd_error (int client_socket, int error_code, int kind = 1, string parameter = "undefined") {
+void sendCmdError(int client_socket, int error_code, int kind = 1, string parameter = "undefined") {
     stringstream ss;
 
     if (response_format == "xml") {
@@ -612,14 +612,14 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string par
 
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
-    close_socket(client_socket);
+    closeSocket(client_socket);
     display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
 }
 
 
 // just for fun
-void send_favicon(int client_socket) {
-    ifstream favicon_file(g_files.api_icon.full, ios::binary | ios::ate);
+void sendFavicon(int client_socket) {
+    ifstream favicon_file(GlobalFiles.api_icon.full, ios::binary | ios::ate);
     if (!favicon_file) {
         // Return 404 if file not found
         stringstream ss;
@@ -640,7 +640,7 @@ void send_favicon(int client_socket) {
         }
         string response = ss.str();
         send(client_socket, response.c_str(), response.size(), 0);
-        close_socket(client_socket);
+        closeSocket(client_socket);
         display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
         return;
     }
@@ -666,7 +666,7 @@ void send_favicon(int client_socket) {
         display_valid_responses ? cout << "\n\nVALID response :\n" << header << endl : cout << "";
     }
 
-    close_socket(client_socket);
+    closeSocket(client_socket);
     return;
 }
 

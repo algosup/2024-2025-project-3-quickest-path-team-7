@@ -10,11 +10,9 @@ code/USA-roads_graph.bin
 code/shortest_path.csv
 code/dijkstra/path_finder
 /code/dijkstra/path_finder.dSYM
-code/dijkstra/USA-roads.csv
 code/dijkstra/USA-roads_graph.bin
 /code/integrity_checker/checker.dSYM
 code/integrity_checker/checker
-code/integrity_checker/USA-roads.csv
 code/integrity_checker/USA-roads_graph.bin
 code/dijkstra/graph-backup.bin
 code/dijkstra/shortest_path.csv
@@ -29,7 +27,6 @@ code/own_algorithm/main
 *.bin
 code/own_algorithm/shortest-path.csv
 code/own_algorithm/USA.csv
-*.csv
 code/own_algorithm/main.exe
 code/own_algorithm/classified_nodes.txt
 code/.vscode/launch.json
@@ -38,5 +35,7 @@ code/.vscode/tasks.json
 /code/.vscode
 code/.vscode/settings.json
 code/dijkstra/main
+code/path_finder/files/compared-shortest-path.csv
+code/path_finder/files/shortest-path.csv
 main
 main.exe

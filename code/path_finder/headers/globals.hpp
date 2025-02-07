@@ -3,23 +3,35 @@
 
 #include "header.hpp"
 
+// ---------- Global variables declarations ----------
+
+// Constants
+const int INF = numeric_limits<int>::max();
+
+// Astars parameters
 float   heuristic_weight    = WEIGHT;
 int     landmarks_qty       = LANDMARKS_QTY;
 int     root_landmark       = ROOT_LANDMARK;
 
+// API synchronization
 mutex graph_path_file_access;
 atomic <bool> api_ready(false);
 atomic <bool> kill_api(false);
 
+// API parameters
 int    port                     = PORT;
-string response_format          = "json";
 bool display_valid_requests     = DISP_VALID_REQ;
 bool display_bad_requests       = DISP_BAD_REQ;
 bool display_valid_responses    = DISP_VALID_RES;
 bool display_error_responses    = DISP_ERR_RES;
+string response_format          = "json";
 string endpoint_adaptation      = ""; 
 
+// Menu parameters
 bool comparator_mode = false;
+
+
+// ---------- Structures definitions ----------
 
 struct Timer {
     chrono::high_resolution_clock::time_point start_time;
@@ -95,10 +107,13 @@ struct Files {
     file_path   api_icon    = { API_ICON, "" };
 };
 
-Graph g_graph;
-Files g_files;
-Path  g_path;
-Timer g_timer;
-Astar g_astar;
+
+// ---------- Global Strucutres declarations ----------
+
+Graph GlobalGraph;
+Files GlobalFiles;
+Path  GlobalPath;
+Timer GlobalTimer;
+Astar GlobalAstar;
 
 #endif

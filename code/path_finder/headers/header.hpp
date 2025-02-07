@@ -12,7 +12,7 @@
 #define DISP_VALID_RES      false       // Display valid responses in terminal
 #define DISP_ERR_RES        true        // Display error responses in terminal
 
-// CHoose where is the CSV for dataset 
+// Choose where is the CSV for dataset 
 #define FOLDER              "files/"
 #define DATASET             "USA-roads.csv"
 
@@ -48,6 +48,7 @@
 #define FAIL                false
 #define SKIP                false
 
+// Libraries includes
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -68,6 +69,7 @@
 #include <filesystem>
 #include <ctime>
 
+// API includes
 #ifdef _WIN32
     #include <winsock2.h>
     #include <ws2tcpip.h>
@@ -83,10 +85,7 @@
 using namespace std;
 using int_pair = pair<int, int>;
 
-// Constants
-const int INF = numeric_limits<int>::max();
-
-// Includer
+// Includer of all code files
 #include "globals.hpp"
 #include "files.hpp"
 #include "time.hpp"
