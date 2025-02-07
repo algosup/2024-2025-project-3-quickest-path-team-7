@@ -27,9 +27,6 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo Compilation successful. Running main.exe...
-"%PATH_FINDER_DIR%\main.exe"
-
-:: Open the HTML file
-echo Opening HTML file...
+echo Compilation successful. Running main.exe and opening HTML file...
 start "" "%FRONT_DIR%\index.html"
+start "" "%PATH_FINDER_DIR%\main.exe"
