@@ -3,7 +3,7 @@
 
 #include "header.hpp"
 
-void display_help(){
+void displayHelp(){
     cout << "Commands: \n" << endl;
     cout << " - [integer]           : ask for a node Y to calculate the path between X and Y" << endl;
     cout << " - [string]            : read if it's a keyword for a preloaded path (such as fast, med, longest,...) and run it" << endl;
@@ -24,7 +24,7 @@ void display_help(){
     cout << endl;
 }
 
-int takeUserInput(Graph& graph, Path& path, Files& files) {
+int takeUserInput(Graph& Graph, Path& path, Files& files) {
 
     string input;
     if (comparator_mode) {
@@ -85,20 +85,20 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
     if (input == "qty lm") {
         cout << "Enter the number of landmarks: ";
         cin >> landmarks_qty;
-        loadLandmarks(graph, files);
+        loadLandmarks(Graph, files);
         return COMMAND;
     }
     if (input == "build lm") {
-        loadLandmarks(graph, files, FORCE_BUILD);
+        loadLandmarks(Graph, files, FORCE_BUILD);
         return COMMAND;
     }
     if (input == "build graph") {
-        loadGraph(graph, files, FORCE_BUILD);
+        loadGraph(Graph, files, FORCE_BUILD);
         return COMMAND;
     }
     if (input == "display lm") {
         cout << "Landmarks: " << endl;
-        for (int lm : graph.landmarks) {
+        for (int lm : Graph.landmarks) {
             cout << " - " << lm << " " << endl;
         }
         return COMMAND;
@@ -112,7 +112,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         cin >> files.folder;
         // if not ending with a slash, add it
         files.folder = files.folder.back() == '/' ? files.folder : files.folder + "/";
-        build_files_path(files);
+        buildFilesPath(files);
         cout << "Files path changed to " << files.folder << endl;
         return COMMAND;
     }
@@ -132,10 +132,10 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         cin.ignore();
         getline(cin, new_dataset);
         files.dataset.base = new_dataset;
-        build_files_path(files);
-        require_dataset(files);
+        buildFilesPath(files);
+        requireDataset(files);
         cout << "Dataset set to " << files.dataset.full << endl;
-        loadGraph(graph, files);
+        loadGraph(Graph, files);
         return COMMAND;
     }
     if (input == "port") {
@@ -144,7 +144,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         cout << "Port set to " << port << endl;
         kill_api.store(true);
         api_ready.store(false);
-        thread(run_api_server).detach();
+        thread(runApiServer).detach();
         return COMMAND;
     }
     if (input == "display api") {
@@ -205,7 +205,7 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         return COMMAND;
     }
     if (input == "help") {
-        display_help();
+        displayHelp();
         return COMMAND;
     }
     if (input == "exit") {
@@ -223,7 +223,8 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         return INVALID_NODE; 
     }
 
-    if ( (path.start < 1 || path.start > g_graph.nodes_qty) || graph.adjacency_start[path.start]==graph.adjacency_start[path.start+1]){
+    if ( (path.start < 1 || path.start > Graph.nodes_qty) 
+       || Graph.adjacency_start[path.start]==Graph.adjacency_start[path.start+1]){
         return INVALID_NODE; // Invalid node
     }
 
@@ -243,7 +244,8 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
     } catch (const out_of_range& e) {
         return INVALID_NODE; 
     }
-    if ( (path.start < 1 || path.start > g_graph.nodes_qty) || graph.adjacency_start[path.end]==graph.adjacency_start[path.end+1]){
+    if ( (path.start < 1 || path.start > GlobalGraph.nodes_qty) 
+       || Graph.adjacency_start[path.end]==Graph.adjacency_start[path.end+1]){
         return INVALID_NODE;
     }
 

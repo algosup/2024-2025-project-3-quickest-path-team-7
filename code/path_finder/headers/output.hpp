@@ -34,12 +34,12 @@ void savePathToCSV(Files& files, Path& path_data) {
         return;
     }
 
-    file << "Timestamp, "            << get_current_timestamp()                                             << "\n";
-    file << "Dataset used, "         << g_files.dataset.base                                                << "\n";
-    file << "A* ALT Algorithm, "     << "using " << landmarks_qty << " landmarks"                           << "\n";;
+    file << "Timestamp, "            << getCurrentTimestamp()                                               << "\n";
+    file << "Dataset used, "         << GlobalFiles.dataset.base                                                << "\n";
+    file << "A* ALT Algorithm, "     << "using " << landmarks_qty << " landmarks"                           << "\n";
 
-    for (int i=0; i<g_graph.landmarks.size(); i++) {
-        file << "Landmark " << i+1 << ", " << formatWithSpaces(g_graph.landmarks[i])                        << "\n";
+    for (int i=0; i<GlobalGraph.landmarks.size(); i++) {
+        file << "Landmark " << i+1 << ", " << formatWithSpaces(GlobalGraph.landmarks[i])                        << "\n";
     }
 
     file << "Start Node, "         << formatWithSpaces(path_data.start)                                     << "\n";
@@ -65,12 +65,12 @@ void saveComparedPathToCSV(Files& files, Path& astar_path, Path& perfect_path) {
     }
 
     file << "Comparison of the Dijkstra and A* paths\n";
-    file << "Time-stamp, "        << get_current_timestamp()                                                          << "\n";
-    file << "Dataset used, "      << g_files.dataset.base                                                             << "\n";
+    file << "Time-stamp, "        << getCurrentTimestamp()                                                            << "\n";
+    file << "Dataset used, "      << GlobalFiles.dataset.base                                                             << "\n";
     file << "A* ALT Algorithm, "  << "using " << landmarks_qty << " landmarks"                                        << "\n";
 
-    for (int i=0; i<g_graph.landmarks.size(); i++) {
-        file << "Landmark " << i+1 << ", " << formatWithSpaces(g_graph.landmarks[i])                                  << "\n";
+    for (int i=0; i<GlobalGraph.landmarks.size(); i++) {
+        file << "Landmark " << i+1 << ", " << formatWithSpaces(GlobalGraph.landmarks[i])                                  << "\n";
     }
 
     file << "Start Node              , " << formatWithSpaces(astar_path.start)                                        << "\n";
@@ -104,11 +104,11 @@ void displayResults(Path& path_data) {
     cout << "Path lenght        : "   << formatWithSpaces(path_data.distance)   << endl;
     cout << "Number of nodes    : "   << formatWithSpaces(path_data.path.size()) << endl;
     cout << "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
-    cout << "Full info saved to : "   << "file://"  << filesystem::absolute(g_files.output.full).string() << endl;
+    cout << "Full info saved to : "   << "file://"  << filesystem::absolute(GlobalFiles.output.full).string() << endl;
 
 }
 
-void display_comparison_results(Path& astar_path, Path& perfect_path) {
+void displayComparisonResults(Path& astar_path, Path& perfect_path) {
     // If there is no path between the two nodes, output a message
     if (astar_path.path.empty()) {
         cout << "No path found between node " << formatWithSpaces(astar_path.start) << " and node " << formatWithSpaces(astar_path.end) << "." << endl;
@@ -124,6 +124,6 @@ void display_comparison_results(Path& astar_path, Path& perfect_path) {
     cout << "A* ALT   nodes quantity : " << formatWithSpaces(astar_path.path.size()) << endl;
     cout << "Dijkstra execution time : " << formatWithSpaces(perfect_path.calculation_time) << " " << TIME_UNIT_STR << endl;
     cout << "A* ALT   execution time : " << formatWithSpaces(astar_path.calculation_time) << " " << TIME_UNIT_STR << endl;
-    cout << "Full info saved to      : " << "file://" << filesystem::absolute(g_files.comp_output.full).string() << endl;
+    cout << "Full info saved to      : " << "file://" << filesystem::absolute(GlobalFiles.comp_output.full).string() << endl;
 }
 #endif

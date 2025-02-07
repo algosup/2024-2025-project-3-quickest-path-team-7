@@ -1,9 +1,9 @@
-#ifndef FILES_HPP
-#define FILES_HPP
+#ifndef Files_HPP
+#define Files_HPP
 
 #include "header.hpp"
 
-string str_for_char(const string& input, char to_replace, const string& replacement) {
+string strForChar(const string& input, char to_replace, const string& replacement) {
     string result = input;
     size_t pos = result.find(to_replace);
     while (pos != string::npos) {
@@ -13,25 +13,25 @@ string str_for_char(const string& input, char to_replace, const string& replacem
     return result;
 }
 
-void build_files_path(Files& files) {
+void buildFilesPath(Files& Files) {
     // build the full path for the dataset
-    files.dataset.full = files.folder + files.dataset.base;
-    // erase ".csv" from the dataset base and build a base for backup files
-    string dataset_no_ext = files.dataset.full.substr(0, files.dataset.full.size() - 4);    
+    Files.dataset.full = Files.folder + Files.dataset.base;
+    // erase ".csv" from the dataset base and build a base for backup Files
+    string dataset_no_ext = Files.dataset.full.substr(0, Files.dataset.full.size() - 4);    
     // build the full path for the landmarks backup file
-    files.landmarks.full = dataset_no_ext
-                         + str_for_char(files.landmarks.base, 'X', to_string(landmarks_qty))
+    Files.landmarks.full = dataset_no_ext
+                         + strForChar(Files.landmarks.base, 'X', to_string(landmarks_qty))
                          + ".bin";
     // for the graph backup file
-    files.graph.full = dataset_no_ext + files.graph.base + ".bin";
-    // for the output files
-    files.output.full = files.folder + files.output.base + ".csv";
-    files.comp_output.full = files.folder + files.comp_output.base + ".csv";
+    Files.graph.full = dataset_no_ext + Files.graph.base + ".bin";
+    // for the output Files
+    Files.output.full = Files.folder + Files.output.base + ".csv";
+    Files.comp_output.full = Files.folder + Files.comp_output.base + ".csv";
     // for the API icon
-    files.api_icon.full = files.folder + files.api_icon.base;
+    Files.api_icon.full = Files.folder + Files.api_icon.base;
 }
 
-void takeFolderInput(Files& files) {
+void takeFolderInput(Files& Files) {
 
     cout << "Working Directory: " << filesystem::current_path() << endl;
     cout << "Do you want to use another specific relative path (n = retry) ? (y/n) ";
@@ -39,24 +39,24 @@ void takeFolderInput(Files& files) {
     cin >> answer;
     if (answer == "y") {
         cout << "Please provide a relative path : ";
-        cin >> files.folder;
+        cin >> Files.folder;
         // if not ending with a slash, add it
-        files.folder = files.folder.back() == '/' ? files.folder : files.folder + "/";
+        Files.folder = Files.folder.back() == '/' ? Files.folder : Files.folder + "/";
     } else {
         cout << "Trying again in the current folder ... " << endl;
     }
 
-    build_files_path(files);
+    buildFilesPath(Files);
 
 }
 
-void require_dataset(Files& files) {
+void requireDataset(Files& Files) {
     // Try to open the dataset
     bool csv_found = false;
     while(!csv_found) {
-        ifstream test(files.dataset.full);
+        ifstream test(Files.dataset.full);
         if (!test.is_open()) {
-            cout << "Dataset " << files.dataset.full << " not found !" << endl;
+            cout << "Dataset " << Files.dataset.full << " not found !" << endl;
             cout << "Please provide : " << endl;
             cout << " 1 - A new dataset file" << endl;
             cout << " 2 - The correct path to the dataset" << endl;
@@ -68,11 +68,11 @@ void require_dataset(Files& files) {
                 case 1:
                     cout << "Enter the new dataset name: ";
                     cin.ignore();
-                    getline(cin, files.dataset.base);
-                    build_files_path(files);
+                    getline(cin, Files.dataset.base);
+                    buildFilesPath(Files);
                     break;
                 case 2:
-                    takeFolderInput(files);
+                    takeFolderInput(Files);
                     break;
                 case 3:
                     break;
