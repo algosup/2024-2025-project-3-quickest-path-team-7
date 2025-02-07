@@ -469,21 +469,6 @@ void send_error(int client_socket, int error_code, int kind = 1, string paramete
                 ss << "}\n";
                 break;
             
-            case 422:
-                ss << "Unprocessable Entity\n";
-                ss << "Content-Type: application/json\n";
-                ss << "Access-Control-Allow-Origin: *\n\n";
-                ss << "{\n";
-                ss << "    \"status\": \"Unprocessable Path\",\n";
-                ss << "    \"details\": {\n";
-                ss << "        \"error_type\": \"Start and end nodes are the same\",\n";
-                ss << "        \"parameter_value\": \"" << parameter << "\",\n";
-                ss << "        \"resolution\": \"Start and end nodes must be different.\",\n";
-                ss << "        \"documentation\": \"https://example.com/docs#parameters\",\n";
-                ss << "    }\n";
-                ss << "}\n";
-                break;
-
             default: // 500 Internal Server Error
                 ss << "Internal Server Error\n";
                 ss << "Content-Type: application/json\n";
