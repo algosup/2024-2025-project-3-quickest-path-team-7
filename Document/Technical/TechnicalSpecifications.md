@@ -2186,13 +2186,12 @@ This section confirms that key stakeholders have reviewed and approved the final
 
 | Name                 | Title                     | Signature         | Date       |
 |----------------------|---------------------------|-------------------|------------|
-| Guillaume Deramchi   | Technical Lead            |                   |            |
-| Benoît De Keyn       | Software Engineer         |                   |            |
-| Axel David           | Software Engineer         |                   |            |
-| Tino Gabet           | Technical Writer          |                   |            |
-| Abderrazaq Makran    | Program Manager           |                   |            |
-| Elone Dellile        | Project Manager           |                   |            |
-| Pierre Gorin         | Quality Assurance         |                   |            |
+| Guillaume Deramchi   | Technical Lead            |      ✅             |     02/07/2025       |
+| Benoît De Keyn       | Software Engineer         |      ✅             |     02/07/2025       |
+| Axel David           | Software Engineer         |      ✅             |     02/07/2025       |
+| Abderrazaq Makran    | Program Manager           |      ✅             |     02/07/2025       |
+| Elone Dellile        | Project Manager           |      ✅             |     02/07/2025       |
+| Pierre Gorin         | Quality Assurance         |      ✅             |     02/07/2025       |
 
 **Notes on Approval Process:**
 1. Each approver reviews the document in its entirety.
