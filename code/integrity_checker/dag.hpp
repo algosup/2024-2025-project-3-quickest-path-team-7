@@ -1,10 +1,46 @@
+/*
+dag.hpp builds the DAG from the CSV file.
+To build the DAG, it gathers the DAG structure with data and then modifies it to be free of cycles. 
+
+The CSV file has this format: nodeA,nodeB,distance
+To build a DAG we assume that you can only go from A to B. 
+So every nodeA will have a vector field with the nodeB you can go to. 
+And every nodeB will have a vector field with the nodeA you can come from.
+
+Then we use a DFS to spot all cycles in the DAG.
+
+when a cycle is detected,
+
+node where the cycle is detected: 
+    node 1 -> node 2 -> node 1
+
+    node 1 has node 2 as its parent
+    node 2 has node 1 as its son
+
+    Change node 2 as son of node 1 and node 1 as parent of node 2
+
+e.g. of output:
+    node 1 -> node 2 <- node 1
+    
+    node 1 has node 2 as its son
+    node 2 has node 1 as its parent
+*/
 #ifndef DAG_HPP
 #define DAG_HPP
 
 #include "header.hpp"
 
-void push_out(DAG& dag, int indexListElem, int elementOut, string conditionDataParent)
+struct DAG 
 {
+    vector<vector<int>> data;
+    vector<vector<int>> parents;
+};
+
+void pushOut(DAG& dag, int indexListElem, int elementOut, string conditionDataParent)
+{
+    /*
+    pushOut makes it easier to erase a specific data from a DAG
+    */
     int k = 0;
     if (conditionDataParent == "data")
     {
@@ -32,6 +68,9 @@ void push_out(DAG& dag, int indexListElem, int elementOut, string conditionDataP
 
 void loadDag(DAG& dag) 
 {
+    /*
+    loadDag gather dag.data, a vector of DAG, with the CSV data
+    */
     ifstream file(DATASET);
     string line;
     unordered_map<int, vector<int>> data;
@@ -59,6 +98,9 @@ void loadDag(DAG& dag)
 
 void loadParents(DAG& dag) 
 {
+    /*
+    loadParents gather dag.parents, a vector of DAG, with the data of dag.data 
+    */
     dag.parents.resize(NODE_MAX_VALUE);
     for (int i = 0; i < NODE_MAX_VALUE; i++) 
     {
@@ -71,21 +113,9 @@ void loadParents(DAG& dag)
 
 bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode) 
 {
-/*
-when cycle is detected,
-
-node where cycle is detected: 
-    node 1 -> node x -> node 2 -> node 1
-    node 1 has node 2 as parent
-    node 2 has node 1 as son
-
-    change node 2 as son of node 1 and node 1 as parent of node 2
-
-e.g. of output:
-    node 2 <- node 1 -> node x -> node 2
-    node 1 has node 2 as son
-    node 2 has node 1 as parent
-*/
+    /*
+    dfs travel through dag, a DAG, and rewrite the data when a cycle is detected (example in the top comment)
+    */
     visited[node] = visited[node]+1;
     if (dag.data[node].empty()) 
     {
@@ -97,16 +127,16 @@ e.g. of output:
         if (visited[neighbor] == dag.parents[node].size() and dag.parents[node].size() != 0)
         { 
             dag.data[node].push_back(visitedNode);
-            push_out(dag, node, visitedNode, "data");
-            push_out(dag, visitedNode, visitedNode, "parents");
+            pushOut(dag, node, visitedNode, "data");
+            pushOut(dag, visitedNode, visitedNode, "parents");
             dag.parents[visitedNode].push_back(node);
             return false;  
         }
         if (visited[neighbor] == 0 and dfs(neighbor, dag, visited, node)) 
         {   
             dag.data[node].push_back(visitedNode);
-            push_out(dag, node, visitedNode, "data");
-            push_out(dag, visitedNode, visitedNode, "parents");
+            pushOut(dag, node, visitedNode, "data");
+            pushOut(dag, visitedNode, visitedNode, "parents");
             dag.parents[visitedNode].push_back(node);
             return false;
         }
