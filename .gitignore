@@ -4,7 +4,7 @@
 build
 /.vscode
 /code/path_finder.dSYM
-code/path_finder
+
 code/USA-roads.csv
 code/USA-roads_graph.bin
 code/shortest_path.csv
@@ -38,3 +38,4 @@ code/.vscode/tasks.json
 /code/.vscode
 code/.vscode/settings.json
 code/dijkstra/main
+code/path_finder/main
