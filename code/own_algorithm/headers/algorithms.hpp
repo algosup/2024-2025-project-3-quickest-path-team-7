@@ -64,11 +64,11 @@ void reconstruct_path(vector<int_pair>& node_before, Path& path_data) {
 void astar_algorithm(Graph& graph, Path& path_data, Astar& astar) {
 
     if (! graph.loaded) {
-        cout << "Graph not loaded, please load it first." << endl;
+        cout << "ERROR : Graph not loaded, please load it first." << endl;
         return;
     }
     if (!graph.landmarks_loaded) {
-        cout << "Landmarks not loaded, please load them first." << endl;
+        cout << "ERROR : Landmarks not loaded, please load them first." << endl;
         return;
     }
 

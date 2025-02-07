@@ -204,9 +204,9 @@ void handle_request(int client_socket) {
         endpoint_adaptation = "";
         handle_path_request(client_socket, request, LIGHT);
     } 
-    else if (request.find("GET /full_path?") != string::npos) {
+    else if (request.find("GET /debug_path?") != string::npos) {
         display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
-        endpoint_adaptation = "full_";
+        endpoint_adaptation = "debug_";
         handle_path_request(client_socket, request, FULL);
     } 
     else if (request.find("GET /comp_path?") != string::npos) {

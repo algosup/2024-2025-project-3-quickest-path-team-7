@@ -3,33 +3,6 @@
 
 #include "header.hpp"
 
-void takeFolderInput(Files& files, bool ask_folder = SKIP) {
-
-    files.folder_path = FOLDER;
-
-    if (ask_folder){
-        cout << "Working Directory: " << filesystem::current_path() << endl;
-        cout << "Do you want to use another specific relative path (n = retry) ? (y/n) ";
-        string answer;
-        cin >> answer;
-        if (answer == "y") {
-            cout << "Please provide a relative path : ";
-            cin >> files.folder_path;
-            files.folder_path += "/";
-            
-        } else {
-            cout << "Trying again in the current folder ... " << endl;
-        }
-    }
-
-    files.dataset = files.folder_path + DATASET;
-    files.output = files.folder_path + OUTPUT;
-    files.map_backup = files.folder_path + MAP_BACKUP;
-    files.api_icon = files.folder_path + API_ICON;
-    files.root_landmarks_backup = files.folder_path + LANDMARKS_BACKUP;
-    files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
-}
-
 void display_help(){
     cout << "Commands: \n" << endl;
     cout << " - (integer)       : ask for a node Y to calculate the path between X and Y" << endl;
@@ -42,8 +15,10 @@ void display_help(){
     cout << " - build-lm        : rebuild the landmarks" << endl;
     cout << " - build-graph     : rebuild the graph" << endl;
     cout << " - display-lm      : display the landmarks" << endl;
+    cout << " - pwd             : display the current working directory" << endl;
     cout << " - chfolder        : change the folder path for input/output files" << endl;
     cout << " - display-files   : display the current files paths" << endl;
+    cout << " - dataset         : change the dataset name" << endl;
     cout << " - port            : change the port number" << endl;
     cout << " - display-api     : display/hide the API responses and request specifically" << endl;
     cout << " - stop            : exit the program" << endl;
@@ -107,23 +82,35 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         }
         return COMMAND;
     }
+    if (input == "pwd") {
+        cout << "Working Directory: " << filesystem::current_path() << endl;
+        return COMMAND;
+    }
     if (input == "chfolder") {
-        cout << "Enter the new folder path: ";
-        cin >> files.folder_path;
-        files.dataset = files.folder_path + "/" + DATASET;
-        files.output = files.folder_path + "/" + OUTPUT;
-        files.map_backup = files.folder_path + "/" + MAP_BACKUP;
-        files.root_landmarks_backup = files.folder_path + "/" + LANDMARKS_BACKUP;
-        files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
-        files.api_icon = files.folder_path + "/" + API_ICON;
-        cout << "Files path changed to " << files.folder_path << endl;
+        cout << "Please provide a relative path : ";
+        cin >> files.folder;
+        // if not ending with a slash, add it
+        files.folder = files.folder.back() == '/' ? files.folder : files.folder + "/";
+        build_files_path(files);
+        cout << "Files path changed to " << files.folder << endl;
         return COMMAND;
     }
     if (input == "display-files") {
-        cout << "Dataset: " << files.dataset << endl;
-        cout << "Result output: " << files.output << endl;
-        cout << "graph backup: " << files.map_backup << endl;
-        cout << "Landmarks backup: " << files.landmarks_backup << endl;
+        cout << "Dataset          : " << files.dataset.full << endl;
+        cout << "Result output    : " << files.output.full << endl;
+        cout << "graph backup     : " << files.graph.full << endl;
+        cout << "Landmarks backup : " << files.landmarks.full << endl;
+        return COMMAND;
+    }
+    if (input == "dataset") {
+        string new_dataset;
+        cout << "Enter the new dataset name: ";
+        cin.ignore();
+        getline(cin, new_dataset);
+        files.dataset.base = new_dataset;
+        build_files_path(files);
+        cout << "Dataset set to " << files.dataset.full << endl;
+        loadGraph(graph, files);
         return COMMAND;
     }
     if (input == "port") {

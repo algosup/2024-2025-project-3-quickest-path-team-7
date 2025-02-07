@@ -5,9 +5,9 @@
 
 bool saveGraphToBinary(const Graph& graph, const Files& files) {
 
-    cout << "Saving the graph to " << files.map_backup << " ... " << flush;
+    cout << "Saving the graph to " << files.graph.full << " ... " << flush;
     // Open/Create the binary file backup
-    ofstream ofs(files.map_backup, ios::binary);
+    ofstream ofs(files.graph.full, ios::binary);
     if (!ofs.is_open()) {
         return FAIL;
     }
@@ -37,7 +37,7 @@ bool saveGraphToBinary(const Graph& graph, const Files& files) {
 bool loadGraphFromBinary(Graph& graph, const Files& files) {
 
     // Open the binary file backup
-    ifstream ifs(files.map_backup, ios::binary);
+    ifstream ifs(files.graph.full, ios::binary);
 
     // Read map_size
     ifs.read(reinterpret_cast<char*>(&graph.nodes_qty), sizeof(graph.nodes_qty));
@@ -72,7 +72,7 @@ struct FullEdge {
 bool buildGraphFromCSV(Graph& graph, const Files& files) {
 
     // Open the CSV file
-    ifstream csv_file(files.dataset);
+    ifstream csv_file(files.dataset.full);
     
     // vector to store all connections of the CSV file
     vector<FullEdge> allEdges;
@@ -200,7 +200,7 @@ bool buildGraphFromCSV(Graph& graph, const Files& files) {
     return SUCCESS;
 }
 
-int loadGraph(Graph& graph, Files& files, bool force = false) {
+void loadGraph(Graph& graph, Files& files, bool force = false) {
 
     // Reset the graph data
     graph.adjacency_start.clear();
@@ -218,28 +218,27 @@ int loadGraph(Graph& graph, Files& files, bool force = false) {
     graph.landmarks.shrink_to_fit();
     graph.adjacency_start.shrink_to_fit();
     graph.landmark_distance.shrink_to_fit();
-
+    
     // If not forcing a rebuild from CSV, try to load from binary backup
     if (!force) {
-        cout << "\n\nLoading the graph from the backup " << files.map_backup << " ... " << flush;
+        cout << "\n\nLoading the graph from the backup " << files.graph.full << " ... " << flush;
         // Check if the backup exists
-        ifstream test(files.map_backup, ios::binary);
+        ifstream test(files.graph.full, ios::binary);
         if (!test.is_open()) {
-            cout << "\nBackup " << files.map_backup << " not found !" << endl;
+            cout << "\nBackup " << files.graph.full << " not found !" << endl;
         } else {
             test.close();
 
             // Load the backup of the graph
             if (!loadGraphFromBinary(graph, files)) {
                 cout << "\nFailed to load the backup !" << endl;
-                return FAIL;
             } else {
                 cout << "Done !" << endl;
                 if (!loadLandmarks(graph, files, force)) {
                     cout << "Landmarks loading failed. Exiting... " << endl;
-                    return FAIL;
                 } 
-                return SUCCESS;
+                graph.loaded = true;
+                return;
             }
         }
     }
@@ -247,29 +246,54 @@ int loadGraph(Graph& graph, Files& files, bool force = false) {
     // Otherwise, build the graph from CSV file directly
 
     // Try to open the dataset
-    ifstream test(files.dataset);
-    if (!test.is_open()) {
-        cout << "Dataset " << files.dataset << " not found !" << endl;
-        return NO_DATASET;
+    bool csv_found = false;
+    while(!csv_found) {
+        ifstream test(files.dataset.full);
+        if (!test.is_open()) {
+            cout << "Dataset " << files.dataset.full << " not found !" << endl;
+            cout << "Please provide : " << endl;
+            cout << " 1 - A new dataset file" << endl;
+            cout << " 2 - The correct path to the dataset" << endl;
+            cout << " 3 - Retry" << endl;
+            cout << "Option : ";
+            int option;
+            cin >> option;
+            switch (option) {
+                case 1:
+                    cout << "Enter the new dataset name: ";
+                    cin.ignore();
+                    getline(cin, files.dataset.base);
+                    build_files_path(files);
+                    break;
+                case 2:
+                    takeFolderInput(files);
+                    break;
+                case 3:
+                    return;
+                default:
+                    cout << "Invalid option" << endl;
+                    return;
+            }
+        } else {
+            csv_found = true;
+        }
+        test.close();
     }
-    test.close();
 
     // Build the graph from CSV
     if(!buildGraphFromCSV(graph, files)) {
         cout << "Failed to build the graph from CSV !" << endl;
-        return FAIL;
     }
 
     // Save it to binary backup for next time
     if(!saveGraphToBinary(graph, files)){
         cout << "Failed to save the graph to binary !" << endl;
-        return FAIL;
     } else {
         if (!loadLandmarks(graph, files, force)) {
             cout << "Landmarks loading failed. Exiting... " << endl;
-            return FAIL;
         } 
-        return SUCCESS;
+        graph.loaded = true;
+        return;
     }
 
     

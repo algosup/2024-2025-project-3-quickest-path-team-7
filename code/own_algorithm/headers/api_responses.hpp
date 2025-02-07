@@ -12,59 +12,6 @@ void close_socket(int client_socket) {
     #endif
 }
 
-// just for fun
-void send_favicon(int client_socket) {
-    ifstream favicon_file(g_files.api_icon, ios::binary | ios::ate);
-    if (!favicon_file) {
-        // Return 404 if file not found
-        stringstream ss;
-        if (response_format == "xml") {
-            ss << "HTTP/1.1 404 Not Found\n"
-               << "Content-Type: application/xml\n\n"
-               << "Access-Control-Allow-Origin: *\n"
-               << "<response>\n"
-               << "    <error>File not found</error>\n"
-               << "</response>\n";
-        } else {
-            ss << "HTTP/1.1 404 Not Found\n"
-               << "Content-Type: application/json\n\n"
-               << "Access-Control-Allow-Origin: *\n"
-               << "{\n"
-               << "    \"error\": \"File not found\"\n"
-               << "}\n";
-        }
-        string response = ss.str();
-        send(client_socket, response.c_str(), response.size(), 0);
-        close_socket(client_socket);
-        display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
-        return;
-    }
-
-    // Get file size
-    streamsize size = favicon_file.tellg();
-    favicon_file.seekg(0, ios::beg);
-
-    // Read file into buffer
-    vector<char> buffer(size);
-    if (favicon_file.read(buffer.data(), size)) {
-        string header = 
-            "HTTP/1.1 200 OK\r\n"
-            "Content-Type: image/x-icon\r\n"
-            "Content-Length: " + to_string(size) + "\r\n"
-            "Access-Control-Allow-Origin: *\r\n"
-            "Connection: close\r\n"
-            "\r\n";
-        
-        send(client_socket, header.c_str(), header.size(), 0);
-        send(client_socket, buffer.data(), buffer.size(), 0);
-
-        display_valid_responses ? cout << "\n\nVALID response :\n" << header << endl : cout << "";
-    }
-
-    close_socket(client_socket);
-    return;
-}
-
 void send_path(Path& g_path, int client_socket) {
     stringstream ss;
 
@@ -193,7 +140,9 @@ void send_endpoint_error(int client_socket) {
         ss << "    <error_type>Invalid endpoint</error_type>\n";
         ss << "    <resolution>Check the API documentation for valid endpoints.</resolution>\n";
         ss << "    <documentation>https://example.com/docs#endpoints</documentation>\n";
-        ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&end=4</example>\n";
+        ss << "    <example>GET /path?start=1&end=4</example>\n";
+        ss << "    <example>GET /debug_path?start=1&end=4</example>\n";
+        ss << "    <example>GET /comp_path?start=1&end=4</example>\n";
         ss << "    <example>GET /command?command=rebuild_graph</example>\n";
         ss << "  </details>\n";
         ss << "</status>\n";
@@ -581,5 +530,60 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
     close_socket(client_socket);
     display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
 }
+
+
+// just for fun
+void send_favicon(int client_socket) {
+    ifstream favicon_file(g_files.api_icon.full, ios::binary | ios::ate);
+    if (!favicon_file) {
+        // Return 404 if file not found
+        stringstream ss;
+        if (response_format == "xml") {
+            ss << "HTTP/1.1 404 Not Found\n"
+               << "Content-Type: application/xml\n\n"
+               << "Access-Control-Allow-Origin: *\n"
+               << "<response>\n"
+               << "    <error>File not found</error>\n"
+               << "</response>\n";
+        } else {
+            ss << "HTTP/1.1 404 Not Found\n"
+               << "Content-Type: application/json\n\n"
+               << "Access-Control-Allow-Origin: *\n"
+               << "{\n"
+               << "    \"error\": \"File not found\"\n"
+               << "}\n";
+        }
+        string response = ss.str();
+        send(client_socket, response.c_str(), response.size(), 0);
+        close_socket(client_socket);
+        display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
+        return;
+    }
+
+    // Get file size
+    streamsize size = favicon_file.tellg();
+    favicon_file.seekg(0, ios::beg);
+
+    // Read file into buffer
+    vector<char> buffer(size);
+    if (favicon_file.read(buffer.data(), size)) {
+        string header = 
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: image/x-icon\r\n"
+            "Content-Length: " + to_string(size) + "\r\n"
+            "Access-Control-Allow-Origin: *\r\n"
+            "Connection: close\r\n"
+            "\r\n";
+        
+        send(client_socket, header.c_str(), header.size(), 0);
+        send(client_socket, buffer.data(), buffer.size(), 0);
+
+        display_valid_responses ? cout << "\n\nVALID response :\n" << header << endl : cout << "";
+    }
+
+    close_socket(client_socket);
+    return;
+}
+
 
 #endif // API_RESPONSES_HPP

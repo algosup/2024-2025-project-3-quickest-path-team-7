@@ -17,7 +17,8 @@ bool display_valid_requests     = DISP_VALID_REQ;
 bool display_bad_requests       = DISP_BAD_REQ;
 bool display_valid_responses    = DISP_VALID_RES;
 bool display_error_responses    = DISP_ERR_RES;
-string endpoint_adaptation          = ""; 
+string endpoint_adaptation      = ""; 
+
 
 struct Timer {
     chrono::high_resolution_clock::time_point start_time;
@@ -34,7 +35,6 @@ struct Path {
     // The path is stored as a vector of pairs {node, weight}
     vector<int_pair> path;
 };
-
 
 struct Node {
     int id;
@@ -79,26 +79,19 @@ struct Graph {
     vector<int> landmark_distance;
 };
 
-struct Files {
-    string folder_path;
-    string dataset;
-    string map_backup;
-    string landmarks_backup;
-    string root_landmarks_backup;
-    string output;
-    string api_icon;
+struct file_path{
+    string base;
+    string full;
 };
 
-// Function to format a number with spaces between each group of three digits
-string formatWithSpaces(long number) {
-    string numStr = to_string(number);
-    int insertPosition = numStr.length() - 3;
-    while (insertPosition > 0) {
-        numStr.insert(insertPosition, " ");
-        insertPosition -= 3;
-    }
-    return numStr;
-}
+struct Files {
+    string      folder      =   FOLDER;
+    file_path   dataset     = { DATASET, "" };
+    file_path   graph       = { GRAPH_BACKUP, "" };
+    file_path   landmarks   = { LANDMARKS_BACKUP, "" };
+    file_path   output      = { OUTPUT, "" };
+    file_path   api_icon    = { API_ICON, "" };
+};
 
 Graph g_graph;
 Files g_files;

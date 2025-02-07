@@ -12,12 +12,14 @@
 #define DISP_VALID_RES      false       // Display valid responses in terminal
 #define DISP_ERR_RES        true        // Display error responses in terminal
 
-#define MAP_BACKUP          "map-backup.bin"
-#define LANDMARKS_BACKUP    "landmarks-backup"
-#define DATASET             "USA-roads.csv"
-#define OUTPUT              "shortest-path.csv"
-#define API_ICON            "favicon.ico"
+// CHoose where is the CSV for dataset 
 #define FOLDER              "files/"
+#define DATASET             "USA-roads.csv"
+
+#define GRAPH_BACKUP        "-graph-backup"
+#define LANDMARKS_BACKUP    "-X-landmarks-backup"
+#define OUTPUT              "shortest-path"
+#define API_ICON            "favicon.ico"
 
 #define TIME_UNIT           microseconds
 #define TIME_UNIT_STR       "µs"
@@ -77,6 +79,7 @@ const int INF = numeric_limits<int>::max();
 
 // Includer
 #include "globals.hpp"
+#include "files.hpp"
 #include "time.hpp"
 #include "output.hpp"
 #include "algorithms.hpp"

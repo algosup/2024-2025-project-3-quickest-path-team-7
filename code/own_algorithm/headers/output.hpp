@@ -3,11 +3,22 @@
 
 #include "header.hpp"
 
+// Function to format a number with spaces between each group of three digits
+string formatWithSpaces(long number) {
+    string numStr = to_string(number);
+    int insertPosition = numStr.length() - 3;
+    while (insertPosition > 0) {
+        numStr.insert(insertPosition, " ");
+        insertPosition -= 3;
+    }
+    return numStr;
+}
+
 // Function to save the path to a CSV file
 // Containning all the displayed information
 void savePathToCSV(Files& files, Path& path_data) {
 
-    ofstream file(files.output);
+    ofstream file(files.output.full);
     if (!file.is_open()) {
         cerr << "Failed to open the file for writing." << endl;
         return;
@@ -47,7 +58,7 @@ void displayResults(Path& path_data, bool from_api = false) {
     cout << "Path lenght        : "   << formatWithSpaces(path_data.distance)   << endl;
     cout << "Number of nodes    : "   << formatWithSpaces(path_data.path.size()) << endl;
     cout << "Calculation Time   : "   << formatWithSpaces(path_data.calculation_time)   << " " << TIME_UNIT_STR << endl;
-    cout << "Full info saved to : "   << "file://"  << filesystem::absolute(g_files.output).string() << flush;
+    cout << "Full info saved to : "   << "file://"  << filesystem::absolute(g_files.output.full).string() << flush;
 }
 
 #endif

@@ -83,11 +83,11 @@ void buildLandmarks(Graph& graph) {
 
 void saveLandmarksToBinary(Graph& graph, Files& files) {
 
-    cout << "Saving landmarks to " << files.landmarks_backup << " ... " << flush;
+    cout << "Saving landmarks to " << files.landmarks.full << " ... " << flush;
 
-    ofstream file(files.landmarks_backup, ios::binary);
+    ofstream file(files.landmarks.full, ios::binary);
     if (!file.is_open()) {
-        cerr << "\nFailed to open the file for writing: " << files.landmarks_backup << endl;
+        cerr << "\nFailed to open the file for writing: " << files.landmarks.full << endl;
         return;
     }
 
@@ -112,8 +112,8 @@ void saveLandmarksToBinary(Graph& graph, Files& files) {
 }
 
 bool loadLandmarksFromBinary(Graph& graph, Files& files) {
-    cout << "Loading landmarks from " << files.landmarks_backup << " ... " << flush;
-    ifstream file(files.landmarks_backup, ios::binary);
+    cout << "Loading landmarks from " << files.landmarks.full << " ... " << flush;
+    ifstream file(files.landmarks.full, ios::binary);
     if (!file.is_open()) {
         cout << "Backup not found!" << endl;
         return false;
@@ -153,7 +153,7 @@ bool loadLandmarks (Graph& graph, Files& files, bool force = false) {
     }
 
     // update the landmarks backup file name based on the number of landmarks
-    files.landmarks_backup = files.root_landmarks_backup + "-" + to_string(landmarks_qty) + ".bin";
+    build_files_path(files);
 
     if (!force) {
         // check if a landmarks backup exists
