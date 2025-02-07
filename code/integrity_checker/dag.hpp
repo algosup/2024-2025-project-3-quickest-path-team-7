@@ -111,10 +111,11 @@ void loadParents(DAG& dag)
     } 
 }
 
-bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode) 
+bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode, int& cycleFixed) 
 {
     /*
     dfs travel through dag, a DAG, and rewrite the data when a cycle is detected (example in the top comment)
+    also it spread the number of cycle fixed.
     */
     visited[node] = visited[node]+1;
     if (dag.data[node].empty()) 
@@ -130,14 +131,16 @@ bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode)
             pushOut(dag, node, visitedNode, "data");
             pushOut(dag, visitedNode, visitedNode, "parents");
             dag.parents[visitedNode].push_back(node);
+            cycleFixed++;
             return false;  
         }
-        if (visited[neighbor] == 0 and dfs(neighbor, dag, visited, node)) 
+        if (visited[neighbor] == 0 and dfs(neighbor, dag, visited, node, cycleFixed)) 
         {   
             dag.data[node].push_back(visitedNode);
             pushOut(dag, node, visitedNode, "data");
             pushOut(dag, visitedNode, visitedNode, "parents");
             dag.parents[visitedNode].push_back(node);
+            cycleFixed++;
             return false;
         }
     }
@@ -147,6 +150,7 @@ bool dfs(int node, DAG& dag, vector<int>& visited, int visitedNode)
 
 void buildDag(DAG& dag) 
 {
+    int cycleFixed = 0;
     cout << "load nodes sons" << endl;
     loadDag(dag);
     cout << "load nodes parents" << endl;
@@ -158,7 +162,7 @@ void buildDag(DAG& dag)
     {
         if (visited[i] == 0) 
         {  
-            if (dfs(i, dag, visited, 0)) 
+            if (dfs(i, dag, visited, 0, cycleFixed)) 
             {
                 cout << "The graph is free of cycle!" << endl;
                 visited.clear();
@@ -166,6 +170,7 @@ void buildDag(DAG& dag)
             }
         }
     }
+    cout << "Number of cycle fixed: " << cycleFixed << endl;
     cout << "The graph is acyclic (DAG)." << endl;
     cout << "DAG end" << endl;
     return;
