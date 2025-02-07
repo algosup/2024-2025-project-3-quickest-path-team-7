@@ -407,7 +407,7 @@ graph TD
 The following endpoints are available for interacting with the server:
 
 ### **Basic Shortest Path**
-- **Endpoint**: `/path`
+- **Endpoint**: `/quickest-path`
 - **Description**: Calculates the shortest path between two nodes using A*.
 - **Parameters**:
   - `start` (integer): The starting node.
@@ -415,7 +415,7 @@ The following endpoints are available for interacting with the server:
   - `format` (optional): Response format (`json` or `xml`).
 - **Example**:
   ```
-  GET http://localhost:<port>/path?start=1&end=5
+  GET http://localhost:<port>/quickest-path?start=1&end=5
   ```
   **Response** (JSON):
   ```json
