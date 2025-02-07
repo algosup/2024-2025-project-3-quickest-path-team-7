@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Manual - Quickest Path</title>
+
+  <!-- 
+    Google Font & Font Awesome 
+    for consistency with the main site 
+  -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    integrity="sha512-ac50X5PVeQpSBOyFgkWG+RiPyKKDVN+4K+9D+Jd2P6v3+zDE5M/RwB48N7qm1S2ZJ0SRQLReMDm0E1OEvSVNMA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- Same CSS for consistent design -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Minimal header for the User Manual page -->
+  <header class="site-header">
+    <h1>User Manual <i class="fas fa-book"></i></h1>
+    <nav class="nav-bar">
+      <ul>
+        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="main-content user-manual">
+    <!-- Intro Card -->
+    <section class="manual-card">
+      <h2>
+        <i class="fas fa-info-circle"></i> Getting Started
+      </h2>
+      <p>
+        Welcome to Quickest Path! This guide explains how to use our site 
+        and highlights the powerful algorithm behind it. Whether 
+        you’re a first-time visitor or a returning user, these steps 
+        will help you make the most of our service.
+      </p>
+    </section>
+
+    <!-- Step-by-step Card -->
+    <section class="manual-card">
+      <h2>
+        <i class="fas fa-step-forward"></i> Step-by-Step Instructions
+      </h2>
+      <ol class="step-list">
+        <li>
+          <strong>Open the Home Page:</strong> 
+          Visit our main page and locate the <em>Start</em> and <em>End</em> fields,
+          which accept integers from 1 to 23,947,347.
+        </li>
+        <li>
+          <strong>Enter Valid Integers:</strong>
+          Ensure your inputs are within the allowed range.
+        </li>
+        <li>
+          <strong>Send Request:</strong> 
+          Click the <i class="fas fa-paper-plane"></i> <em>Send Request</em> button 
+          to process your input.
+        </li>
+        <li>
+          <strong>View Results:</strong> 
+          A JSON response displays the calculated quickest path. 
+          Use it to make informed decisions or simply explore the 
+          route connections.
+        </li>
+      </ol>
+    </section>
+
+    <!-- FAQ Card -->
+    <section class="manual-card">
+      <h2>
+        <i class="fas fa-question-circle"></i> Frequently Asked Questions
+      </h2>
+      <dl class="faq-list">
+        <dt><strong>1. What if I enter a number outside the valid range?</strong></dt>
+        <dd>You’ll see an error message advising you to stick to numbers between 1 and 23,947,347.</dd>
+
+        <dt><strong>2. How does the algorithm determine the path?</strong></dt>
+        <dd>We analyze possible routes using heuristics and optimized data structures to quickly find an optimal route.</dd>
+
+        <dt><strong>3. Can I submit multiple requests rapidly?</strong></dt>
+        <dd>Yes, though the button is briefly disabled during processing to avoid accidental double submissions.</dd>
+      </dl>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 Quickest Path Inc.</p>
+  </footer>
+</body>
+</html>
