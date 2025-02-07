@@ -44,7 +44,10 @@ void loadDag(DAG& dag)
         {
             elemList.push_back(stoi(elemInList));
         }
-        data[elemList[0]].push_back(elemList[1]);
+        if(elemList[0] != elemList[1])
+        {
+            data[elemList[0]].push_back(elemList[1]);
+        }
     }
     dag.data.resize(NODE_MAX_VALUE);
     for (const auto& [node, neighbors] : data) 

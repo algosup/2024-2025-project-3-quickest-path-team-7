@@ -1,6 +1,7 @@
 #include "header.hpp"
 
-int main() {
+int main() 
+{
     DAG dag;
     cout << "Build dag" << endl;
     buildDag(dag);
