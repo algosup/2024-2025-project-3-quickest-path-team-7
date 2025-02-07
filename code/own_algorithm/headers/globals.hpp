@@ -19,6 +19,8 @@ bool display_valid_responses    = DISP_VALID_RES;
 bool display_error_responses    = DISP_ERR_RES;
 string endpoint_adaptation      = ""; 
 
+bool comparator_mode = false;
+
 struct Timer {
     chrono::high_resolution_clock::time_point start_time;
     chrono::high_resolution_clock::time_point end_time;

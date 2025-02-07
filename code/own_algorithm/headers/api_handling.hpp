@@ -88,7 +88,7 @@ void handle_path_request(int client_socket, const string& request, int option = 
 
     // display the parameters in the console
     cout << "Start node         : " << g_path.start << endl;
-    cout << "End node           : " << g_path.start << "\n" << endl;
+    cout << "End node           : " << g_path.end << "\n" << endl;
 
     {
         lock_guard<mutex> lock(graph_path_file_access);
@@ -107,16 +107,16 @@ void handle_path_request(int client_socket, const string& request, int option = 
             savePathToCSV(g_files, g_path);
         } 
         else if (option == COMPARE) {
-            Path perfect_path;
-            Astar precise_astar;
-            Timer perfect_timer;
-            perfect_path.start = g_path.start;
-            perfect_path.end = g_path.end;
-            reset_compute_data(g_graph, perfect_path, precise_astar); // serves as initialization too
-            find_path(g_graph, perfect_path, precise_astar, perfect_timer, NULL_HEURISTIC);
-            send_compared_path(g_path, perfect_path, client_socket);
-            display_comparison_results(g_path, perfect_path);
-            saveComparedPathToCSV(g_files, g_path, perfect_path);
+            Path dijkstra_path;
+            Astar dijkstra_struct;
+            Timer dijkstra_timer;
+            reset_compute_data(g_graph, dijkstra_path, dijkstra_struct); // serves as initialization too
+            dijkstra_path.start = g_path.start;
+            dijkstra_path.end = g_path.end;
+            find_path(g_graph, dijkstra_path, dijkstra_struct, dijkstra_timer, NULL_HEURISTIC);
+            send_compared_path(g_path, dijkstra_path, client_socket);
+            display_comparison_results(g_path, dijkstra_path);
+            saveComparedPathToCSV(g_files, g_path, dijkstra_path);
         } 
         else {
             cout << "Invalid option" << endl;

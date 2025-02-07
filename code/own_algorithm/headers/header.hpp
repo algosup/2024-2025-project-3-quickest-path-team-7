@@ -23,6 +23,7 @@
 #define API_ICON            "favicon.ico"
 
 #define TIME_UNIT           microseconds
+#define TIME_UNIT_FULL_STR  "microseconds"
 #define TIME_UNIT_STR       "µs"
 
 // Encoding of options and return codes

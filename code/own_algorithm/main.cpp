@@ -61,9 +61,23 @@ int main() {
             // Calculate the shortest path, output results and reset the data
             
             find_path(g_graph, g_path, g_astar, g_timer);
-            displayResults(g_path);
-            savePathToCSV(g_files, g_path);
-            reset_compute_data(g_graph, g_path, g_astar);
+            
+            if (comparator_mode) {
+                Path perfect_path;
+                Astar precise_astar;
+                Timer perfect_timer;
+                reset_compute_data(g_graph, perfect_path, precise_astar); // serves as initialization too
+                perfect_path.start = g_path.start;
+                perfect_path.end = g_path.end;
+                find_path(g_graph, perfect_path, precise_astar, perfect_timer, NULL_HEURISTIC);
+                display_comparison_results(g_path, perfect_path);
+                saveComparedPathToCSV(g_files, g_path, perfect_path);
+                reset_compute_data(g_graph, g_path, g_astar);
+            } else {
+                displayResults(g_path);
+                savePathToCSV(g_files, g_path);
+                reset_compute_data(g_graph, g_path, g_astar);
+            }
         }
     }
 

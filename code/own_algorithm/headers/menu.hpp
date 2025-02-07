@@ -5,30 +5,33 @@
 
 void display_help(){
     cout << "Commands: \n" << endl;
-    cout << " - [integer]       : ask for a node Y to calculate the path between X and Y" << endl;
-    cout << " - fast            : calculate the path between nodes 1 and 2" << endl;
-    cout << " - med             : calculate the path between nodes 1471291 and 9597648" << endl;
-    cout << " - long            : calculate the path between nodes 9489093 and 22377087" << endl;
-    cout << " - try             : calculate the path between nodes 1471291 and 22377087" << endl;
-    cout << " - weight          : change the heuristic weight" << endl;
-    cout << " - qty-lm          : change the number of landmarks" << endl;
-    cout << " - build-lm        : rebuild the landmarks" << endl;
-    cout << " - build-graph     : rebuild the graph" << endl;
-    cout << " - display-lm      : display the landmarks" << endl;
-    cout << " - pwd             : display the current working directory" << endl;
-    cout << " - chfolder        : change the folder path for input/output files" << endl;
-    cout << " - display-files   : display the current files paths" << endl;
-    cout << " - dataset         : change the dataset name" << endl;
-    cout << " - port            : change the port number" << endl;
-    cout << " - display-api     : display/hide the API responses and request specifically" << endl;
-    cout << " - stop            : exit the program" << endl;
+    cout << " - [integer]           : ask for a node Y to calculate the path between X and Y" << endl;
+    cout << " - [string]            : read if it's a keyword for a preloaded path (such as fast, med, longest,...) and run it" << endl;
+    cout << " - \"comparator\"      : activate the comparator mode to evaluate the difference between A* and dijkstra precision" << endl;
+    cout << " - \"exit comparator\" : deactivate the comparator mode" << endl;
+    cout << " - \"weight\"          : change the heuristic weight" << endl;
+    cout << " - \"qty lm\"          : change the number of landmarks" << endl;
+    cout << " - \"build lm\"        : rebuild the landmarks" << endl;
+    cout << " - \"build graph\"     : rebuild the graph" << endl;
+    cout << " - \"display lm\"      : display the landmarks" << endl;
+    cout << " - \"pwd\"             : display the current working directory" << endl;
+    cout << " - \"chfolder\"        : change the folder path for input/output files" << endl;
+    cout << " - \"display files\"   : display the current files paths" << endl;
+    cout << " - \"dataset\"         : change the dataset name" << endl;
+    cout << " - \"port\"            : change the port number" << endl;
+    cout << " - \"display api\"     : display/hide the API responses and request specifically" << endl;
+    cout << " - \"stop\"            : exit the program" << endl;
     cout << endl;
 }
 
 int takeUserInput(Graph& graph, Path& path, Files& files) {
 
     string input;
-    cout << "\n\nEnter a command or the start node : ";
+    if (comparator_mode) {
+        cout << "\n\n!Comparator Mode!\nEnter a command or the start node : ";
+    } else {
+        cout << "\n\nEnter a command or the start node : ";
+    }
     // cin. ignore if necessary :
     while (cin.peek() == '\n') {
         cin.ignore();
@@ -42,22 +45,37 @@ int takeUserInput(Graph& graph, Path& path, Files& files) {
         return PATH;
     }
     if (input == "med") {
-        path.start = 1471291;
-        path.end = 9597648;
+        path.start = 1;
+        path.end = 23900000;
         return PATH;
     }
-    if (input == "long") {
+    if (input == "long1") {
         path.start = 9489093;
         path.end = 22377087;
         return PATH;
     }
-    if (input == "try") {
-        path.start = 1471291;
+    if (input == "long2") {
+        path.start = 9489093;
         path.end = 22377087;
+        return PATH;
+    }
+    if (input == "longest") {
+        path.start = 9588784;
+        path.end = 2720178;
         return PATH;
     }
 
     // Check for special commands
+    if (input == "comparator") {
+        comparator_mode = true;
+        cout << "Comparator mode activated" << endl;
+        return COMMAND;
+    }
+    if (input == "exit comparator") {
+        comparator_mode = false;
+        cout << "Comparator mode deactivated" << endl;
+        return COMMAND;
+    }
     if (input == "weight") {
         cout << "Enter the weight: ";
         cin >> heuristic_weight;
