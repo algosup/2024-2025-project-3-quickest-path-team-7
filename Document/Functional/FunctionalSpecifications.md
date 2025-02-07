@@ -37,7 +37,10 @@
     - [Process Flow](#process-flow)
     - [Explanation of Steps](#explanation-of-steps)
   - [API Details](#api-details)
-    - [Endpoint](#endpoint)
+    - [**Basic Shortest Path**](#basic-shortest-path)
+    - [**Debug Path**](#debug-path)
+    - [**Comparator Path**](#comparator-path)
+    - [**Command Endpoint**](#command-endpoint)
     - [API response Handling](#api-response-handling)
       - [Success Case (HTTP 200)](#success-case-http-200)
       - [Error handling](#error-handling)
@@ -400,43 +403,95 @@ graph TD
 
 ## API Details
 [⬆ Back to Top](#table-of-contents)
-### Endpoint
 
-**Endpoint**  
-- **Method:** GET  
-- **URL:** `/quickest-path`  
+The following endpoints are available for interacting with the server:
 
-**Accepted Headers**  
-| Header | Values | Default |
-|--------|--------|---------|
-| `Accept` | `application/json`, `application/xml` | `application/json` |
+### **Basic Shortest Path**
+- **Endpoint**: `/path`
+- **Description**: Calculates the shortest path between two nodes using A*.
+- **Parameters**:
+  - `start` (integer): The starting node.
+  - `end` (integer): The ending node.
+  - `format` (optional): Response format (`json` or `xml`).
+- **Example**:
+  ```
+  GET http://localhost:<port>/path?start=1&end=5
+  ```
+  **Response** (JSON):
+  ```json
+  {
+    "path": [1, 3, 5], 
+    "total_time": 42,  
+    "approximation": "9.8% above optimal"  
+  }
+  ```
 
-**Query Parameters**  
-| Parameter   | Required | Description |
-|-------------|----------|-------------|
-| `source`      | Yes      | The starting landmark ID (integer between `1` and `23,947,347`). |
-| `destination` | Yes      | The destination landmark ID (integer between `1` and `23,947,347`). |
-| `format`      | No       | Overrides the Accept header to return either `json` or `xml`. |
 
-**Request Examples**
+---
 
-- **Using Headers:**
-    ```bash
-    GET /quickest-path?source=123&destination=456 HTTP/1.1
-    Host: localhost:8080
-    Accept: application/json
-    ```
-- **Using Query Parameter:**
-    ```pgsql
-    GET http://localhost:8080/quickest-path?source=123&destination=456&format=xml
-    ```
+### **Debug Path**
+- **Endpoint**: `/debug_path`
+- **Description**: Provides detailed information about the calculated path, including heuristic weight, computation time, and more.
+- **Parameters**: Same as `/path`.
+- **Example**:
+  ```
+  GET http://localhost:<port>/debug_path?start=1&end=5
+  ```
+  **Response** (JSON):
+  ```json
+  {
+    "path": [1, 3, 5],
+    "distance": 12.5,
+    "time_ms": 1.2,
+    "heuristic_weight": 1.5
+  }
+  ```
+
+---
+
+### **Comparator Path**
+- **Endpoint**: `/comp_path`
+- **Description**: Compares the shortest paths calculated by A* and Dijkstra algorithms.
+- **Parameters**: Same as `/path`.
+- **Example**:
+  ```
+  GET http://localhost:<port>/comp_path?start=1&end=5
+  ```
+  **Response** (JSON):
+  ```json
+  {
+    "a_star": {
+      "path": [1, 3, 5],
+      "distance": 12.5,
+      "time_ms": 1.2
+    },
+    "dijkstra": {
+      "path": [1, 3, 5],
+      "distance": 12.5,
+      "time_ms": 1.8
+    }
+  }
+  ```
+
+---
+
+### **Command Endpoint**
+- **Endpoint**: `/cmd`
+- **Description**: Sends a command to the application via the API.
+- **Parameters**:
+  - `command` (string): The CLI command to execute.
+  - `format` (optional): Response format (`json` or `xml`).
+- **Example**:
+  ```
+  GET http://localhost:<port>/cmd?command=build%20graph
+  ```
 
 ### API response Handling
 #### Success Case (HTTP 200)
 Example JSON:
 ```json
 {  
-  "path": ["L123", "L456", "L789"],  
+  "path": [1, 3, 5], 
   "total_time": 42,  
   "approximation": "9.8% above optimal"  
 } 
@@ -445,9 +500,9 @@ Example XML:
 ```xml
 <path>  
   <landmarks>  
-    <landmark>L123</landmark>  
-    <landmark>L456</landmark>  
-    <landmark>L789</landmark>  
+    <landmark>1</landmark>  
+    <landmark>2</landmark>  
+    <landmark>5</landmark>  
   </landmarks>  
   <total_time>42</total_time>  
   <approximation>9.8% above optimal</approximation>  
@@ -483,7 +538,7 @@ While the dataset is validated as a directed acyclic graph (DAG), all pathfindin
 [⬆ Back to Top](#table-of-contents)
 ### Algorithm Selection and Workflow
 
-The system uses the **A\*** algorithm due to its balance of efficiency and accuracy. Optionally, the ALT heuristic (landmarks-based) may be applied to further optimize performance.
+The system uses the **A\*** algorithm due to its balance of efficiency and accuracy. Optionally, the ALT heuristic (landmarks-based) may be applied to further optimize performance. Additionally, a **Dijkstra algorithm** is implemented to compare paths and computation times against A*.
 
 **Workflow:**
 
@@ -551,6 +606,7 @@ flowchart LR
 | **Connectivity**                        | A measure of how well nodes in a graph are connected, meaning every node can be reached from any other node. This ensures that the network of landmarks is complete and functional.                                                                                           |
 | **Cycle**                               | A path in a graph that starts and ends at the same node, forming a loop. The system ensures that the graph is acyclic (has no cycles) to avoid infinite loops during processing.                                                                                               |
 | **Dataset**                             | A structured collection of data. In this project, the dataset includes information about landmarks and the roads connecting them, which is used to build the graph for pathfinding.                                         |
+| **Dijkstra’s Algorithm**                 | A graph search algorithm that finds the shortest path from a source node to all other nodes by expanding the lowest-cost paths first. Unlike A*, it does not use heuristics, making it optimal but potentially slower in large graphs. |
 | **Directed Acyclic Graph (DAG)**        | A type of graph where each edge has a direction and there are no cycles (i.e., no way to start at one node and return to it by following the directed edges). This ensures the graph can be processed without getting caught in loops.                                     |
 | **Edge**                                | A connection between two nodes in a graph, representing a road or route between landmarks.                                                                                                                                                                                          |
 | **Error Handling**                      | The process of detecting, managing, and reporting errors within a system. It ensures that users receive clear, helpful feedback when something goes wrong, such as an invalid request or a system failure.                                                                       |
