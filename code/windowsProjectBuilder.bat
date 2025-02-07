@@ -29,4 +29,8 @@ if %errorlevel% neq 0 (
 
 echo Compilation successful. Running main.exe and opening HTML file...
 start "" "%FRONT_DIR%\index.html"
-start "" "%PATH_FINDER_DIR%\main.exe"
+cd %PATH_FINDER_DIR%
+echo Wait for a second to show prog above webpage
+timeout /t 1 /nobreak >nul
+start "" "main.exe"
+
