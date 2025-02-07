@@ -30,6 +30,11 @@
 #define LIGHT               1
 #define DEBUG               2
 #define COMPARE             3
+#define INVALID_PARAMETER   1
+#define MISSING_PARAMETER   2
+#define NODE_NOT_FOUND      3
+#define NODE_OUT_OF_RANGE   4
+#define SAME_NODE           5
 #define COMMAND             -1
 #define EXIT                -2
 #define PATH                -3

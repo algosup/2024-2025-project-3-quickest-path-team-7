@@ -26,7 +26,7 @@ void handle_path_request(int client_socket, const string& request, int option = 
 
     // Check if the start and end parameters are present
     if (start_pos == string::npos || end_pos == string::npos) {
-        send_error(client_socket, 400, 1);
+        send_error(client_socket, 400, MISSING_PARAMETER);
         return;
     }
 
@@ -42,38 +42,38 @@ void handle_path_request(int client_socket, const string& request, int option = 
     }
  
     // Complete check of the parameters validity
-    for (auto& [raw_content, int_value] : parameters) {
+    for (auto& [raw_parameter, int_value] : parameters) {
         
         // Remove URL encoding for spaces ("%20")
         size_t temp_pos;
-        while ((temp_pos = raw_content.find("%20")) != string::npos) {
-            raw_content.erase(temp_pos, 3);
+        while ((temp_pos = raw_parameter.find("%20")) != string::npos) {
+            raw_parameter.erase(temp_pos, 3);
         }
 
         // check if either the start or end parameters are not integers
-        if (raw_content.find(".") != string::npos || 
-            raw_content.find(",") != string::npos || 
-            raw_content.find("-") != string::npos )
+        if (raw_parameter.find(".") != string::npos || 
+            raw_parameter.find(",") != string::npos || 
+            raw_parameter.find("-") != string::npos )
         {
-            send_error(client_socket, 400, 2, raw_content);
+            send_error(client_socket, 400, INVALID_PARAMETER, raw_parameter);
             return;
         }
 
         try {
-            int_value = stoi(raw_content);
+            int_value = stoi(raw_parameter);
         } catch (const invalid_argument& e) {
-            send_error(client_socket, 400, 2, raw_content);
+            send_error(client_socket, 400, INVALID_PARAMETER, raw_parameter);
         } catch (const out_of_range& e) {
-            send_error(client_socket, 404, 2, raw_content);
+            send_error(client_socket, 404, NODE_OUT_OF_RANGE, raw_parameter);
         }
 
         // Check of the node validity in graph
         if (int_value < 1 || int_value > g_graph.nodes_qty) {
-            send_error(client_socket, 404, 2, to_string(int_value));
+            send_error(client_socket, 404, NODE_OUT_OF_RANGE, to_string(int_value));
             return;
         }
         if (g_graph.adjacency_start[int_value] == g_graph.adjacency_start[int_value + 1]) {
-            send_error(client_socket, 404, 1, to_string(int_value));
+            send_error(client_socket, 404, NODE_NOT_FOUND, to_string(int_value));
             return;
         }
     }
@@ -82,7 +82,7 @@ void handle_path_request(int client_socket, const string& request, int option = 
     g_path.end   = parameters[1].second;
 
     if (g_path.start == g_path.end) {
-        send_error(client_socket, 422, 0, to_string(g_path.start));
+        send_error(client_socket, 400, SAME_NODE, to_string(g_path.start));
         return;
     }
 
@@ -144,7 +144,7 @@ void handle_cmd_request(int client_socket, const string& request) {
     cout << "Response format: " << response_format << endl;
 
     if (cmd_pos == string::npos) {
-        send_cmd_error(client_socket, 400, 1);
+        send_cmd_error(client_socket, 400, MISSING_PARAMETER);
         return;
     }
 

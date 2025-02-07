@@ -297,28 +297,43 @@ void send_wrong_format(int client_socket) {
 
 }
 
-void send_error(int client_socket, int error_code, int kind = 1, string node = "undefined") {
+void send_error(int client_socket, int error_code, int kind = 1, string parameter= "undefined") {
     stringstream ss;
 
     if (response_format == "xml") {
         ss << "HTTP/1.1 " << error_code << " ";
         switch (error_code) {
             case 400:
+                if (kind == SAME_NODE) {
+                    ss << "Bad Request\n";
+                    ss << "Content-Type: application/xml\n";
+                    ss << "Access-Control-Allow-Origin: *\n\n";
+                    ss << "<status>\n";
+                    ss << "  <message>Bad request</message>\n";
+                    ss << "  <details>\n";
+                    ss << "    <error_type>The \"start\" and \"end\" nodes are equal</error_type>\n";
+                    ss << "    <parameter_value>" << parameter << "</parameter_value>\n";
+                    ss << "    <resolution>Start and end nodes must be different.</resolution>\n";
+                    ss << "    <documentation>https://example.com/docs#parameters</documentation>\n";
+                    ss << "  </details>\n";
+                    ss << "</status>\n";
+                    break;
+                }
                 ss << "Bad Request\n";
                 ss << "Content-Type: application/xml\n";
                 ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "<status>\n";
                 ss << "  <message>Bad request</message>\n";
                 ss << "  <details>\n";
-                if (kind == 1) {
+                if (kind == MISSING_PARAMETER) {
                     ss << "    <error_type>Missing parameters</error_type>\n";
                     ss << "    <missing_parameters>\n";
                     ss << "      <parameter>start</parameter>\n";
                     ss << "      <parameter>end</parameter>\n";
                     ss << "    </missing_parameters>\n";
-                } else if (kind == 2) {
+                } else if (kind == INVALID_PARAMETER) {
                     ss << "    <error_type>Invalid parameter format</error_type>\n";
-                    ss << "    <invalid_parameter>" << node << "</invalid_parameter>\n";
+                    ss << "    <invalid_parameter>" << parameter << "</invalid_parameter>\n";
                     ss << "    <resolution>This parameter requires a positive 32-bit INTEGER.</resolution>\n";
                 }
                 ss << "    <documentation>https://example.com/docs#parameters</documentation>\n";
@@ -334,13 +349,13 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 ss << "<status>\n";
                 ss << "  <message>Node not found</message>\n";
                 ss << "  <details>\n";
-                if (kind == 1) {
+                if (kind == NODE_NOT_FOUND) {
                     ss << "    <error_type>Node does not exist</error_type>\n";
-                    ss << "    <landmark_id>" << node << "</landmark_id>\n";
+                    ss << "    <landmark_id>" << parameter << "</landmark_id>\n";
                     ss << "    <resolution>Check the dataset for valid node IDs.</resolution>\n";
-                } else if (kind == 2) {
+                } else if (kind == NODE_OUT_OF_RANGE) {
                     ss << "    <error_type>Node out of range</error_type>\n";
-                    ss << "    <landmark_id>" << node << "</landmark_id>\n";
+                    ss << "    <landmark_id>" << parameter << "</landmark_id>\n";
                     ss << "    <resolution>Nodes of this dataset are between 1 and " << g_graph.nodes_qty << ".</resolution>\n";
                 }
                 ss << "    <documentation>https://example.com/docs#landmarks</documentation>\n";
@@ -366,22 +381,6 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 ss << "</status>\n";
                 break;
 
-            // if start = end
-            case 422:
-                ss << "Unprocessable Entity\n";
-                ss << "Content-Type: application/xml\n";
-                ss << "Access-Control-Allow-Origin: *\n\n";
-                ss << "<status>\n";
-                ss << "  <message>Unprocessable Path</message>\n";
-                ss << "  <details>\n";
-                ss << "    <error_type>Start and end nodes are the same</error_type>\n";
-                ss << "    <parameter_value>" << node << "</parameter_value>\n";
-                ss << "    <resolution>Start and end nodes must be different.</resolution>\n";
-                ss << "    <documentation>https://example.com/docs#parameters</documentation>\n";
-                ss << "  </details>\n";
-                ss << "</status>\n";
-                break;
-
             default: // 500 Internal Server Error
                 ss << "Internal Server Error\n";
                 ss << "Content-Type: application/xml\n";
@@ -399,18 +398,33 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
         ss << "HTTP/1.1 " << error_code << " ";
         switch (error_code) {
             case 400:
+                if (kind == SAME_NODE) {
+                    ss << "Bad Request\n";
+                    ss << "Content-Type: application/json\n";
+                    ss << "Access-Control-Allow-Origin: *\n\n";
+                    ss << "{\n";
+                    ss << "    \"status\": \"Bad request\",\n";
+                    ss << "    \"details\": {\n";
+                    ss << "        \"error_type\": \"The 'start' and 'end' nodes are equal\",\n";
+                    ss << "        \"parameter_value\": \"" << parameter << "\",\n";
+                    ss << "        \"resolution\": \"Start and end nodes must be different.\",\n";
+                    ss << "        \"documentation\": \"https://example.com/docs#parameters\"\n";
+                    ss << "    }\n";
+                    ss << "}\n";
+                    break;
+                }
                 ss << "Bad Request\n";
                 ss << "Content-Type: application/json\n";
                 ss << "Access-Control-Allow-Origin: *\n\n";
                 ss << "{\n";
                 ss << "    \"status\": \"Bad request\",\n";
                 ss << "    \"details\": {\n";
-                if (kind == 1) {
+                if (kind == MISSING_PARAMETER) {
                     ss << "        \"error_type\": \"Missing parameters\",\n";
                     ss << "        \"missing_parameters\": [\"start\", \"end\"],\n";
-                } else if (kind == 2) {
+                } else if (kind == INVALID_PARAMETER) {
                     ss << "        \"error_type\": \"Invalid parameter format\",\n";
-                    ss << "        \"invalid_parameter\": \"" << node << "\",\n";
+                    ss << "        \"invalid_parameter\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"This parameter requires a positive 32-bit INTEGER.\",\n";
                 }
                 ss << "        \"documentation\": \"https://example.com/docs#parameters\",\n";
@@ -426,13 +440,13 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 ss << "{\n";
                 ss << "    \"status\": \"Node not found\",\n";
                 ss << "    \"details\": {\n";
-                if (kind == 1) {
+                if (kind == NODE_NOT_FOUND) {
                     ss << "        \"error_type\": \"Node does not exist\",\n";
-                    ss << "        \"landmark_id\": \"" << node << "\",\n";
+                    ss << "        \"landmark_id\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"Check the dataset for valid node IDs.\",\n";
-                } else if (kind == 2) {
+                } else if (kind == NODE_OUT_OF_RANGE) {
                     ss << "        \"error_type\": \"Node out of range\",\n";
-                    ss << "        \"landmark_id\": \"" << node << "\",\n";
+                    ss << "        \"landmark_id\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"Nodes of this dataset are between 1 and " << g_graph.nodes_qty << "\",\n";
                 }
                 ss << "        \"documentation\": \"https://example.com/docs#landmarks\"\n";
@@ -464,7 +478,7 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
                 ss << "    \"status\": \"Unprocessable Path\",\n";
                 ss << "    \"details\": {\n";
                 ss << "        \"error_type\": \"Start and end nodes are the same\",\n";
-                ss << "        \"parameter_value\": \"" << node << "\",\n";
+                ss << "        \"parameter_value\": \"" << parameter << "\",\n";
                 ss << "        \"resolution\": \"Start and end nodes must be different.\",\n";
                 ss << "        \"documentation\": \"https://example.com/docs#parameters\",\n";
                 ss << "    }\n";
@@ -493,7 +507,7 @@ void send_error(int client_socket, int error_code, int kind = 1, string node = "
     display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
 }
 
-void send_cmd_error (int client_socket, int error_code, int kind = 1, string node = "undefined") {
+void send_cmd_error (int client_socket, int error_code, int kind = 1, string parameter = "undefined") {
     stringstream ss;
 
     if (response_format == "xml") {
@@ -506,14 +520,14 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
                 ss << "<status>\n";
                 ss << "  <message>Bad request</message>\n";
                 ss << "  <details>\n";
-                if (kind == 1) {
+                if (kind == MISSING_PARAMETER) {
                     ss << "    <error_type>Missing parameters</error_type>\n";
                     ss << "    <missing_parameters>\n";
                     ss << "      <parameter>command</parameter>\n";
                     ss << "    </missing_parameters>\n";
-                } else if (kind == 2) {
+                } else if (kind == INVALID_PARAMETER) {
                     ss << "    <error_type>Invalid parameter format</error_type>\n";
-                    ss << "    <invalid_parameter>" << node << "</invalid_parameter>\n";
+                    ss << "    <invalid_parameter>" << parameter << "</invalid_parameter>\n";
                     ss << "    <resolution>This parameter requires a valid command.</resolution>\n";
                 }
                 ss << "    <documentation>https://example.com/docs#commands</documentation>\n";
@@ -566,12 +580,12 @@ void send_cmd_error (int client_socket, int error_code, int kind = 1, string nod
                 ss << "{\n";
                 ss << "    \"status\": \"Bad request\",\n";
                 ss << "    \"details\": {\n";
-                if (kind == 1) {
+                if (kind == MISSING_PARAMETER) {
                     ss << "        \"error_type\": \"Missing parameters\",\n";
                     ss << "        \"missing_parameters\": [\"command\"],\n";
-                } else if (kind == 2) {
+                } else if (kind == INVALID_PARAMETER) {
                     ss << "        \"error_type\": \"Invalid parameter format\",\n";
-                    ss << "        \"invalid_parameter\": \"" << node << "\",\n";
+                    ss << "        \"invalid_parameter\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"This parameter requires a valid command.\",\n";
                 }
                 ss << "        \"documentation\": \"https://example.com/docs#commands\",\n";
