@@ -6,7 +6,6 @@
 void close_socket(int client_socket) {
     #ifdef _WIN32
         closesocket(client_socket);
-        WSACleanup();
     #else
         close(client_socket);
     #endif
