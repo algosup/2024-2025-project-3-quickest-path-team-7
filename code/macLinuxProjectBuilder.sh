@@ -1,5 +1,15 @@
+#The script is quite simple. It first checks if the  g++  compiler is installed. 
+#If not, it installs it using  brew  on macOS or  apt  on Linux. 
+#Then, it compiles the  main.cpp  file using  g++  and runs the compiled executable. 
+#Finally, it opens the  index.html  file in the default browser. 
+#To run the script, open a terminal, navigate to the  code  directory, and run the following command: 
+#sh macLinuxProjectBuilder.sh
+#
+#If you are on macOS, you should see the following output: 
+#Compiling main.cpp for macOS...
+#
 #!/bin/sh
-
+#
 # Get the script's directory
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PATH_FINDER_DIR="$SCRIPT_DIR/path_finder"

@@ -1,3 +1,6 @@
+::The script is quite simple. It first checks if the  g++  compiler is installed. If not, it installs it. 
+::Then, it compiles the  main.cpp  file using  g++  and runs the compiled executable. 
+::Finally, it opens the  index.html  file in the default browser. 
 @echo off
 setlocal EnableDelayedExpansion
 
@@ -33,4 +36,3 @@ cd %PATH_FINDER_DIR%
 echo Wait for a second to show prog above webpage
 timeout /t 1 /nobreak >nul
 start "" "main.exe"
-
