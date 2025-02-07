@@ -46,15 +46,17 @@ Run the server:
 
 # 📚 API Documentation
 
-**Endpoint**: `GET /quickest-path`
+**Endpoint**: `GET /path`
 
 **Request Parameters**:
-- `start_id` (String): ID of the start landmark
-- `end_id` (String): ID of the destination
+- `start` (32bits Integer): ID of the start landmark
+- `end` (32bits Integer): ID of the destination
 
 **Example Request**:
 ```
-GET /quickest-path?start_id=100&end_id=200
+GET /path?start=100&end=200
+GET /path?start=100&end=200&format=xml
+GET /cmd?command=rebuild_graph
 ```
 
 **Response Formats**:
