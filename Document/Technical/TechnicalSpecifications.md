@@ -2199,3 +2199,4 @@ This section confirms that key stakeholders have reviewed and approved the final
 3. Once all requested changes are resolved, the approver signs in the table above (digital or physical signature).
 4. Document version is finalized and marked as approved.
 
+**This document is aligned and inspired from the [Functional Specifications Document](../Functional/FunctionalSpecifications.md)** 

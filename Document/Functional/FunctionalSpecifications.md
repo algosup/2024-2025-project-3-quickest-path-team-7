@@ -1,157 +1,175 @@
 <div align="center">
 
-# Functional Specifications
+**Title:** Quickest Path  
+**Author:** Abderrazaq MAKRAN  
+**Team:** 7  
+**Reviewer:** Pierre GORIN  
 
-**Title:** Quickest Path
+**Created on:** January 6<sup>th</sup>, 2025  
+**Last updated:** February 07<sup>th</sup>, 2025  
 
-**Author:** Abderrazaq MAKRAN
-
-**Team:**  7
-
-**Reviewer:** Pierre GORIN
-
-**Created on:** January 6<sup>th</sup>, 2025
-
-**Last updated:** February 03<sup>th</sup>, 2025
-
----
----
-## Document History
-| Date       | Version | Document Revision Description | Document Author   |
-|------------|---------|-------------------------------|-------------------|
-| 01/06/2025 | 0       | Create template               | Abderrazaq MAKRAN |
-| 01/16/2025 | 0.5       | Finished Intro (have to check data validation and add back to top) + Doing Functional API Details               | Abderrazaq MAKRAN |
-| 01/21/2025 | 1       | First version functional, still needs to be reviewed        | Abderrazaq MAKRAN |
-| 01/25/2025 | 1       | Changes in error handling, milestones       | Abderrazaq MAKRAN |
-| 01/30/2025 | 1       | Refine graph validation part       | Abderrazaq MAKRAN |
-| 02/03/2025 | 1.5       | Add algorithm part, have to add non-functional and review        | Abderrazaq MAKRAN |
----
-
-## Stakeholders
-| Name           | Occupation                  | Links                          |
-|----------------|-----------------------------|--------------------------------|
-| Franck JEANNIN | Client (ALGOSUP's director) | [Website](https://algosup.com) |
-
----
 </div>
 
-<br><details>
-<summary><h2 id="toc"> Table of Contents <i>(Click to expand)</i></h2></summary>
+---
+# Table of Contents
+<details>
+  <summary><h2>Expand</h2></summary>
 
-
-- [Functional Specifications](#functional-specifications)
+- [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+    - [Project Scope](#project-scope)
+    - [Targeted Audience](#targeted-audience)
+    - [Personas](#personas)
+    - [Use Case: Calculate the Quickest Path](#use-case-calculate-the-quickest-path)
+    - [Project](#project)
+    - [Project Reviewers](#project-reviewers)
+    - [Deliverables](#deliverables)
+    - [Milestones](#milestones)
+  - [Requirements](#requirements)
+    - [Functional Requirements](#functional-requirements)
+    - [Non-Functional Requirements](#non-functional-requirements)
+  - [Risks and Assumptions](#risks-and-assumptions)
+    - [Risks](#risks)
+    - [Assumptions](#assumptions)
+  - [System Overview](#system-overview)
+    - [Programming language](#programming-language)
+    - [Architecture \& Interactions](#architecture--interactions)
+    - [Process Flow](#process-flow)
+    - [Explanation of Steps](#explanation-of-steps)
+  - [API Details](#api-details)
+    - [Endpoint](#endpoint)
+    - [API response Handling](#api-response-handling)
+      - [Success Case (HTTP 200)](#success-case-http-200)
+      - [Error handling](#error-handling)
+  - [Data Validation](#data-validation)
+    - [Data Validation Process](#data-validation-process)
+  - [Algorithm](#algorithm)
+    - [Algorithm Selection and Workflow](#algorithm-selection-and-workflow)
+    - [Performance Considerations](#performance-considerations)
+  - [Interactions and Diagrams](#interactions-and-diagrams)
+    - [API Request Process Flow](#api-request-process-flow)
+    - [Graph Validation Workflow](#graph-validation-workflow)
+  - [Glossary](#glossary)
   - [Document History](#document-history)
-  - [| 02/03/2025 | 1.5       | Add algorithm part, have to add non-functional and review        | Abderrazaq MAKRAN |](#-02032025--15--------add-algorithm-part-have-to-add-non-functional-and-review---------abderrazaq-makran-)
-  - [Stakeholders](#stakeholders)
-- [1. Introduction](#1-introduction)
-  - [1.1 Project Scope](#11-project-scope)
-  - [1.1.1 Targeted audience](#111-targeted-audience)
-  - [1.2 Project Team](#12-project-team)
-  - [1.3 Project Reviewers](#13-project-reviewers)
-  - [1.4 Deliverables](#14-deliverables)
-  - [1.5 Milestones](#15-milestones)
-  - [1.6 Terms, Acronyms, and Definitions](#16-terms-acronyms-and-definitions)
-  - [1.7 Requirements, Constraints, and Assumptions](#17-requirements-constraints-and-assumptions)
-    - [1.7.1 Requirements](#171-requirements)
-    - [1.7.2 Constraints](#172-constraints)
-    - [1.7.3 Assumptions](#173-assumptions)
-    - [1.8 Risks and Challenges](#18-risks-and-challenges)
-      - [1.8.1 Risks](#181-risks)
-      - [1.8.2 Challenges](#182-challenges)
-  - [1.9 Personas and Use Cases](#19-personas-and-use-cases)
-    - [1.9.1 Personas](#191-personas)
-      - [**Persona 1: Sarah, the Backend Developer**](#persona-1-sarah-the-backend-developer)
-      - [**Persona 2: Hamid, the Data Scientist**](#persona-2-hamid-the-data-scientist)
-      - [**Persona 3: Leo, the DevOps Engineer**](#persona-3-leo-the-devops-engineer)
-    - [1.9.2 Use Case: Calculating the Quickest Path](#192-use-case-calculating-the-quickest-path)
-      - [Input](#input)
-      - [Process](#process)
-      - [Output](#output)
-        - [**200 OK**](#200-ok)
-- [2. System](#2-system)
-  - [2.1 Functional API Details](#21-functional-api-details)
-    - [**2.1.1 Endpoint**](#211-endpoint)
-      - [**Endpoint**:](#endpoint)
-      - [**Accepted Headers**](#accepted-headers)
-      - [**Query Parameters**](#query-parameters)
-      - [**Request Examples**](#request-examples)
-  - [2.2 Response Details](#22-response-details)
-    - [2.2.1 Success Response](#221-success-response)
-    - [2.2.2 Error Responses](#222-error-responses)
-  - [2.3 Data Validation](#23-data-validation)
-    - [Overview](#overview)
-    - [Validation Workflow](#validation-workflow)
-    - [1. Load the Graph](#1-load-the-graph)
-    - [2. Verify DAG Property](#2-verify-dag-property)
-    - [3. Check Connectivity](#3-check-connectivity)
-    - [4. Transform the Graph](#4-transform-the-graph)
-    - [Final Workflow Summary](#final-workflow-summary)
-    - [Key Considerations](#key-considerations)
-  - [2.4 Process Flow](#24-process-flow)
-  - [**2.5 Algorithm**](#25-algorithm)
-    - [**2.5.1 Algorithm Selection**](#251-algorithm-selection)
-    - [**2.5.2 Algorithm Workflow**](#252-algorithm-workflow)
-      - [**Heuristic Selection (`h(n)`)**](#heuristic-selection-hn)
-    - [**2.5.3 Performance Considerations**](#253-performance-considerations)
-      - [**Time Complexity (`Big O` Notation)**](#time-complexity-big-o-notation)
-    - [**2.5.4 Summary**](#254-summary)
-    - [Approvals](#approvals)
+  - [Aprovals](#aprovals)
 
 </details>
 
----
 
-# 1. Introduction
-This document defines the functional specifications of the Quickest Path project, which aims to develop a software solution in C++ that calculates the fastest path between two landmarks in the USA. The system will expose its functionality via a REST API supporting JSON and XML response formats. The main goal is to deliver fast, accurate results within the constraints specified by the client.
+## Introduction
+[⬆ Back to Top](#table-of-contents)
 
-## 1.1 Project Scope
-| **Feature**                              | **Description**                                                                                 | **In Scope** | **Out of Scope** |
-|------------------------------------------|-------------------------------------------------------------------------------------------------|--------------|------------------|
-| **Shortest Path Calculation**            | The system must calculate the shortest path between two landmarks using heuristic algorithms.   | ✅            |                  |
-| **REST API**                             | The system must expose functionality via a REST API with a single GET endpoint, supporting JSON and XML response formats.   | ✅            |                  |
-| **Data Validation**                    | The system must validate the integrity and connectivity of the input dataset.                  | ✅            |                  |
-| **Heuristic Optimization**               | The system must use heuristics to maintain performance while staying within the 10% error margin. | ✅            |                  |
-| **Multi-Format Support**                 | The API must provide outputs in both JSON and XML formats.                                      | ✅            |                  |
-| **Real-Time Responses**                  | The system must deliver responses within 1 second for a standard laptop setup.                 | ✅            |                  |
-| **Batch Processing**                     | The system must support batch route calculations for multiple source-destination pairs.         |              | ❌               |
-| **User Authentication**                  | The system must authenticate users accessing the API.                                          |              | ❌               |
-| **Graphical Interface**                  | The system must provide a graphical user interface for user interaction.                       |              | ❌               |
+This document describes both the functional and non-functional requirements for the **Quickest Path** project. The system is designed to compute the fastest route between two landmarks in the USA using C++ and expose its functionality via a REST API that supports JSON and XML. In addition to outlining the system’s functionality, we detail performance constraints, error handling, and usability factors so that the document reads as a cohesive article for both technical and non-technical readers.
 
+### Project Scope
+| **Feature**                     | **Description**                                                                                 | **In Scope** | **Out of Scope** |
+|---------------------------------|-------------------------------------------------------------------------------------------------|--------------|------------------|
+| **Shortest Path Calculation**   | Calculate the quickest path using heuristic-based algorithms.                                 | ✅           |                  |
+| **REST API**                    | Provide a single GET endpoint supporting JSON and XML formats.                                | ✅           |                  |
+| **Data Validation**             | Validate dataset integrity, ensuring no cycles and full connectivity.                         | ✅           |                  |
+| **Heuristic Optimization**      | Use heuristics to maintain performance within a 10% error margin.                               | ✅           |                  |
+| **Real-Time Responses**         | Deliver responses within 1 second on a standard development laptop.                           | ✅           |                  |
+| **Batch Processing**            | Support multiple route queries in a single request.                                           |            | ❌                |
+| **User Authentication**         | Authenticate users accessing the API.                                                         |            | ❌                |
+| **Graphical Interface**         | Provide a GUI for user interaction.                                                           |            | ❌                |
 
----
-## 1.1.1 Targeted audience
-- Software developers
-- Logistic companies 
+### Targeted Audience
+- **Software Developers:** Integrate the API into logistics platforms.
+- **Logistics Companies:** Use calculated routes for efficient delivery.
+- **Data Scientists and DevOps Engineers:** Validate algorithm performance and manage deployments.
 
-## 1.2 Project Team
-| Role              | Description                                                                                                                                                                | Name                                                                 |
-|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| Project Manager   | - In charge of organization, planning, and budgeting.<br>- Ensures communication within the team and keeps them motivated.                                                 | [Elone DELILLE](https://www.linkedin.com/in/elonedelille/)           |
-| Program Manager   | - Ensures the project meets the client's expectations.<br>- Acts as the intermediary between the client and the development team.<br>- Responsible for writing the Functional Specifications. | [Abderrazaq MAKRAN](https://www.linkedin.com/in/abderrazaq-makran/)  |
-| Tech Lead         | - Makes technical decisions for the project.<br>- Translates the Functional Specifications into Technical Specifications.                                  | [Guillaume DERAMCHI](https://www.linkedin.com/in/guillaume-deramchi/)| 
-| Technical Writer  | - Writes the documentation for the project.<br>- Based on the specifications, creates a manual for end-users.                                                              | [Tino GABET](https://www.linkedin.com/in/tino-gabet-5794bb32a/)      |
-| Software Engineer | - Writes the code and unit tests, comments, and documents the code.<br>- Participates in technical decisions.                                                              | [Benoit DE KEYN](https://www.linkedin.com/in/benoît-de-keyn-71611b293/), [Axel DAVID](https://www.linkedin.com/in/axel-david-6384bb32a/) |
-| Quality Assurance | - Tests all product functionalities to find bugs and issues.<br>- Defines the test strategy and writes the Test Plan.<br>- Documents all encountered bugs and ensures their resolution. | [Pierre GORIN](https://www.linkedin.com/in/pierre-gorin-61a784221/)  |
+### Personas
 
 ---
+ **Persona 1: Sarah Dubois – The Backend Developer**  
+- **Age:** 29  
+- **Role:** Backend Developer at a Logistics Tech Company  
+- **Technical Level:** Advanced (Software Engineering, APIs, Databases)  
 
-## 1.3 Project Reviewers
-External project reviewers have been appointed by the project owner to review our specifications and provide feedback.
+**Background & Experience:**  
+Sarah has been working as a backend developer for six years, focusing on building APIs and integrating third-party services. She works at a logistics tech company that optimizes delivery routes for e-commerce businesses. She is comfortable working with REST APIs, databases, and server-side optimizations.  
+
+**Goals & Motivations:**  
+- Wants a **reliable and efficient API** for calculating the fastest delivery routes.  
+- Needs an **easy-to-integrate API** that fits into her company's logistics platform.  
+- Prefers **well-documented APIs** to minimize development time and debugging efforts.  
+
+**Pain Points & Frustrations:**  
+- **Slow APIs** that cause delays in route calculations.  
+- **Poorly documented APIs** that require trial and error to integrate.  
+- **Inaccurate route estimations** that lead to delivery inefficiencies.  
+
+**How *Quickest Path* Helps:**  
+✅ **Fast API response times** (under 1 second) improve logistics efficiency.  
+✅ **Simple REST API integration** with clear documentation reduces development time.  
+✅ **Accurate route calculations** (within 10% error margin) ensure reliable delivery planning.  
 
 ---
 
-## 1.4 Deliverables
-| Deliverable                               | Link to the Document                                          |
-|-------------------------------------------|---------------------------------------------------------------|
-| Functional Specifications                 | [Functional Specifications](./Functional-Specifications.md)   |
-| Technical Specifications                  | [Technical Specifications](./Technical-Specifications.md)     |
-| Test Plan                                 | [Test Plan](./Test-Plan.md)                                   |
-| User Manual                               | [User Manual](./User-Manual.md)                               |
-| Code                                      | [Code Repository](../../Src/software_team3/software_team3.ino)|
+**Persona 2: Marc Lefevre – The Logistics Manager**  
+- **Age:** 42  
+- **Role:** Logistics Manager at a National Delivery Company  
+- **Technical Level:** Low (Basic IT skills, Uses logistics software)  
+
+**Background & Experience:**  
+Marc has been managing delivery operations for over 15 years. He oversees a fleet of drivers and ensures that deliveries arrive on time. While he is comfortable using logistics software, he **does not code** and relies on user-friendly tools for decision-making.  
+
+**Goals & Motivations:**  
+- Needs a system that **optimizes delivery routes in real-time**.  
+- Wants to **reduce fuel costs and delivery times** for better efficiency.  
+- Prefers a solution that is **accurate and does not require technical knowledge**.  
+
+**Pain Points & Frustrations:**  
+- **Inefficient routing** causes unnecessary delays and increases costs.  
+- **Complicated software** that requires technical knowledge to use.  
+- **Slow response times** from routing systems, leading to poor real-time decisions.  
+
+**How *Quickest Path* Helps:**  
+✅ **Accurate shortest path calculations** help optimize delivery schedules.  
+✅ **Fast response times** allow real-time decision-making for rerouting.  
+✅ **Simple API integration** means his company’s logistics software can use it without complex configurations.
 
 ---
 
-## 1.5 Milestones
+### Use Case: Calculate the Quickest Path
+
+| **Use Case ID**   | UC-01 |
+|------------------|-----------|
+| **Use Case Name** | Calculate the Quickest Path Between Two Landmarks |
+| **Actor**        | User (Backend System or Developer) |
+| **Preconditions** | The API is running, and the dataset is loaded. |
+| **Trigger**      | The user sends a GET request to `/quickest-path` with `source` and `destination` parameters. |
+| **Main Flow**    | 1. The system receives the request. <br> 2. It validates the query parameters. <br> 3. It checks if the landmarks exist in the dataset. <br> 4. It calculates the quickest path using the A* algorithm. <br> 5. The system returns the result in JSON or XML format. |
+| **Alternative Flow** | If invalid input is detected, the system returns an error response (e.g., `400 Bad Request`, `404 Not Found`). |
+| **Postconditions** | The system provides the shortest path and estimated travel time. |
+| **Exceptions** | If an unexpected issue occurs, return `500 Internal Server Error`. |
+
+---
+
+### Project
+[⬆ Back to Top](#table-of-contents)
+| **Role**              | **Description**                                                                                                                                       | **Name**                                                                 |
+|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| Project Manager       | Oversees project organization and communication.                                                                                                    | [Elone DELILLE](https://www.linkedin.com/in/elonedelille/)               |
+| Program Manager       | Acts as the liaison between the client and development team; compiles specifications.                                                                 | [Abderrazaq MAKRAN](https://www.linkedin.com/in/abderrazaq-makran/)      |
+| Tech Lead             | Oversees technical decisions and architecture.                                                                                                       | [Guillaume DERAMCHI](https://www.linkedin.com/in/guillaume-deramchi/)      |
+| Technical Writer      | Develops user and technical documentation.                                                                                                             | [Tino GABET](https://www.linkedin.com/in/tino-gabet-5794bb32a/)          |
+| Software Engineers    | Develop code, write tests, and maintain documentation.                                                                                                 | [Benoit DE KEYN](https://www.linkedin.com/in/benoît-de-keyn-71611b293/), [Axel DAVID](https://www.linkedin.com/in/axel-david-6384bb32a/) |
+| Quality Assurance     | Test and document product functionalities and issues.                                                                                                  | [Pierre GORIN](https://www.linkedin.com/in/pierre-gorin-61a784221/)       |
+
+### Project Reviewers
+External reviewers have been appointed to ensure the document meets quality and clarity standards.
+
+### Deliverables
+| **Deliverable**                | **Link**                                           |
+|--------------------------------|----------------------------------------------------|
+| Functional & Non-Functional Specifications | [Functional & Non-Functional Specifications](../Functional/FunctionalSpecifications.md) |
+| Technical Specifications       | [Technical Specifications](../Technical/TechnicalSpecifications.md) |
+| Test Plan                      | [Test Startegy](../QA/TestStrategy.md)                        |
+| User Manual                    | [User Manual](https://quickest-path-team-7.gitbook.io/quickest-path-team-7-docs/)                    |
+| Code Repository                | [Code Repository](../../) |
+
+### Milestones
 ```mermaid
 ---
 displayMode: wide
@@ -219,722 +237,361 @@ gantt
 ```
 ---
 
-## 1.6 Terms, Acronyms, and Definitions
-| Term/Acronym                | Definition                                                                                  |
-|-----------------------------|----------------------------------------------------------------------------------------------|
-| Functional Specifications   | A document explaining what the system needs to do and how it should work.                   |
-| Technical Specifications    | A document detailing how the system will be built, including algorithms and data structures.|
-| Test Plan                   | A document describing the testing strategy for the system.                                   |
-| REST API                    | A web service interface that allows communication using standard HTTP methods.              |
-| JSON                        | A lightweight data format that is easy to read and write for both humans and machines.      |
-| XML                         | A markup language designed to store and transport data in a structured format.              |
-| Heuristic Algorithm         | A problem-solving approach prioritizing speed over precision.                               |
-| Dataset                     | A structured collection of data used for analysis and processing.                           |
-| Bidirectional Connections   | Connections that allow navigation in both directions between nodes.                         |
+## Requirements
+[⬆ Back to Top](#table-of-contents)
+### Functional Requirements
+- **Route Calculation:**  
+  The API computes the quickest path between two given landmarks using an A* algorithm.
+- **REST API Interface:**  
+  A single `GET` endpoint `/quickest-path` accepts query parameters (`source`, `destination`, and optional `format`) and returns results in JSON (default) or XML.
+- **Data Validation:**  
+  The system performs a one-time validation of the dataset to ensure it is a Directed Acyclic Graph (DAG) and fully connected.
+- **Error Handling:**  
+  The API provides clear error responses with HTTP status codes (400, 404, 405, 500) and descriptive messages.
+- **Response Time:**  
+  Each query is processed within 1 second on a standard development laptop.
 
-
-
-
-## 1.7 Requirements, Constraints, and Assumptions
-
-### 1.7.1 Requirements
-<table>
-  <thead>
-    <tr>
-      <th>Category</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Language</strong></td>
-      <td>The system must be developed in C++ to optimize performance for graph computations and align with project requirements.</td>
-    </tr>
-    <tr>
-      <td><strong>REST API</strong></td>
-      <td>
-        The system will expose its functionality through a REST API:
-        <ul>
-          <li><strong>Input:</strong> Accepts the source and destination landmark IDs as query parameters.</li>
-          <li><strong>Output:</strong> Returns the total travel time and the ordered list of landmarks along the path.</li>
-          <li><strong>Response Formats:</strong> Supports JSON (default) and XML formats.</li>
-          <li><strong>Error Handling:</strong> The API must handle and respond with appropriate HTTP status codes (e.g., 200, 400, 404) and descriptive error messages.</li>
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td><strong>Graph Validation (One-Time Check)</strong></td>
-      <td>
-        The dataset will be processed to generate a graph, which will undergo a one-time validation to:
-        <ul>
-          <li>Ensure it is free of loops (cycles).</li>
-          <li>Verify it is fully connected, ensuring a path exists between any two landmarks.</li>
-        </ul>
-        This graph will be preloaded into memory and reused for all subsequent queries during the localhost session.
-      </td>
-    </tr>
-    <tr>
-      <td><strong>Performance</strong></td>
-      <td>
-        <ul>
-          <li>Respond to all queries within 1 second on a standard development machine (laptop).</li>
-          <li>Allow a heuristic margin of up to 10% from the shortest path for performance optimization.</li>
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td><strong>Environment</strong></td>
-      <td>
-        <ul>
-          <li>The system will run exclusively on a localhost environment for development and testing purposes.</li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
+### Non-Functional Requirements
+- **Performance:**
+  - **Execution Time:** Queries are processed within 1 second.
+  - **Scalability:** The system scales efficiently to handle increasing dataset sizes (up to 24 million nodes) while managing memory consumption.
+- **Reliability and Robustness:**
+  - The system consistently produces meaningful error messages with appropriate HTTP status codes.
+  - Graph validation is performed only once during system startup to reduce processing overhead.
+- **Usability:**
+  - Comprehensive API documentation and clear error messages ensure ease of integration.
+  - The API supports both JSON and XML response formats.
+- **Maintainability:**
+  - A modular and well-commented codebase facilitates future enhancements and debugging.
+- **Security:**
+  - Since the system is developed and tested in a local environment, advanced security measures (e.g., authentication and encryption) are not implemented.
+- **Portability:**
+  - Developed in C++ to leverage performance in graph computations and to ensure cross-platform compatibility.
 
 ---
 
-### 1.7.2 Constraints
-<table>
-  <thead>
-    <tr>
-      <th>Category</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Timeline</strong></td>
-      <td>The project must adhere to the defined timeline and milestones.</td>
-    </tr>
-    <tr>
-      <td><strong>Hardware</strong></td>
-      <td>
-        The system must operate efficiently on a standard development laptop with limited computational resources 
-        (e.g., 8 GB RAM, quad-core processor).
-      </td>
-    </tr>
-    <tr>
-      <td><strong>Graph Validation Frequency</strong></td>
-      <td>The graph validation check must only be performed once during the initialization phase and will not be repeated for each query.</td>
-    </tr>
-    <tr>
-      <td><strong>Environment</strong></td>
-      <td>
-        The system does not require internet connectivity for operation, as all computations are performed locally. 
-        Interaction is limited to local API calls (e.g., <code>http://localhost:8080</code>).
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-### 1.7.3 Assumptions
-<table>
-  <thead>
-    <tr>
-      <th>Assumption</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>The provided dataset is accurate and does not require transformation or corrections beyond loop validation and connectivity checks.</td>
-    </tr>
-    <tr>
-      <td>Users will provide valid and existing landmark IDs for source and destination queries.</td>
-    </tr>
-    <tr>
-      <td>The system is expected to handle only a limited number of concurrent queries during localhost testing.</td>
-    </tr>
-    <tr>
-      <td>The API will not require authentication or encryption for localhost development.</td>
-    </tr>
-  </tbody>
-</table>
-
-
-
----
-
-### 1.8 Risks and Challenges
-
-#### 1.8.1 Risks
-<table>
-  <thead>
-    <tr>
-      <th>Risk</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Dataset Size</strong></td>
-      <td>Large datasets (24 million nodes) may cause performance or memory challenges.</td>
-    </tr>
-    <tr>
-      <td><strong>Algorithm Accuracy</strong></td>
-      <td>The use of heuristics for approximations could lead to deviations exceeding the acceptable 10% margin in rare cases.</td>
-    </tr>
-    <tr>
-      <td><strong>System Load</strong></td>
-      <td>High query volumes could overload the system, particularly on constrained hardware.</td>
-    </tr>
-  </tbody>
-</table>
-
-#### 1.8.2 Challenges
-<table>
-  <thead>
-    <tr>
-      <th>Challenge</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Speed vs. Accuracy</strong></td>
-      <td>Ensuring that heuristic optimizations maintain a balance between fast response times and acceptable error margins.</td>
-    </tr>
-    <tr>
-      <td><strong>Graph Size Management</strong></td>
-      <td>Efficiently managing large datasets in memory for multiple queries without excessive resource consumption.</td>
-    </tr>
-    <tr>
-      <td><strong>Robust Error Handling</strong></td>
-      <td>Consistently identifying and communicating errors in input or system operations without impacting the user experience.</td>
-    </tr>
-  </tbody>
-</table>
-
----
-
-## 1.9 Personas and Use Cases
-
-### 1.9.1 Personas
-
-#### **Persona 1: Sarah, the Backend Developer**
-- **Goals**: Integrate the API into a logistics platform for real-time route calculations.  
-- **Needs**: Comprehensive API documentation and predictable response times.  
-- **Pain Points**: Struggles with datasets that lack clarity or APIs with inconsistent performance.  
-
-#### **Persona 2: Hamid, the Data Scientist**
-- **Goals**: Validate the algorithm’s accuracy and analyze performance across large datasets.  
-- **Needs**: Clear documentation on heuristic error margins and bulk result validation capabilities.  
-- **Pain Points**: Requires well-structured data outputs for downstream processing.  
-
-#### **Persona 3: Leo, the DevOps Engineer**
-- **Goals**: Deploy the system on a scalable cloud platform and monitor its performance under heavy load.  
-- **Needs**: Precise resource utilization details and robust error handling to ensure uptime.  
-- **Pain Points**: Difficulty in deploying systems with unclear technical specifications or insufficient error reporting.  
-
----
-
-### 1.9.2 Use Case: Calculating the Quickest Path
-
-**Scenario**: A backend developer uses the API to calculate delivery routes for a logistics application.  
-
-#### Input
-- Source and destination landmark IDs as query parameters (e.g., `?source=123&destination=456`).  
-- Optionally specify response format as `format=json` (default) or `format=xml`.
-
-#### Process
-1. The developer submits a GET request with the required parameters.  
-2. The system validates the input and checks for errors.  
-3. The system retrieves the shortest path from the preloaded graph.  
-4. The system formats the result in the requested format (JSON or XML).  
-5. The system responds with the calculated travel time and the ordered list of landmarks.
-
-#### Output
-##### **200 OK**
-- **When**: The query is successful, and the path is found.  
-- **Example JSON Response**:  
-  ```json
-  {
-      "time": 120,
-      "path": ["123", "234", "345", "456"]
-  }
-- **Example XML Response**:
-  ```XML
-        <response>
-            <time>120</time>
-            <path>
-                <landmark>123</landmark>
-                <landmark>234</landmark>
-                <landmark>345</landmark>
-                <landmark>456</landmark>
-            </path>
-        </response>
-  ```
-  
-# 2. System
-
-## 2.1 Functional API Details
-
-### **2.1.1 Endpoint**
-
-This project will use a single `GET` request method to handle all queries, ensuring simplicity and consistency in the API design.
-
-#### **Endpoint**:
-| **Attribute**     | **Description**                                                                                                                                               |
-|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Description**    | Calculates the quickest path between two landmarks in the graph.                                                                                             |
-| **Method**         | `GET`                                                                                                                                                        |
-| **Endpoint URL**   | `/quickest-path`                                                                                                                                            |
-
----
-
-#### **Accepted Headers**
-| **Header** | **Description**                             | **Values**                           | **Default**      |
-|------------|---------------------------------------------|---------------------------------------|------------------|
-| `Accept`   | Specifies the desired response format.      | `application/json`, `application/xml`| `application/json` |
-
----
-
-#### **Query Parameters**
-| **Parameter**  | **Required** | **Description**                                                                                              | **Input Values**         |
-|-----------------|-------------|--------------------------------------------------------------------------------------------------------------|-----------------------------|
-| `source`       | Yes         | The ID of the starting landmark (A). Must be an integer within the valid range.                              | Integer must be between 1 and 23,947,347      |
-| `destination`  | Yes         | The ID of the destination landmark (B). Must be an integer within the valid range.                           | Integer must be between 1 and 23,947,347     |
-| `format`       | No          | Overrides the `Accept` header to specify the response format.                                                | `json`, `xml`               |
-
----
-
-#### **Request Examples**
-
-| **Example**               | **Details**                                                                                     |
-|----------------------------|-------------------------------------------------------------------------------------------------|
-| **Request with Header**    | ``` GET /quickest-path?source=123&destination=456 HTTP/1.1```<br>```Host: localhost:8080```<br>```Accept: application/json``` |
-| **Request with Query Parameter** | ```GET http://localhost:8080/quickest-path?source=123&destination=456&format=xml```                     |
-
-## 2.2 Response Details
-### 2.2.1 Success Response
-
-<table>
-  <thead>
-    <tr>
-      <th>HTTP Status</th>
-      <th>Condition</th>
-      <th>Description</th>
-      <th>Example Response</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>200 OK</strong></td>
-      <td>Path successfully calculated</td>
-      <td>The system calculates the shortest path between the source and destination landmarks.</td>
-      <td>
-        <strong>JSON:</strong>
-        <pre>
-{
-  "time": 145,
-  "path": ["123", "234", "345", "456"]
-}
-        </pre>
-        <strong>XML:</strong>
-        <pre>
-&lt;response&gt;
-  &lt;time&gt;145&lt;/time&gt;
-  &lt;path&gt;
-    &lt;landmark&gt;123&lt;/landmark&gt;
-    &lt;landmark&gt;234&lt;/landmark&gt;
-    &lt;landmark&gt;345&lt;/landmark&gt;
-    &lt;landmark&gt;456&lt;/landmark&gt;
-  &lt;/path&gt;
-&lt;/response&gt;
-        </pre>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-
-
-
-### 2.2.2 Error Responses
-The API returns appropriate error codes with descriptive messages in the requested format (JSON by default):
-
-<table>
-  <thead>
-    <tr>
-      <th>HTTP Status</th>
-      <th>Condition</th>
-      <th>Description</th>
-      <th>Example Response</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><b>400 Bad Request</b></td>
-      <td>Malformed request or missing parameters</td>
-      <td>The input query is missing required parameters, is incorrectly formatted, or contains identical source and destination landmarks</td>
-      <td>
-        <b>JSON:</b>
-        <pre>
-{
-  "status": "Invalid or missing parameters.",
-  "details": {
-    "missing_parameters": ["source", "destination"],
-    "resolution": "Ensure both 'source' and 'destination' are included as query parameters.",
-    "documentation": "https://example.com/docs#parameters"
-  }
-}
-        </pre>
-        <b>XML:</b>
-        <pre>
-&lt;status&gt;
-  &lt;message&gt;Invalid or missing parameters.&lt;/message&gt;
-  &lt;details&gt;
-    &lt;missing_parameters&gt;
-      &lt;parameter&gt;source&lt;/parameter&gt;
-      &lt;parameter&gt;destination&lt;/parameter&gt;
-    &lt;/missing_parameters&gt;
-    &lt;resolution&gt;Ensure both 'source' and 'destination' are included as query parameters.&lt;/resolution&gt;
-    &lt;documentation&gt;https://example.com/docs#parameters&lt;/documentation&gt;
-  &lt;/details&gt;
-&lt;/status&gt;
-        </pre>
-      </td>
-    </tr>
-    <tr>
-      <td><b>404 Not Found</b></td>
-      <td>Invalid source or destination ID</td>
-      <td>The <code>source</code> or <code>destination</code> landmark ID does not exist in the dataset.</td>
-      <td>
-        <b>JSON:</b>
-        <pre>
-{
-  "status": "Landmark not found.",
-  "details": {
-    "landmark_id": "123",
-    "resolution": "Check the dataset for valid landmark IDs.",
-    "documentation": "https://example.com/docs#landmarks"
-  }
-}
-        </pre>
-        <b>XML:</b>
-        <pre>
-&lt;status&gt;
-  &lt;message&gt;Landmark not found.&lt;/message&gt;
-  &lt;details&gt;
-    &lt;landmark_id&gt;123&lt;/landmark_id&gt;
-    &lt;resolution&gt;Check the dataset for valid landmark IDs.&lt;/resolution&gt;
-    &lt;documentation&gt;https://example.com/docs#landmarks&lt;/documentation&gt;
-  &lt;/details&gt;
-&lt;/status&gt;
-        </pre>
-      </td>
-    </tr>
-    <tr>
-      <td><b>405 Method Not Allowed</b></td>
-      <td>Unsupported HTTP method</td>
-      <td>A method other than <code>GET</code> (e.g., <code>POST</code>) is used to access the API.</td>
-      <td>
-        <b>JSON:</b>
-        <pre>
-{
-  "status": "Method Not Allowed",
-  "details": {
-    "method_used": "POST",
-    "allowed_methods": ["GET"],
-    "resolution": "Use the correct HTTP method. Refer to the API documentation for supported methods.",
-    "documentation": "https://example.com/docs#http-methods"
-  },
-  "timestamp": "2025-01-16T14:45:00Z"
-}
-        </pre>
-        <b>XML:</b>
-        <pre>
-&lt;status&gt;
-  &lt;message&gt;Method Not Allowed&lt;/message&gt;
-  &lt;details&gt;
-    &lt;method_used&gt;POST&lt;/method_used&gt;
-    &lt;allowed_methods&gt;
-      &lt;method&gt;GET&lt;/method&gt;
-    &lt;/allowed_methods&gt;
-    &lt;resolution&gt;Use the correct HTTP method. Refer to the API documentation for supported methods.&lt;/resolution&gt;
-    &lt;documentation&gt;https://example.com/docs#http-methods&lt;/documentation&gt;
-  &lt;/details&gt;
-  &lt;timestamp&gt;2025-01-16T14:45:00Z&lt;/timestamp&gt;
-&lt;/status&gt;
-        </pre>
-      </td>
-    </tr>
-    <tr>
-      <td><b>500 Internal Server Error</b></td>
-      <td>Unexpected server issue</td>
-      <td>The server encountered an error that prevents it from fulfilling the request.</td>
-      <td>
-        <b>JSON:</b>
-        <pre>
-{
-  "status": "Internal Server Error",
-  "details": {
-    "error": "Unexpected exception occurred.",
-    "resolution": "Check server logs for detailed error information.",
-    "documentation": "https://example.com/docs#error-handling"
-  }
-}
-        </pre>
-        <b>XML:</b>
-        <pre>
-&lt;status&gt;
-  &lt;message&gt;Internal Server Error&lt;/message&gt;
-  &lt;details&gt;
-    &lt;error&gt;Unexpected exception occurred.&lt;/error&gt;
-    &lt;resolution&gt;Check server logs for detailed error information.&lt;/resolution&gt;
-    &lt;documentation&gt;https://example.com/docs#error-handling&lt;/documentation&gt;
-  &lt;/details&gt;
-&lt;/status&gt;
-        </pre>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-
-
-
-## 2.3 Data Validation
-
-### Overview
-Graph validation ensures the integrity of the dataset (`USA-roads.csv`) by checking:
-1. **DAG Property**: The graph must be a **Directed Acyclic Graph (DAG)**.
-2. **Connectivity**: The graph must be **fully connected** (no isolated nodes or subgraphs).
-3. **Undirected Interpretation**: After validation, the graph is treated as **undirected** for pathfinding.
-
-### Validation Workflow
-The validation process consists of three key stages:
-
-| **Stage**               | **Objective**                                                                 | **Method**                                                                 |
-|--------------------------|-------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| 1. Load the Graph        | Parse the dataset and construct the graph using an adjacency list or matrix. | Efficient data structures for traversal and validation.                    |
-| 2. Verify DAG Property   | Ensure the graph contains no cycles.                                         | Use **Depth-First Search (DFS)** for cycle detection.                      |
-| 3. Check Connectivity    | Ensure every node is reachable from at least one other node.                 | Use **Breadth-First Search (BFS)** to confirm connectivity.                |
-| 4. Transform the Graph   | Convert the graph to undirected for pathfinding.                             | Add reverse edges to every directed edge if not already present.           |
-
----
-
-### 1. Load the Graph
-**Steps**:
-- Parse the `USA-roads.csv` file.
-- Construct the graph using:
-  - **Adjacency List**: A space-efficient representation for large datasets.
-
-**Output**:
-- A directed graph ready for validation.
-
----
-
-### 2. Verify DAG Property
-**Objective**: Ensure the graph contains no cycles.
-
-**Method**: Perform cycle detection using **Depth-First Search (DFS)**:
-- During traversal, maintain a "visited" list and a "recursion stack."
-- If a node is revisited while it is still in the recursion stack, a cycle is detected.
-
-**Steps**:
-1. Start DFS from an arbitrary node.
-2. Mark the node as "visited" and add it to the recursion stack.
-3. Traverse its neighbors:
-   - If a neighbor is already in the recursion stack, a cycle exists.
-4. Remove the node from the stack after processing all neighbors.
-5. Repeat for unvisited nodes.
-
-**Output**:
-- **Success**: No cycles detected.
-- **Failure**: A cycle is found. Halt validation with an error.
-
----
-
-### 3. Check Connectivity
-**Objective**: Ensure every node is reachable.
-
-**Method**: Perform a connectivity check using **Breadth-First Search (BFS)**:
-- Start from an arbitrary node.
-- Traverse all reachable nodes, marking them as "visited."
-- After traversal, check if all nodes have been visited:
-  - If any node remains unvisited, the graph is not fully connected.
-
-**Steps**:
-1. Pick a starting node and initialize an empty "visited" list.
-2. Use BFS to traverse all connected nodes.
-3. After traversal, verify if all nodes are in the "visited" list.
-4. If not, report disconnected nodes or subgraphs.
-
-**Output**:
-- **Success**: All nodes are connected.
-- **Failure**: Isolated nodes or subgraphs detected. Halt validation with an error.
-
----
-
-### 4. Transform the Graph
-**Objective**: Prepare the graph for undirected pathfinding algorithms.
-
-**Steps**:
-1. For every directed edge `(A → B)`:
-   - Add a reverse edge `(B → A)` if not already present.
-2. Save the modified graph in memory.
-
-**Output**:
-- A fully undirected graph for use in algorithms.
-
----
-
-### Final Workflow Summary
-| **Stage**               | **Action**                                                                 | **Outcome**                                                             |
-|--------------------------|----------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| Load the Graph           | Parse the dataset and construct the graph.                                | Graph ready for validation.                                             |
-| Verify DAG Property      | Perform cycle detection using DFS.                                        | Confirm acyclicity or halt on failure.                                  |
-| Check Connectivity       | Use BFS to ensure all nodes are connected.                                | Confirm connectivity or halt on failure.                                |
-| Transform the Graph      | Add reverse edges for undirected interpretation.                          | Undirected graph ready for pathfinding algorithms.                      |
-
----
-
-### Key Considerations
-- **Single-Time Validation**:
-  - Validation is conducted only once during system initialization.
-  - If validation fails, the system halts to prevent errors in downstream computations.
-- **Performance**:
-  - DFS and BFS are efficient algorithms for these tasks, making the process scalable for large datasets.
-
-**Error Handling**:
-- If cycles are detected:
-  - Error: The dataset is not a valid DAG. Cycles detected.
-- If connectivity fails:
-  - Error: The graph is not fully connected. Isolated nodes detected.
-
-## 2.4 Process Flow
-
-As we explored earlier in this document, here is a small recap of how the process flow for the **Quickest Path REST API** is structured:
-
-| **Step**               | **Description**                                                                                      | **Response**                     |
-|------------------------|------------------------------------------------------------------------------------------------------|----------------------------------|
-| **Method Validation**  | Ensures the request method is `GET`. If not, the API rejects the request.                            | **405 Method Not Allowed**       |
-| **Input Validation**   | Validates `source` and `destination` parameters for presence and correctness.                        | **400 Bad Request**              |
-| **Landmark Check**     | Checks if the `source` and `destination` exist in the dataset:                                       |                                  |
-|                        | - If either is missing from the dataset, the API returns an error.                                   | **404 Not Found**                |
-|                        | - If `source` equals `destination`, the API returns an error indicating identical landmarks.         | **400 Bad Request**              |
-| **Pathfinding**        | Executes the A* algorithm to compute the shortest path:                                              |                                  |
-|                        | - If an internal error occurs during computation, the API returns an error.                          | **500 Internal Server Error**    |
-|                        | - If successful, the calculated path and travel time are processed.                                  | **200 OK**                       |
-| **Response Formatting**| Formats the output based on the requested format (JSON by default, or XML if specified).             | **200 OK**                       |
-| **Send Response**      | Sends the formatted response with the shortest path and travel time to the user.                     | **200 OK**                       |
-
+## Risks and Assumptions
+### Risks
+- **Large Dataset:**  
+  Handling up to 24 million nodes may lead to performance and memory issues if the system is not properly optimized.
+- **Heuristic Accuracy:**  
+  The use of approximations in the A* algorithm might produce paths that exceed the acceptable 10% error margin.
+- **High System Load:**  
+  A surge in query volume or concurrent requests could overwhelm the system, particularly on limited-resource hardware.
+- **Data Quality:**  
+  Inaccuracies or inconsistencies in the dataset might compromise the correctness of the computed paths.
+
+### Assumptions
+- **Dataset Integrity:**  
+  The provided dataset is assumed to be accurate, complete, and requires only a one-time validation.
+- **Valid Inputs:**  
+  Users will supply valid, existing landmark IDs for both the source and destination.
+- **Static Graph:**  
+  The graph remains static during a session, making the one-time validation sufficient.
+- **Local Environment:**  
+  The system operates in a localhost environment, so advanced security measures are not necessary.
+- **Limited Concurrency:**  
+  It is assumed that initial usage will involve a limited number of concurrent queries.
+
+
+## System Overview
+[⬆ Back to Top](#table-of-contents)
+### Programming language
+- **C++ Implementation**: Optimized for performance using STL libraries.
+- **REST Server**: Lightweight HTTP server for localhost deployment.
+### Architecture & Interactions
+The system is designed in modular layers:
+
+- **Input Layer:** Receives HTTP GET requests and validates the method and query parameters.
+- **Validation Layer:** Loads and validates the dataset (graph parsing, DAG and connectivity checks).
+- **Processing Layer:** Executes the A* algorithm using the pre-validated and transformed (undirected) graph.
+- **Response Layer:** Formats the results into JSON or XML as requested and handles error responses.
+
+**Interactions Diagram:**
 
 ```mermaid
 graph TD
-  A["User Input:<br>Send request to<br>API"]
-  A --> B{"Is method<br>GET?"}
-  B -->|"No"| C["Return 405<br>Method Not Allowed"]
-  B -->|"Yes"| D["Process<br>request"]
-  D --> E{"Is input<br>valid?"}
-  E -->|"No"| F["Return 400<br>Bad Request"]
-  E -->|"Yes"| G{"Are source and<br>destination found?"}
-  G -->|"No"| H["Return 404<br>Not Found"]
-  G -->|"Yes"| I{"Are source and<br>destination identical?"}
-  I -->|"Yes"| F["Return 400<br>Bad Request"]
-  I -->|"No"| K["Run pathfinding<br>algorithm"]
-  K --> L{"Error during<br>pathfinding?"}
-  L -->|"Yes"| M["Return 500<br>Internal Server Error"]
-  L -->|"No"| N["Format response"]
-  N --> O{"Requested<br>format?"}
-  O -->|"JSON"| P["Return JSON<br>response"]
-  O -->|"XML"| Q["Return XML<br>response"]
-  P --> R["Return 200 OK<br>response with path <br> and time"]
-  Q --> R
-
+  A["Client Request<br>(GET /quickest-path)"]
+  B["Input Validation<br>(Method & Params)"]
+  C["Graph Validation<br>(DAG, Connectivity)"]
+  D["Pathfinding Engine<br>(A* Algorithm)"]
+  E["Response Formatter<br>(JSON/XML)"]
+  F[Client Response]
+  
+  A --> B
+  B --> C
+  C --> D
+  D --> E
+  E --> F
 ```
 
-## **2.5 Algorithm**
+### Process Flow
+The following diagram illustrates the complete process flow for handling a request to the `/quickest-path` endpoint. It details each step from request reception to final response, including error handling at every stage.
 
-This section describes the algorithm selection, workflow, and performance considerations for computing the quickest path between two landmarks. The system must balance **speed, accuracy, and resource efficiency**, ensuring results are returned within **1 second** while staying within a **10% error margin** of the optimal path.
+```mermaid
+graph TD
+    A[Client Request: GET /quickest-path]
+    
+    %% Validate HTTP Method
+    A --> B{Is HTTP Method GET?}
+    B -- No --> C[Return 405 Method Not Allowed]
+    B -- Yes --> D[Validate Query Parameters]
+
+    %% Validate Query Parameters
+    D --> E{Are required parameters present?}
+    E -- No --> F["Return 400 Bad Request<br>(Malformed request / Missing 'source' or 'destination')"]
+    E -- Yes --> G{Are source and destination different?}
+    G -- No --> H["Return 400 Bad Request<br>(Identical landmarks not allowed)"]
+    G -- Yes --> I[Check Landmark Existence]
+
+    %% Check Landmark Existence
+    I --> J{Do both landmarks exist in dataset?}
+    J -- No --> K[Return 404 Not Found]
+    J -- Yes --> L[Proceed with Graph Validation]
+
+    %% Graph Validation and Processing
+    L --> M["Graph Validated Successfully<br>(One-time process at startup)"]
+    M --> N[Initiate A* Pathfinding Algorithm]
+
+    %% Pathfinding Process
+    N --> O{Is pathfinding successful?}
+    O -- No --> P["Return 500 Internal Server Error<br>(Pathfinding failed)"]
+    O -- Yes --> Q["Format Response<br>(JSON/XML based on request)"]
+
+    %% Final Response
+    Q --> R[Return 200 OK<br>with Path and Travel Time]
+```
+
+### Explanation of Steps
+1. **Request Reception:**
+   - The client sends a GET request to `/quickest-path`.
+
+2. **HTTP Method Validation:**
+   - The system verifies that the HTTP method is GET; if not, it returns a **405 Method Not Allowed** error.
+
+3. **Query Parameter Validation:**
+   - The system checks that both `source` and `destination` parameters are provided.
+   - If any are malformed or missing, a **400 Bad Request** error is returned.
+
+4. **Input Consistency:**
+   - The system ensures that the `source` and `destination` values are not identical.
+   - If they are identical, a **400 Bad Request** error is returned.
+
+5. **Landmark Existence Check:**
+   - The system confirms that both landmarks exist in the dataset.
+   - If either landmark is missing, a **404 Not Found** error is returned.
+
+6. **Graph Validation:**
+   - The system validates the graph (ensuring it is a Directed Acyclic Graph and fully connected), which is performed once during system initialization.
+
+7. **Pathfinding Execution:**
+   - The A* algorithm is initiated to compute the quickest path.
+
+8. **Error Handling in Pathfinding:**
+   - If the pathfinding process fails, a **500 Internal Server Error** is returned.
+
+9. **Response Formatting:**
+   - If the computation is successful, the response is formatted in JSON or XML based on the request.
+
+10. **Final Response:**
+    - The system returns a **200 OK** response that includes the computed path and travel time.
 
 ---
 
-### **2.5.1 Algorithm Selection**
+## API Details
+[⬆ Back to Top](#table-of-contents)
+### Endpoint
 
-| **Algorithm**                | **Description**                                                                 | **In Scope** | **Out of Scope** |
-|------------------------------|---------------------------------------------------------------------------------|--------------|------------------|
-| **Dijkstra’s Algorithm**      | Guarantees the shortest path but has higher computational costs for large graphs. | ❌           | ✅               |
-| **A* Algorithm**              | Uses a heuristic function to improve search efficiency while maintaining accuracy. | ✅           |                  |
-| **Bidirectional Dijkstra**    | Runs Dijkstra from both source and destination simultaneously to reduce search space. | ❌           | ✅               |
-| **ALT Algorithm (A* + Landmarks)** | Uses precomputed landmark distances to optimize A*. Improves speed for large graphs. | ✅ (optional) |                  |
+**Endpoint**  
+- **Method:** GET  
+- **URL:** `/quickest-path`  
 
-The **A* algorithm** is chosen as the **primary pathfinding method** due to its balance of speed and accuracy. The **ALT heuristic (A*, Landmarks, Triangle Inequality)** may be used to further optimize performance.
+**Accepted Headers**  
+| Header | Values | Default |
+|--------|--------|---------|
+| `Accept` | `application/json`, `application/xml` | `application/json` |
+
+**Query Parameters**  
+| Parameter   | Required | Description |
+|-------------|----------|-------------|
+| `source`      | Yes      | The starting landmark ID (integer between `1` and `23,947,347`). |
+| `destination` | Yes      | The destination landmark ID (integer between `1` and `23,947,347`). |
+| `format`      | No       | Overrides the Accept header to return either `json` or `xml`. |
+
+**Request Examples**
+
+- **Using Headers:**
+    ```bash
+    GET /quickest-path?source=123&destination=456 HTTP/1.1
+    Host: localhost:8080
+    Accept: application/json
+    ```
+- **Using Query Parameter:**
+    ```pgsql
+    GET http://localhost:8080/quickest-path?source=123&destination=456&format=xml
+    ```
+
+### API response Handling
+#### Success Case (HTTP 200)
+Example JSON:
+```json
+{  
+  "path": ["L123", "L456", "L789"],  
+  "total_time": 42,  
+  "approximation": "9.8% above optimal"  
+} 
+```
+Example XML:
+```xml
+<path>  
+  <landmarks>  
+    <landmark>L123</landmark>  
+    <landmark>L456</landmark>  
+    <landmark>L789</landmark>  
+  </landmarks>  
+  <total_time>42</total_time>  
+  <approximation>9.8% above optimal</approximation>  
+</path> 
+```
+#### Error handling
+The API returns appropriate error codes and descriptive messages in the requested format (JSON by default):
+| HTTP Status | Condition | Example Response (JSON) |
+|-------------|-----------|-------------------------|
+|400|Identical source/destination|`{ "status": "Invalid parameters", "details": "Source and destination must differ" }`|
+|400|Missing parameters|`{ "status": "Missing 'source' and 'destination' parameters" }`|
+|404|Invalid landmark ID|`{ "status": "Landmark 0 not found in dataset" }`|
+|405|Unsupported HTTP method|`{ "status": "GET method required" }`|
+|500|Internal server error|`{ "status": "Path calculation service unavailable" }`|
+
+
+## Data Validation
+The system validates the dataset by:
+- **DAG verification** during preprocessing to ensure no cycles exist in the directed graph representation.
+- **Connectivity check** to confirm the graph forms a single connected component (no isolated subgraphs).
+- **Runtime interpretation** of the graph as undirected for pathfinding, even though verification treats edges as directed.
+
+*Note: This validation is performed once during system initialization.*
+
+### Data Validation Process
+- **Cycle Detection**: Uses Tarjan's algorithm O(V + E) to verify acyclicity
+- **Connectivity Check**: Employ BFS algorithm to confirm single strongly connected component
+- Validation is performed once during system initialization
+
+While the dataset is validated as a directed acyclic graph (DAG), all pathfinding algorithms treat connections as bidirectional to reflect real-world road networks.
+
+## Algorithm
+[⬆ Back to Top](#table-of-contents)
+### Algorithm Selection and Workflow
+
+The system uses the **A\*** algorithm due to its balance of efficiency and accuracy. Optionally, the ALT heuristic (landmarks-based) may be applied to further optimize performance.
+
+**Workflow:**
+
+1. **Load Graph Data:** Parse the dataset and build the adjacency list.
+2. **Validate Graph:** Ensure the graph is acyclic and fully connected.
+3. **Initialize Search:** Begin A\* from the source node.
+4. **Compute Path:** Expand nodes based on `f(n) = g(n) + h(n)` until the destination is reached.
+5. **Format Response:** Return the total travel time and the ordered list of landmarks.
+
+### Performance Considerations
+
+- **Time Complexity:**
+  - Graph Parsing & Validation: O(V + E)
+  - A\* Search: O(E log V)
+- **Memory Efficiency:** Optimized to handle large datasets (up to 24 million nodes) without excessive resource consumption.
+- **Accuracy:** The computed path must remain within a 10% error margin compared to the optimal path.
 
 ---
 
-### **2.5.2 Algorithm Workflow**
+## Interactions and Diagrams
 
-The system follows these key steps to compute the quickest path:
+### API Request Process Flow
 
-| **Step**                | **Description**                                                                                   |
-|-------------------------|-------------------------------------------------------------------------------------------------|
-| **1. Load Graph Data**   | Parse the `USA-roads.csv` file and construct an adjacency list representing the graph.         |
-| **2. Validate Graph**    | Ensure the dataset is **acyclic** (DAG) and **fully connected** before execution.               |
-| **3. Initialize Search** | Start the A* algorithm with `source` as the starting node and `destination` as the goal.       |
-| **4. Compute Path**      | Expand the node with the lowest estimated cost `f(n) = g(n) + h(n)` until `destination` is reached. |
-| **5. Format Response**   | Return the **total travel time** and **ordered list of landmarks** in JSON or XML.             |
+```mermaid
+flowchart TD
+    A[Client Request: GET /quickest-path]
+    B[Validate HTTP Method]
+    C[Validate Query Parameters]
+    D[Check Landmark Existence]
+    E[Initiate A* Pathfinding]
+    F["Format Response (JSON/XML)"]
+    G[Return 200 OK with path and travel time]
+    
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+```
 
-#### **Heuristic Selection (`h(n)`)**
+### Graph Validation Workflow
+```mermaid
+flowchart LR
+    A[Load Graph from CSV]
+    B[Tarjan's for Cycle Detection]
+    C[BFS for Connectivity Check]
+    D[Transform Graph to Undirected]
+    
+    A --> B
+    B --> C
+    C --> D
+```
 
-The **heuristic function** estimates the cost from node `n` to the destination. The following approaches are considered:
+## Glossary
+[⬆ Back to Top](#table-of-contents)
+| **Term**                                | **Definition**                                                                                                                                                                                                                                                                       |
+|-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Adjacency List**                      | A data structure used to represent a graph by listing each node and its directly connected neighbors. This structure is efficient for traversing and processing large graphs.                                                                                                  |
+| **A\* Algorithm**                       | A pathfinding algorithm that uses both the actual cost from the start and a heuristic estimate to efficiently find the shortest path between two points.                                                                                                                           |
+| **ALT Heuristic**                       | An enhancement to the A* algorithm that uses precomputed distances from selected landmark points to improve the accuracy of the heuristic and further speed up the search process.                                                                                             |
+| **API (Application Programming Interface)** | A set of rules and protocols that allow different software systems to communicate and exchange data.                                                                                                                                                                               |
+| **BFS (Breadth-First Search)**          | An algorithm that explores a graph level by level, ensuring that all nodes at a given distance are processed before moving on. It is commonly used to check connectivity in a graph.                                                                                            |
+| **C++**                                 | A high-performance programming language used to build complex and efficient systems. It is particularly well-suited for tasks that require fast computations, such as graph processing in the Quickest Path project.                                                            |
+| **Connectivity**                        | A measure of how well nodes in a graph are connected, meaning every node can be reached from any other node. This ensures that the network of landmarks is complete and functional.                                                                                           |
+| **Cycle**                               | A path in a graph that starts and ends at the same node, forming a loop. The system ensures that the graph is acyclic (has no cycles) to avoid infinite loops during processing.                                                                                               |
+| **Dataset**                             | A structured collection of data. In this project, the dataset includes information about landmarks and the roads connecting them, which is used to build the graph for pathfinding.                                         |
+| **Directed Acyclic Graph (DAG)**        | A type of graph where each edge has a direction and there are no cycles (i.e., no way to start at one node and return to it by following the directed edges). This ensures the graph can be processed without getting caught in loops.                                     |
+| **Edge**                                | A connection between two nodes in a graph, representing a road or route between landmarks.                                                                                                                                                                                          |
+| **Error Handling**                      | The process of detecting, managing, and reporting errors within a system. It ensures that users receive clear, helpful feedback when something goes wrong, such as an invalid request or a system failure.                                                                       |
+| **Gantt Chart**                         | A visual tool used in project management that displays tasks, durations, and deadlines over a timeline, helping teams plan and track project progress.                                                                                                                           |
+| **Graph**                               | A collection of nodes (or vertices) connected by edges. In this context, it represents the network of landmarks (nodes) and the roads connecting them (edges).                                                                                                                    |
+| **Heuristic**                           | An educated guess used by algorithms (like A*) to estimate the cost from a current node to the destination. It helps speed up the search for the shortest path by reducing unnecessary calculations.                                                                           |
+| **JSON (JavaScript Object Notation)**   | A lightweight data format that represents data as key-value pairs. It is easy for both humans and machines to read and write, making it popular for data exchange between servers and web applications.                                                                          |
+| **Latency**                             | The delay between when a request is made and when the response is received. In the Quickest Path system, ensuring low latency is critical for real-time performance.                                                                                                           |
+| **Localhost**                           | The local computer or server on which the system is running. During development and testing, the application typically operates on localhost rather than over a public network.                                                                                                |
+| **Milestone**                           | A significant checkpoint or goal in a project timeline that marks the completion of important tasks or phases.                                                                                                                                                                      |
+| **Node**                                | A single point or vertex in a graph. For the Quickest Path system, each node represents a landmark.                                                                                                                                                                                 |
+| **Priority Queue**                      | A special data structure that always removes the element with the highest priority (often the smallest cost in pathfinding) first. It is used in algorithms like A* to efficiently determine the next node to process.                                                     |
+| **Process Flow**                        | A diagram or detailed description that outlines the sequence of steps or stages in a system’s operation, from receiving an input to generating the final output.                                                                                                               |
+| **REST API**                            | A web service that uses standard HTTP methods (e.g., GET, POST) to allow applications to interact over the internet, typically returning data in formats like JSON or XML.                                                                                                        |
+|**Tarjan's algorithm**|A linear-time graph traversal method that identifies strongly connected components (SCCs) in a directed graph, enabling cycle detection and validating Directed Acyclic Graph (DAG) properties during data integrity checks|
+| **XML (eXtensible Markup Language)**    | A markup language that uses custom tags to structure data in a readable format. It is widely used for storing and transporting data.                                                                                                                                                  |
 
-| **Heuristic**      | **Description**                                                           | **Usage** |
-|--------------------|---------------------------------------------------------------------------|----------|
-| **Euclidean Distance** | Assumes direct travel between nodes. Best for grid-like road layouts.   | ✅ |
-| **Manhattan Distance** | Assumes travel is limited to horizontal/vertical roads.                 | ✅ |
-| **ALT Heuristic**  | Uses precomputed landmarks to refine distance estimates.                   | ✅ (optional) |
-
----
-
-### **2.5.3 Performance Considerations**
-
-The system must compute paths efficiently, ensuring low latency even with **24 million nodes**.
-
-| **Metric**               | **Requirement**                                             |
-|-------------------------|-------------------------------------------------------------|
-| **Execution Time**      | Must return results within **1 second** on a standard laptop. |
-| **Memory Usage**        | Must remain efficient, avoiding excessive resource consumption. |
-| **Accuracy Constraint** | The computed path must not exceed **10% error margin**.       |
-
-#### **Time Complexity (`Big O` Notation)**
-
-| **Operation**       | **Algorithm**   | **Time Complexity (Worst Case)** |
-|---------------------|----------------|----------------------------------|
-| **Graph Parsing**   | File I/O        | **O(V + E)** |
-| **Graph Validation**| DFS/BFS         | **O(V + E)** |
-| **Pathfinding**     | A* Search       | **O(E log V)** |
-
-- **V** is the number of landmarks (nodes).
-- **E** is the number of connections (edges).
-- **log V** accounts for priority queue operations.
-
-Given the project constraints, this ensures **fast execution** while maintaining accuracy.
-
----
-
-### **2.5.4 Summary**
-
-- The system will use **A* algorithm** with an appropriate **heuristic function** for optimization.
-- Data will be preprocessed and validated before execution.
-- The algorithm will ensure **efficient memory usage** and **low response times**.
-- Results will be formatted in **JSON or XML** as per request parameters.
-
-
-
+## Document History
+[⬆ Back to Top](#table-of-contents)
+| **Date**       | **Version** | **Description**                                             | **Author**           |
+|----------------|-------------|-------------------------------------------------------------|----------------------|
+| 01/06/2025     | 0           | Create template                                             | Abderrazaq MAKRAN    |
+| 01/16/2025     | 0.5         | Finished Introduction and started Functional API Details    | Abderrazaq MAKRAN    |
+| 01/21/2025     | 1           | First version functional                                    | Abderrazaq MAKRAN    |
+| 01/25/2025     | 1.2           | Updated error handling and milestones                       | Abderrazaq MAKRAN    |
+| 01/30/2025     | 1.4           | Refined graph validation section                            | Abderrazaq MAKRAN    |
+| 02/03/2025     | 1.6         | Added algorithm details and updated non-functional section   | Abderrazaq MAKRAN    |
+| 02/04/2025     | 1.8         | Reviewed the doc   | Abderrazaq MAKRAN    |
+| 02/06/2025     | 1.9         | Pre-final version   | Abderrazaq MAKRAN    |
+| 02/07/2025     | 2        | Final version   | Abderrazaq MAKRAN    |
 
 
-### Approvals
+## Aprovals 
 
 | Full name           | Occupation               |Aprovals| Date| 
 | ---------------     | ------------------------ |--------| --------| 
-| Elone DELILLE       | Project manager          | ✅ ❌  |  02//2025  | 
-|  Abderrazaq MAKRAN  | Program manager          | ✅ ❌  |  02//2025  | 
-| Guillaume DERAMCHI  | Tech lead                | ✅ ❌  |  02//2025  | 
-| Benoit DE KEYN      | Software engineer 1      | ✅ ❌  |  02//2025  | 
-| Axel DAVID          | Software engineer 2      | ✅ ❌  |  02//2025  | 
-| Pierre GORIN        | Quality assurance        | ✅ ❌  |  02//2025  | 
-| Tino GABET          | Technical writer         | ✅ ❌  |  02//2025  | 
+| Elone DELILLE       | Project manager          | ✅  |  02/07/2025  | 
+|  Abderrazaq MAKRAN  | Program manager          | ✅  |  02/07/2025  | 
+| Guillaume DERAMCHI  | Tech lead                | ✅  |  02/07/2025  | 
+| Benoit DE KEYN      | Software engineer 1      | ✅  |  02/07/2025  | 
+| Axel DAVID          | Software engineer 2      | ✅  |  02/07/2025  | 
+| Pierre GORIN        | Quality assurance        | ✅  |  02/07/2025  | 
+| Tino GABET          | Technical writer         | ✅  |  02/07/2025  | 
+
