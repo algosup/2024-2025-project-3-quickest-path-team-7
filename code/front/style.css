@@ -184,8 +184,8 @@ input[type="text"]:focus {
 
 button {
   padding: 0.75rem;
-  background: var(--primary-color);
-  color: var(--primary-contrast);
+  background: linear-gradient(90deg, #ce73bc, #ce73bc);
+  color: var(--primary-color);
   font-size: 1rem;
   font-weight: 500;
   border: none;
@@ -205,7 +205,7 @@ button i {
 }
 
 button:hover {
-  background: linear-gradient(90deg, #0056b3, #007bff);
+  background: linear-gradient(90deg, #ce73bc, #ce73bc);
   transform: scale(1.02);
 }
 
