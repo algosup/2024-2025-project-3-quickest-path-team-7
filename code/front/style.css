@@ -93,7 +93,7 @@ body {
 }
 
 .nav-bar a:hover {
-  color: #0056b3;
+  color: #ce73bc;
 }
 
 .nav-bar i {
@@ -184,7 +184,7 @@ input[type="text"]:focus {
 
 button {
   padding: 0.75rem;
-  background: linear-gradient(90deg, #ce73bc, #ce73bc);
+  background: linear-gradient(90deg, #d79dd8, #c24daa);
   color: var(--primary-color);
   font-size: 1rem;
   font-weight: 500;
