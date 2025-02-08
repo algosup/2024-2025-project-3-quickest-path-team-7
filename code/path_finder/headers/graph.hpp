@@ -97,16 +97,16 @@ bool buildGraphFromCSV(Graph& Graph, const Files& Files) {
             try {
                 row.push_back(stoi(cell));
             } catch (const invalid_argument& e) {
-                cout << "Error : Parsing CSV at line " << counter << endl;
+                cout << "ERROR : Parsing CSV at line " << counter+1 << endl;
                 cout << "-> Invalid node value" << endl;
                 return FAIL;
             } catch (const out_of_range& e) {
-                cout << "Error : Parsing CSV at line " << counter << endl;
+                cout << "ERROR : Parsing CSV at line " << counter+1 << endl;
                 cout << "-> Value out of range" << endl;
                 return FAIL;
             }
             if (row.back() <= 0) {
-                cout << "Error : Parsing CSV at line " << counter << endl;
+                cout << "ERROR : Parsing CSV at line " << counter+1 << endl;
                 cout << "-> Negative or Null value" << endl;
                 return FAIL;
             }
@@ -114,7 +114,7 @@ bool buildGraphFromCSV(Graph& Graph, const Files& Files) {
 
         // Check if the line has the correct number of values
         if (row.size() != 3) {
-            cout << "Error : Parsing CSV at line " << counter << endl;
+            cout << "ERROR : Parsing CSV at line " << counter+1 << endl;
             cout << "-> Expected 3 values per line, but read " << row.size() << endl;
             return FAIL;
         }
@@ -249,6 +249,8 @@ void loadGraph(Graph& Graph, Files& Files, bool force = false) {
     // Build the Graph from CSV
     if(!buildGraphFromCSV(Graph, Files)) {
         cout << "Failed to build the graph from CSV !" << endl;
+        cout << "Check the content of your CSV file and try again ... " << endl;
+        return;
     }
 
     // Save it to binary backup for next time

@@ -10,7 +10,13 @@ int main() {
     buildFilesPath(GlobalFiles);
     
     // try to load the graph and landmarks until it is successful
-    loadGraph(GlobalGraph, GlobalFiles);
+    while (!GlobalGraph.loaded) {
+        loadGraph(GlobalGraph, GlobalFiles);
+        if (!GlobalGraph.loaded) {
+            cout << "Press any key to retry loading the graph..." << endl;
+            cin.get();
+        }
+    }
     
     api_ready.store(false);
     thread(runApiServer).detach();

@@ -93,7 +93,16 @@ int takeUserInput(Graph& Graph, Path& path, Files& Files) {
         return COMMAND;
     }
     if (input == "build graph") {
-        loadGraph(Graph, Files, FORCE_BUILD);
+        // try to load the graph and landmarks until it is successful
+        loadGraph(GlobalGraph, GlobalFiles, FORCE_BUILD);
+        if (!GlobalGraph.loaded) {
+            cout << "The graph could not be loaded. Reloading the previous dataset from backup..." << endl;
+            loadGraph(GlobalGraph, GlobalFiles);
+        }
+        if (!GlobalGraph.loaded) {
+            cout << "The graph could not be loaded. Exiting..." << endl;
+            return EXIT;
+        }
         return COMMAND;
     }
     if (input == "display lm") {
