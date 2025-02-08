@@ -15,9 +15,9 @@ void displayHelp(){
     cout << " - \"build graph\"     : rebuild the graph" << endl;
     cout << " - \"display lm\"      : display the landmarks" << endl;
     cout << " - \"pwd\"             : display the current working directory" << endl;
-    cout << " - \"chfolder\"        : change the folder path for input/output files" << endl;
-    cout << " - \"display files\"   : display the current files paths" << endl;
     cout << " - \"new dataset\"     : change the dataset .csv" << endl;
+    cout << " - \"files location\"  : change the location of input/output files" << endl;
+    cout << " - \"display files\"   : display the current files paths" << endl;
     cout << " - \"port\"            : change the port number" << endl;
     cout << " - \"display api\"     : display/hide the API responses and request specifically" << endl;
     cout << " - \"stop\"            : exit the program" << endl;
@@ -107,13 +107,17 @@ int takeUserInput(Graph& Graph, Path& path, Files& Files) {
         cout << "Working Directory: " << filesystem::current_path() << endl;
         return COMMAND;
     }
-    if (input == "chfolder") {
-        cout << "Please provide a relative path : ";
-        cin >> Files.sub_folder;
-        // if not ending with a slash, add it
-        Files.sub_folder = Files.sub_folder.back() == '/' ? Files.sub_folder : Files.sub_folder + "/";
-        buildFilesPath(Files);
-        cout << "Files path changed to " << Files.sub_folder << endl;
+    if (input == "new dataset") {
+        requireDataset(Files, NEW_ONE);
+        cout << "Dataset set to " << Files.dataset.full << endl;
+        loadGraph(Graph, Files);
+        return COMMAND;
+    }
+    if (input == "files location") {
+        newLocation(Files);
+        requireDataset(Files, ASK_FOLDER);
+        cout << "Dataset set to " << Files.dataset.full << endl;
+        loadGraph(Graph, Files);
         return COMMAND;
     }
     if (input == "display files") {
@@ -124,12 +128,6 @@ int takeUserInput(Graph& Graph, Path& path, Files& Files) {
         cout << "Compared output  : " << Files.comp_output.full << endl;
         cout << "API icon         : " << Files.api_icon.full << endl;
 
-        return COMMAND;
-    }
-    if (input == "new dataset") {
-        requireDataset(Files, NEW_ONE);
-        cout << "Dataset set to " << Files.dataset.full << endl;
-        loadGraph(Graph, Files);
         return COMMAND;
     }
     if (input == "port") {

@@ -13,11 +13,16 @@ string replaceCharByStr(const string& input, char to_replace, const string& repl
     return result;
 }
 
-
 void copyFileToSubFolder(Files& Files, const string& source_file) {
 
+    // If not existing, create the subfolder
+    if (!Files.sub_folder.empty() && !filesystem::exists(Files.sub_folder)) {
+        filesystem::create_directory(Files.sub_folder);
+    }
+
     cout << "Copying " << source_file << "\n"
-         << "To      " << Files.working_diectory << "/" << Files.sub_folder << " ... " << endl;
+         << "To      " << Files.working_directory << "/" << Files.sub_folder << " ... " << endl;
+
     filesystem::path source(source_file);
     filesystem::path destination = filesystem::path(Files.sub_folder) / source.filename();
     
@@ -43,9 +48,10 @@ void copyFileToSubFolder(Files& Files, const string& source_file) {
 }
 
 void buildFilesPath(Files& Files) {
-    Files.working_diectory = filesystem::current_path();
+    Files.working_directory = filesystem::current_path();
+    string separator = Files.sub_folder.empty() ? "" : "/";
     // build the full path for the dataset
-    Files.dataset.full = Files.sub_folder + "/" + Files.dataset.base;
+    Files.dataset.full = Files.sub_folder + separator + Files.dataset.base;
     // erase ".csv" from the dataset base and build a base for backup Files
     string dataset_no_ext = Files.dataset.full.substr(0, Files.dataset.full.size() - 4);    
     // build the full path for the landmarks backup file
@@ -55,10 +61,80 @@ void buildFilesPath(Files& Files) {
     // for the graph backup file
     Files.graph.full = dataset_no_ext + Files.graph.base + ".bin";
     // for the output Files
-    Files.output.full = Files.sub_folder + "/" + Files.output.base + ".csv";
-    Files.comp_output.full = Files.sub_folder + "/" + Files.comp_output.base + ".csv";
+    Files.output.full = Files.sub_folder + separator + Files.output.base + ".csv";
+    Files.comp_output.full = Files.sub_folder + separator + Files.comp_output.base + ".csv";
     // for the API icon
-    Files.api_icon.full = Files.sub_folder + "/" + Files.api_icon.base;
+    Files.api_icon.full = Files.sub_folder + separator + Files.api_icon.base;
+}
+
+void newLocation(Files& Files) {
+    string path;
+
+    cout << "Working directory : " << Files.working_directory << endl;
+    cout << "Sub folder for input and output files : /" << Files.sub_folder << endl;
+    cout << "Please choose an option : " << endl;
+    cout << " 1 - Change the sub_folder for files" << endl;
+    cout << " 2 - Change the working_directory/sub_folder" << endl;
+    cout << " 3 - Change only the working_directory and keep the sub_folder" << endl;
+    cout << " 4 - Keep the current location" << endl;
+    cout << "Option : ";
+
+    string option;
+    cin >> option;
+    try {
+        int opt = stoi(option);
+        switch (opt) {
+            case 1:
+                cout << "\nPlease provide the relative path (just press enter to remove it) : ";
+                cin.ignore();
+                getline(cin, Files.sub_folder);
+
+                // if ending with a slash, remove it
+                Files.sub_folder = Files.sub_folder.back() == '/' ? Files.sub_folder.substr(0, Files.sub_folder.size() - 1) : Files.sub_folder;
+                // if beginning with a slash, remove it
+                Files.sub_folder = Files.sub_folder.front() == '/' ? Files.sub_folder.substr(1, Files.sub_folder.size() - 1) : Files.sub_folder;
+                // if beginning with a dot, remove it
+                Files.sub_folder = Files.sub_folder.front() == '.' ? Files.sub_folder.substr(1, Files.sub_folder.size() - 1) : Files.sub_folder;
+
+                buildFilesPath(Files);
+                if (Files.sub_folder.empty()) {
+                    cout << "\nFiles are now handled in the working directory" << endl;
+                } else {
+                    cout << "\nFiles path changed to " << Files.working_directory << Files.sub_folder << endl;
+                }
+                break;
+            case 2:
+                cout << "\nPlease provide the absolute path : ";
+                cin.ignore();
+                getline(cin, path);
+                filesystem::current_path(path);
+                Files.working_directory = filesystem::current_path();
+                // if ending with a slash, remove it
+                Files.sub_folder = "";
+                buildFilesPath(Files);
+                cout << "\nFiles path changed to " << Files.working_directory << Files.sub_folder << endl;
+                break;
+            case 3:
+                cout << "\nPlease provide the absolute path : ";
+                cin.ignore();
+                getline(cin, path);
+                filesystem::current_path(path);
+                // if ending with a slash, remove it
+                Files.working_directory = filesystem::current_path();
+                buildFilesPath(Files);
+                cout << "\nWorking directory changed to " << Files.working_directory << endl;
+                break;
+            case 4:
+                break;
+            default:
+                cout << "Invalid option" << endl;
+                cin.clear();
+                break;
+        }
+    } catch (const invalid_argument& e) {
+        cout << "Invalid option" << endl;
+        cin.clear();
+    }
 }
 
 void requireDataset(Files& Files, bool new_dataset = false) {
@@ -72,17 +148,18 @@ void requireDataset(Files& Files, bool new_dataset = false) {
 
             // Display the different options
             if (new_dataset) {
-                cout << "Current dataset : " << Files.dataset.full << endl;
+                cout << "\nCurrent dataset : " << Files.dataset.full << endl;
             } else{ 
-                cout << "Dataset " << Files.working_diectory << "/" << Files.dataset.full << " not found !" << endl;
+                cout << "\nDataset " << Files.working_directory << "/" << Files.dataset.full << " not found !" << endl;
             }
-            cout << "Please provide : " << endl;
+            cout << "Please choose an option : " << endl;
             cout << " 1 - A new filename within the same location (ex: new_dataset.csv)" << endl;
             cout << " 2 - The path/dataset.csv of a dataset you want to use" << endl;
+            cout << " 3 - Change the files location" << endl;
             if (new_dataset) {
-                cout << " 3 - Keep this dataset" << endl;
+                cout << " 4 - Keep this dataset" << endl;
             } else{ 
-                cout << " 3 - Rescan " << Files.working_diectory << "/" << Files.sub_folder << endl;
+                cout << " 4 - Rescan " << Files.working_directory << Files.sub_folder << endl;
             }
 
             // Get the user choice
@@ -109,6 +186,10 @@ void requireDataset(Files& Files, bool new_dataset = false) {
                         cout << endl;
                         break;
                     case 3:
+                        cout << endl;
+                        newLocation(Files);
+                        break;
+                    case 4:
                         break;
                     default:
                         cout << "Invalid option\n" << endl;
