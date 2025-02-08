@@ -13,7 +13,7 @@
 #define DISP_ERR_RES        true        // Display error responses in terminal
 
 // Choose where is the CSV for dataset 
-#define FOLDER              "files/"
+#define FOLDER              "files"
 #define DATASET             "USA-roads.csv"
 
 #define GRAPH_BACKUP        "-graph-backup"
@@ -44,6 +44,7 @@
 #define NULL_HEURISTIC      true
 #define FORCE_BUILD         true
 #define ASK_FOLDER          true
+#define NEW_ONE             true
 #define SUCCESS             true
 #define FAIL                false
 #define SKIP                false

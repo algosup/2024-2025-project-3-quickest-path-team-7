@@ -225,7 +225,7 @@ void loadGraph(Graph& Graph, Files& Files, bool force = false) {
         // Check if the backup exists
         ifstream test(Files.graph.full, ios::binary);
         if (!test.is_open()) {
-            cout << "\nBackup " << Files.graph.full << " not found !" << endl;
+            cout << "\nBackup not found !" << endl;
         } else {
             test.close();
 

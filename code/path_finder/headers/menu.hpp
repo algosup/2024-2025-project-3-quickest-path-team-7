@@ -17,14 +17,14 @@ void displayHelp(){
     cout << " - \"pwd\"             : display the current working directory" << endl;
     cout << " - \"chfolder\"        : change the folder path for input/output files" << endl;
     cout << " - \"display files\"   : display the current files paths" << endl;
-    cout << " - \"dataset\"         : change the dataset name" << endl;
+    cout << " - \"new dataset\"     : change the dataset .csv" << endl;
     cout << " - \"port\"            : change the port number" << endl;
     cout << " - \"display api\"     : display/hide the API responses and request specifically" << endl;
     cout << " - \"stop\"            : exit the program" << endl;
     cout << endl;
 }
 
-int takeUserInput(Graph& Graph, Path& path, Files& files) {
+int takeUserInput(Graph& Graph, Path& path, Files& Files) {
 
     string input;
     if (comparator_mode) {
@@ -85,15 +85,15 @@ int takeUserInput(Graph& Graph, Path& path, Files& files) {
     if (input == "qty lm") {
         cout << "Enter the number of landmarks: ";
         cin >> landmarks_qty;
-        loadLandmarks(Graph, files);
+        loadLandmarks(Graph, Files);
         return COMMAND;
     }
     if (input == "build lm") {
-        loadLandmarks(Graph, files, FORCE_BUILD);
+        loadLandmarks(Graph, Files, FORCE_BUILD);
         return COMMAND;
     }
     if (input == "build graph") {
-        loadGraph(Graph, files, FORCE_BUILD);
+        loadGraph(Graph, Files, FORCE_BUILD);
         return COMMAND;
     }
     if (input == "display lm") {
@@ -109,33 +109,27 @@ int takeUserInput(Graph& Graph, Path& path, Files& files) {
     }
     if (input == "chfolder") {
         cout << "Please provide a relative path : ";
-        cin >> files.folder;
+        cin >> Files.sub_folder;
         // if not ending with a slash, add it
-        files.folder = files.folder.back() == '/' ? files.folder : files.folder + "/";
-        buildFilesPath(files);
-        cout << "Files path changed to " << files.folder << endl;
+        Files.sub_folder = Files.sub_folder.back() == '/' ? Files.sub_folder : Files.sub_folder + "/";
+        buildFilesPath(Files);
+        cout << "Files path changed to " << Files.sub_folder << endl;
         return COMMAND;
     }
     if (input == "display files") {
-        cout << "Dataset          : " << files.dataset.full << endl;
-        cout << "graph backup     : " << files.graph.full << endl;
-        cout << "Landmarks backup : " << files.landmarks.full << endl;
-        cout << "Result output    : " << files.output.full << endl;
-        cout << "Compared output  : " << files.comp_output.full << endl;
-        cout << "API icon         : " << files.api_icon.full << endl;
+        cout << "Dataset          : " << Files.dataset.full << endl;
+        cout << "graph backup     : " << Files.graph.full << endl;
+        cout << "Landmarks backup : " << Files.landmarks.full << endl;
+        cout << "Result output    : " << Files.output.full << endl;
+        cout << "Compared output  : " << Files.comp_output.full << endl;
+        cout << "API icon         : " << Files.api_icon.full << endl;
 
         return COMMAND;
     }
-    if (input == "dataset") {
-        string new_dataset;
-        cout << "Enter the new dataset name: ";
-        cin.ignore();
-        getline(cin, new_dataset);
-        files.dataset.base = new_dataset;
-        buildFilesPath(files);
-        requireDataset(files);
-        cout << "Dataset set to " << files.dataset.full << endl;
-        loadGraph(Graph, files);
+    if (input == "new dataset") {
+        requireDataset(Files, NEW_ONE);
+        cout << "Dataset set to " << Files.dataset.full << endl;
+        loadGraph(Graph, Files);
         return COMMAND;
     }
     if (input == "port") {

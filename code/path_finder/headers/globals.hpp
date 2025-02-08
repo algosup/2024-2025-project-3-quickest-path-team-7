@@ -98,7 +98,8 @@ struct file_path{
 };
 
 struct Files {
-    string      folder      =   FOLDER;
+    string      working_diectory;
+    string      sub_folder  =   FOLDER;
     file_path   dataset     = { DATASET, "" };
     file_path   graph       = { GRAPH_BACKUP, "" };
     file_path   landmarks   = { LANDMARKS_BACKUP, "" };
