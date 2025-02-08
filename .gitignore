@@ -39,3 +39,4 @@ code/path_finder/files/compared-shortest-path.csv
 code/path_finder/files/shortest-path.csv
 main
 main.exe
+.DS_Store
