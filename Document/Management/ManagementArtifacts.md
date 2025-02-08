@@ -95,15 +95,15 @@ $$
 $$ \text{Completion} = \left(\frac{\text{completed sections}}{\text{total sections}}\right) \times 100 $$
 
 ## Weekly Reports
-- [Week 1 Report](/weekly/week1.md)
-- [Week 2 Report](/weekly/week2.md) 
-- [Week 3 Report](/weekly/week3.md)
-- [Week 4 Report](/weekly/week4.md)
-- [Week 5 Report](/weekly/week5.md)
-- [Week 6 Report](/weekly/week6.md) - Not done yet
+- [Week 1 Report](/Document/Management/Weekly/Week1.md)
+- [Week 2 Report](/Document/Management/Weekly/Week2.md) 
+- [Week 3 Report](/Document/Management/Weekly/Week3.md)
+- [Week 4 Report](/Document/Management/Weekly/Week4.md)
+- [Week 5 Report](/Document/Management/Weekly/Week5.md)
+- [Week 6 Report](/Document/Management/Weekly/Week6.md) - Not done yet
 
 ## Post Mortem Analysis
-[View retrospective analysis](./post_mortem.md) - Not done yet
+[View retrospective analysis](/Document/Management/Weekly/PostMortem.md) - Not done yet
 
 ## Addendum: Program Manager/Technical Writer Collaboration
 The merged documentation approach will use:
