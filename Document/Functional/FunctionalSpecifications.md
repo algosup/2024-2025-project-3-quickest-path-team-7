@@ -407,7 +407,7 @@ graph TD
 The following endpoints are available for interacting with the server:
 
 ### **Basic Shortest Path**
-- **Endpoint**: `/path`
+- **Endpoint**: `/quickest-path`
 - **Description**: Calculates the shortest path between two nodes using A*.
 - **Parameters**:
   - `start` (integer): The starting node.
@@ -432,7 +432,7 @@ The following endpoints are available for interacting with the server:
 ### **Debug Path**
 - **Endpoint**: `/debug_path`
 - **Description**: Provides detailed information about the calculated path, including heuristic weight, computation time, and more.
-- **Parameters**: Same as `/path`.
+- **Parameters**: Same as `/quickest-path`.
 - **Example**:
   ```
   GET http://localhost:<port>/debug_path?start=1&end=5
@@ -452,7 +452,7 @@ The following endpoints are available for interacting with the server:
 ### **Comparator Path**
 - **Endpoint**: `/comp_path`
 - **Description**: Compares the shortest paths calculated by A* and Dijkstra algorithms.
-- **Parameters**: Same as `/path`.
+- **Parameters**: Same as `/quickest-path`.
 - **Example**:
   ```
   GET http://localhost:<port>/comp_path?start=1&end=5
