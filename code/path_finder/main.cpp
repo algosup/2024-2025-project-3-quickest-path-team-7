@@ -4,7 +4,7 @@ int main() {
     // To allow special characters in cout such as 'µ'
     setlocale(LC_ALL, "en_US.UTF-8");
 
-    cout << "\n\n\n\nWelcome to the path finder !\nIf any problem occurs, type 'help' for a list of commands." << endl;
+    println("\n\n\n\nWelcome to the path finder !\nIf any problem occurs, type 'help' for a list of commands.", type::BOLD);
 
     // Build the i/o filenames and eventually ask for the folder path
     buildFilesPath(GlobalFiles);
@@ -13,7 +13,8 @@ int main() {
     while (!GlobalGraph.loaded) {
         loadGraph(GlobalGraph, GlobalFiles);
         if (!GlobalGraph.loaded) {
-            cout << "Press any key to retry loading the graph..." << endl;
+            println("The graph could not be loaded", type::ERROR);
+            println("Press any key to retry loading the graph...", type::WARNING);
             cin.get();
         }
     }
@@ -39,21 +40,25 @@ int main() {
         switch (takeUserInput(GlobalGraph, GlobalPath, GlobalFiles))
         {
             case INVALID_NODE :
-                cout << "Invalid node, must be between 1 and " << GlobalGraph.nodes_qty << endl;
-                cout << "Please try again." << endl;
+                println("Invalid node, must be between 1 and " + to_string(GlobalGraph.nodes_qty), type::WARNING);
+                println("Please try again.", type::WARNING);
                 continue;
                 break;
             case INVALID_COMMAND :
-                cout << "Invalid command, please try again." << endl;
+                println("Invalid command, please try again.", type::WARNING);
                 displayHelp();
                 continue;
                 break;
             case EXIT :
-                cout << "Exiting... (user ask)" << endl;
+                println("Exiting... (user ask)", type::WARNING);
                 return 0;
                 break;
             case PATH :
-                cout << "Find path from terminal...\n" << endl;
+                println("Find path from terminal...\n", type::INFO);
+                print("Start node : ");
+                println(GlobalPath.start, type::INFO);
+                print("End node   : ");
+                println(GlobalPath.end, type::INFO);
                 break;
             case COMMAND :
                 continue;

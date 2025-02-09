@@ -5,7 +5,7 @@
 
 void handlePathRequest(int client_socket, const string& request, int option = LIGHT) {
 
-    cout << "\n\nFind path from API:" << endl;
+    println("\n\nFind path from API:");
     // Extract parameters
     size_t start_pos = request.find("?start=");
     size_t end_pos = request.find("&end=");
@@ -17,12 +17,13 @@ void handlePathRequest(int client_socket, const string& request, int option = LI
     if (format_pos != string::npos) {
         response_format = request.substr(format_pos + 8, limit_pos - format_pos - 8);
         if (response_format != "json" && response_format != "xml") {
-            cout << "Invalid response format" << endl;
+            println("Invalid response format", type::ERROR);
             sendWrongFormat(client_socket);
             return;
         }
     }
-    cout << "Response format: " << response_format << endl;
+    print("Response format: ");
+    println(response_format, type::INFO);
 
     // Check if the start and end parameters are present
     if (start_pos == string::npos || end_pos == string::npos) {
@@ -87,8 +88,10 @@ void handlePathRequest(int client_socket, const string& request, int option = LI
     }
 
     // display the parameters in the console
-    cout << "Start node         : " << GlobalPath.start << endl;
-    cout << "End node           : " << GlobalPath.end << "\n" << endl;
+    print("Start node         : ");
+    println(GlobalPath.start, type::INFO);
+    print("End node           : ");
+    println(GlobalPath.end, type::INFO);
 
     {
         lock_guard<mutex> lock(graph_path_file_access);
@@ -119,7 +122,7 @@ void handlePathRequest(int client_socket, const string& request, int option = LI
             saveComparedPathToCSV(GlobalFiles, GlobalPath, DijkstraPath);
         } 
         else {
-            cout << "Invalid option" << endl;
+            println("Invalid option", type::ERROR);
         } 
 
         resetComputeData(GlobalGraph, GlobalPath, GlobalAstar);
@@ -141,7 +144,8 @@ void handleCmdRequest(int client_socket, const string& request) {
             return;
         }
     }
-    cout << "Response format: " << response_format << endl;
+    print("Response format: ");
+    println(response_format, type::INFO);
 
     if (cmd_pos == string::npos) {
         sendCmdError(client_socket, 400, MISSING_PARAMETER);
@@ -156,7 +160,8 @@ void handleCmdRequest(int client_socket, const string& request) {
         command = request.substr(cmd_pos + 9, limit_pos - cmd_pos - 9);
     }
 
-    cout << "Command: " << command << endl;
+    print("Command: ");
+    println(command, type::INFO);
 
     // Redirect each command to its function
     stringstream ss;
@@ -198,40 +203,41 @@ void handleRequest(int client_socket) {
 
     // Ensure request is a GET request
     if (request.find("GET") == string::npos) {
-        display_bad_requests ? cout << "\nBAD REQUEST :\n" << request << endl : cout << "";
+        display_bad_endpoints ? print("\nBAD REQUEST :\n" + request, type::ERROR_LIGHT) : print("");
         sendError(client_socket, 405);
         return;
     }
 
     // Determine if request is for /path or /cmd
     if (request.find("GET /favicon.ico") != string::npos) {
-        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
+        display_valid_endpoints ? println("\n\nVALID ENDPOINT :\n" + request, type::GREEN) : print("");
         sendFavicon(client_socket);
     } 
     else if (request.find("GET /cmd?") != string::npos) {
-        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
+        display_valid_endpoints ? println("\n\nVALID ENDPOINT :\n" + request, type::GREEN) : print("");
         handleCmdRequest(client_socket, request);
     } 
     else if (request.find("GET /path?") != string::npos) {
-        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
+        display_valid_endpoints ? println("\n\nVALID ENDPOINT :\n" + request, type::GREEN) : print("");
         endpoint_adaptation = "";
         handlePathRequest(client_socket, request, LIGHT);
     } 
     else if (request.find("GET /debug_path?") != string::npos) {
-        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
+        display_valid_endpoints ? println("\n\nVALID ENDPOINT :\n" + request, type::GREEN) : print("");
         endpoint_adaptation = "debug_";
         handlePathRequest(client_socket, request, DEBUG);
     } 
     else if (request.find("GET /comp_path?") != string::npos) {
-        display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
+        display_valid_endpoints ? println("\n\nVALID ENDPOINT :\n" + request, type::GREEN) : print("");
         endpoint_adaptation = "comp_";
         handlePathRequest(client_socket, request, COMPARE);
     } 
     else {
+        display_bad_endpoints ? println("\n\nBAD REQUEST :\n" + request, type::ERROR_LIGHT) : print("");
         sendEndpointError(client_socket); // Bad request
     }
 
-    cout << "\n\n\nEnter a command or the start node : " << flush;
+    println("\n\n\nEnter a command or the start node : ");
 
 }
 
@@ -239,7 +245,7 @@ void runApiServer() {
 
     kill_api.store(false);
 
-    cout << "Starting the API service..." << endl;
+    println("Starting the API service...");
     api_ready.store(false);
     int server_fd = -1;
 
@@ -250,7 +256,7 @@ void runApiServer() {
         #ifdef _WIN32
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-            cerr << "WSAStartup failed" << endl;
+            println("WSAStartup failed", type::ERROR);
             return;
         }
         #endif
@@ -284,8 +290,8 @@ void runApiServer() {
             resetComputeData(GlobalGraph, GlobalPath, GlobalAstar);
         }
 
-        cout << "API server running on port " << port << endl;
-        cout << "Try the longest path -> http://localhost:" << port << "/path?start=9588784&end=2720178" << endl;
+        println("API server running on port " + to_string(port), type::VALIDATION);
+        println("Try the longest path -> http://localhost:" + to_string(port) + "/path?start=9588784&end=2720178", type::INFO);
 
         api_ready.store(true);
         

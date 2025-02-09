@@ -20,8 +20,8 @@ atomic <bool> kill_api(false);
 
 // API parameters
 int    port                     = PORT;
-bool display_valid_requests     = DISP_VALID_REQ;
-bool display_bad_requests       = DISP_BAD_REQ;
+bool display_valid_endpoints    = DISP_VALID_EPT;
+bool display_bad_endpoints      = DISP_BAD_EPT;
 bool display_valid_responses    = DISP_VALID_RES;
 bool display_error_responses    = DISP_ERR_RES;
 string response_format          = "json";

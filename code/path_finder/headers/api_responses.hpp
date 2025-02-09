@@ -48,7 +48,7 @@ void sendPath(Path& GlobalPath, int client_socket) {
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     closeSocket(client_socket);
-    display_valid_responses ? cout << "\n\nVALID response :\n" << response << endl : cout << "";
+    display_valid_responses ? println("\n\nVALID response :\n" + response, type::VALIDATION) : print("");
 }
 
 // Send full path with all the details such as distance for each node, number of nodes, execution time , and so on
@@ -126,7 +126,7 @@ void sendFullPath(Path& GlobalPath, int client_socket) {
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     closeSocket(client_socket);
-    display_valid_responses ? cout << "\n\nVALID response :\n" << response << endl : cout << "";
+    display_valid_responses ? println("\n\nVALID response :\n" + response, type::VALIDATION) : print("");
 
 }
 
@@ -210,7 +210,7 @@ void sendComparedPath(Path& GlobalPath, Path& DijkstraPath, int client_socket) {
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     closeSocket(client_socket);
-    display_valid_responses ? cout << "\n\nVALID response :\n" << response << endl : cout << "";
+    display_valid_responses ? println("\n\nVALID response :\n" + response, type::VALIDATION) : print("");
 }
 
 void sendEndpointError(int client_socket) {
@@ -253,7 +253,7 @@ void sendEndpointError(int client_socket) {
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     closeSocket(client_socket);
-    display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
+    display_error_responses ? println("\n\nERROR response :\n" + response, type::ERROR_LIGHT) : print("");
 
 }
 
@@ -294,7 +294,7 @@ void sendWrongFormat(int client_socket) {
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     closeSocket(client_socket);
-    display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
+    display_error_responses ? println("\n\nERROR response :\n" + response, type::ERROR_LIGHT) : print("");
 
 }
 
@@ -488,7 +488,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     closeSocket(client_socket);
-    display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
+    display_error_responses ? println("\n\nERROR response :\n" + response, type::ERROR_LIGHT) : print("");
 }
 
 void sendCmdError(int client_socket, int error_code, int kind = 1, string parameter = "undefined") {
@@ -613,7 +613,7 @@ void sendCmdError(int client_socket, int error_code, int kind = 1, string parame
     string response = ss.str();
     send(client_socket, response.c_str(), response.size(), 0);
     closeSocket(client_socket);
-    display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
+    display_error_responses ? println("\n\nERROR response :\n" + response, type::ERROR_LIGHT) : print("");
 }
 
 
@@ -641,7 +641,7 @@ void sendFavicon(int client_socket) {
         string response = ss.str();
         send(client_socket, response.c_str(), response.size(), 0);
         closeSocket(client_socket);
-        display_error_responses ? cout << "\n\nERROR response :\n" << response << endl : cout << "";
+        display_error_responses ? println("\n\nERROR response :\n" + response, type::ERROR_LIGHT) : print("");
         return;
     }
 
@@ -663,7 +663,7 @@ void sendFavicon(int client_socket) {
         send(client_socket, header.c_str(), header.size(), 0);
         send(client_socket, buffer.data(), buffer.size(), 0);
 
-        display_valid_responses ? cout << "\n\nVALID response :\n" << header << endl : cout << "";
+        display_valid_responses ? println("\n\nVALID response :\n" + header, type::VALIDATION) : print("");
     }
 
     closeSocket(client_socket);

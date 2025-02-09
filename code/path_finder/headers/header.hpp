@@ -7,8 +7,8 @@
 #define LANDMARKS_QTY       10          // The number of landmarks to be used
 
 #define PORT                9500
-#define DISP_BAD_REQ        false       // Display bad requests in terminal
-#define DISP_VALID_REQ      false       // Display valid requests in terminal
+#define DISP_BAD_EPT        false       // Display bad endpoints requests in terminal
+#define DISP_VALID_EPT      false       // Display valid endpoints requests in terminal
 #define DISP_VALID_RES      false       // Display valid responses in terminal
 #define DISP_ERR_RES        true        // Display error responses in terminal
 
@@ -88,9 +88,9 @@ using int_pair = pair<int, int>;
 
 // Includer of all code files
 #include "globals.hpp"
-#include "files.hpp"
 #include "time.hpp"
 #include "output.hpp"
+#include "files.hpp"
 #include "algorithms.hpp"
 #include "landmarks.hpp"
 #include "graph.hpp"

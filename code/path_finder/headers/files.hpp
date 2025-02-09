@@ -20,30 +20,29 @@ void copyFileToSubFolder(Files& Files, const string& source_file) {
         filesystem::create_directory(Files.sub_folder);
     }
 
-    cout << "Copying " << source_file << "\n"
-         << "To      " << Files.working_directory << "/" << Files.sub_folder << " ... " << endl;
+    println("Copying " + source_file + "\nTo      " + Files.working_directory + "/" + Files.sub_folder + " ... ");
 
     filesystem::path source(source_file);
     filesystem::path destination = filesystem::path(Files.sub_folder) / source.filename();
     
     // check if the source is a valid file
     if (!filesystem::exists(source) || !filesystem::is_regular_file(source)) {
-        cout << "ERROR copying : " << source_file << " is not a valid file" << endl;
+        println("ERROR copying : " + source_file + " is not a valid file", type::ERROR);
         return;
     }
 
     // check if the destination is a CSV file
     if (destination.extension() != ".csv") {
-        cout << "ERROR copying : " << destination << " is not a CSV file" << endl;
+        println("ERROR copying : " + destination.string() + " is not a CSV file", type::ERROR);
         return;
     }
 
     // Copy the file
     try {
         filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);
-        cout << "File copied successfully to " << destination << endl;
+        println("File copied successfully to " + destination.string());
     } catch (filesystem::filesystem_error& e) {
-        cout << "Error copying file: " << e.what() << endl;
+        println("ERROR copying : " + string(e.what()), type::ERROR);
     }
 }
 
@@ -70,14 +69,14 @@ void buildFilesPath(Files& Files) {
 void newLocation(Files& Files) {
     string path;
 
-    cout << "Working directory : " << Files.working_directory << endl;
-    cout << "Sub folder for input and output files : /" << Files.sub_folder << endl;
-    cout << "Please choose an option : " << endl;
-    cout << " 1 - Change the sub_folder for files" << endl;
-    cout << " 2 - Change the working_directory/sub_folder" << endl;
-    cout << " 3 - Change only the working_directory and keep the sub_folder" << endl;
-    cout << " 4 - Keep the current location" << endl;
-    cout << "Option : ";
+    println("Working directory : " + Files.working_directory);
+    println("Sub folder for input and output files : /" + Files.sub_folder);
+    println("Please choose an option : ");
+    println(" 1 - Change the sub_folder for files");
+    println(" 2 - Change the working_directory/sub_folder");
+    println(" 3 - Change only the working_directory and keep the sub_folder");
+    println(" 4 - Keep the current location");
+    print("Option : ");
 
     string option;
     cin >> option;
@@ -85,7 +84,7 @@ void newLocation(Files& Files) {
         int opt = stoi(option);
         switch (opt) {
             case 1:
-                cout << "\nPlease provide the relative path (just press enter to remove it) : ";
+                print("\nPlease provide the relative path (just press enter to remove it) : ");
                 cin.ignore();
                 getline(cin, Files.sub_folder);
 
@@ -98,13 +97,13 @@ void newLocation(Files& Files) {
 
                 buildFilesPath(Files);
                 if (Files.sub_folder.empty()) {
-                    cout << "\nFiles are now handled in the working directory" << endl;
+                    println("\nFiles are now handled in the working directory");
                 } else {
-                    cout << "\nFiles path changed to " << Files.working_directory << Files.sub_folder << endl;
+                    println("\nFiles path changed to " + Files.working_directory + "/" + Files.sub_folder);
                 }
                 break;
             case 2:
-                cout << "\nPlease provide the absolute path : ";
+                print("\nPlease provide the absolute path : ");
                 cin.ignore();
                 getline(cin, path);
                 filesystem::current_path(path);
@@ -112,27 +111,27 @@ void newLocation(Files& Files) {
                 // if ending with a slash, remove it
                 Files.sub_folder = "";
                 buildFilesPath(Files);
-                cout << "\nFiles path changed to " << Files.working_directory << Files.sub_folder << endl;
+                println("\nFiles path changed to " + Files.working_directory + "/" + Files.sub_folder);
                 break;
             case 3:
-                cout << "\nPlease provide the absolute path : ";
+                print("\nPlease provide the absolute path : ");
                 cin.ignore();
                 getline(cin, path);
                 filesystem::current_path(path);
                 // if ending with a slash, remove it
                 Files.working_directory = filesystem::current_path();
                 buildFilesPath(Files);
-                cout << "\nWorking directory changed to " << Files.working_directory << endl;
+                println("\nWorking directory changed to " + Files.working_directory);
                 break;
             case 4:
                 break;
             default:
-                cout << "Invalid option" << endl;
+                println("Invalid option");
                 cin.clear();
                 break;
         }
     } catch (const invalid_argument& e) {
-        cout << "Invalid option" << endl;
+        println("Invalid option");
         cin.clear();
     }
 }
@@ -148,51 +147,51 @@ void requireDataset(Files& Files, bool new_dataset = false) {
 
             // Display the different options
             if (new_dataset) {
-                cout << "\nCurrent dataset : " << Files.dataset.full << endl;
+                println("\nCurrent dataset : " + Files.dataset.full);
             } else{ 
-                cout << "\nDataset " << Files.working_directory << "/" << Files.dataset.full << " not found !" << endl;
+                println("\nDataset " + Files.working_directory + "/" + Files.dataset.full + " not found !", type::WARNING);
             }
-            cout << "Please choose an option : " << endl;
-            cout << " 1 - A new filename within the same location (ex: new_dataset.csv)" << endl;
-            cout << " 2 - The path/dataset.csv of a dataset you want to use" << endl;
-            cout << " 3 - Change the files location" << endl;
+            println("Please choose an option : ");
+            println(" 1 - A new filename within the same location (ex: new_dataset.csv)");
+            println(" 2 - The path/dataset.csv of a dataset you want to use");
+            println(" 3 - Change the files location");
             if (new_dataset) {
-                cout << " 4 - Keep this dataset" << endl;
+                println(" 4 - Keep this dataset");
             } else{ 
-                cout << " 4 - Rescan " << Files.working_directory << "/" << Files.sub_folder << endl;
+                println(" 4 - Rescan " + Files.working_directory + "/" + Files.sub_folder);
             }
 
             // Get the user choice
-            cout << "Option : ";
+            print("Option : ");
             string option;
             cin >> option;
             try {
                 int opt = stoi(option);
                 switch (opt) {
                     case 1:
-                        cout << "\nEnter the new dataset name: ";
+                        print("\nEnter the new dataset name: ");
                         cin.ignore();
                         getline(cin, Files.dataset.base);
                         buildFilesPath(Files);
-                        cout << endl;
+                        println("");
                         break;
                     case 2:
-                        cout << "\nEnter the path/dataset.csv of the dataset : ";
+                        print("\nEnter the path/dataset.csv of the dataset : ");
                         cin.ignore();
                         getline(cin, full_path);
                         copyFileToSubFolder(Files, full_path);
                         Files.dataset.base = filesystem::path(full_path).filename();
                         buildFilesPath(Files);
-                        cout << endl;
+                        println("");
                         break;
                     case 3:
-                        cout << endl;
+                        println("");
                         newLocation(Files);
                         break;
                     case 4:
                         break;
                     default:
-                        cout << "Invalid option\n" << endl;
+                        println("Invalid option\n");
                         cin.clear();
                         break;
                 }
@@ -200,7 +199,7 @@ void requireDataset(Files& Files, bool new_dataset = false) {
                 new_dataset = false; // If the new one works, it will exit, if it doesn't, it will ask again
 
             } catch (const invalid_argument& e) {
-                cout << "Invalid option\n" << endl;
+                println("Invalid option\n");
                 cin.clear();
             }
         } else {

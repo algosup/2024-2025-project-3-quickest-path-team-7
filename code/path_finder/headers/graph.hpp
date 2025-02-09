@@ -5,7 +5,7 @@
 
 bool saveGraphToBinary(const Graph& Graph, const Files& Files) {
 
-    cout << "Saving the graph to " << Files.graph.full << " ... " << flush;
+    print("Saving the graph to " + Files.graph.full + " ... ");
     // Open/Create the binary file backup
     ofstream ofs(Files.graph.full, ios::binary);
     if (!ofs.is_open()) {
@@ -29,7 +29,7 @@ bool saveGraphToBinary(const Graph& Graph, const Files& Files) {
 
     ofs.close();
 
-    cout << "Done !" << endl;
+    println("\rSaving the graph to " + Files.graph.full + " ... Done !", type::VALIDATION);
     return SUCCESS;
 }
 
@@ -97,25 +97,25 @@ bool buildGraphFromCSV(Graph& Graph, const Files& Files) {
             try {
                 row.push_back(stoi(cell));
             } catch (const invalid_argument& e) {
-                cout << "ERROR : Parsing CSV at line " << counter+1 << endl;
-                cout << "-> Invalid node value" << endl;
+                println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR);
+                println("-> Invalid node value", type::ERROR);
                 return FAIL;
             } catch (const out_of_range& e) {
-                cout << "ERROR : Parsing CSV at line " << counter+1 << endl;
-                cout << "-> Value out of range" << endl;
+                println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR);
+                println("-> Value out of range !", type::ERROR);
                 return FAIL;
             }
             if (row.back() <= 0) {
-                cout << "ERROR : Parsing CSV at line " << counter+1 << endl;
-                cout << "-> Negative or Null value" << endl;
+                println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR);
+                println("-> Nodes and weights must be integers and > 0 ", type::ERROR);
                 return FAIL;
             }
         }
 
         // Check if the line has the correct number of values
         if (row.size() != 3) {
-            cout << "ERROR : Parsing CSV at line " << counter+1 << endl;
-            cout << "-> Expected 3 values per line, but read " << row.size() << endl;
+            println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR);
+            println("-> Expected 3 values but read " + to_string(row.size()), type::ERROR);
             return FAIL;
         }
         //Check if nodes and weight are strictly positive integers and store them in int variables
@@ -133,28 +133,23 @@ bool buildGraphFromCSV(Graph& Graph, const Files& Files) {
         counter++;
         progression = counter * 100 / CSV_LINES;
         if (progression != progression_backup) {
-            cout << "\rLoading the CSV file into memory ... " << progression << " %" << flush;
+            print("\rLoading the CSV file into memory ... " + to_string(progression) + " %", type::INFO);
             progression_backup = progression;
         }
     }
     csv_file.close();
 
-    // Check if the constant is correct
-    if (counter < CSV_LINES) {
-        cout << "\rLoading the CSV file into memory ... 100 %" << endl;
-    } else {
-        cout << endl;
-    }
+    println("\rLoading the CSV file into memory ... 100 %", type::VALIDATION);
 
     // Sort edges to then enable contigous access of the neighbor of each node
-    cout << "Sorting edges ... " << flush;
+    print("Sorting edges ... ");
     sort(allEdges.begin(), allEdges.end(), 
          [](const FullEdge& a, const FullEdge& b) {
              return a.source < b.source;
          });
-    cout << "Done !" << endl;
+    println("\rSorting edges ... Done !", type::VALIDATION);
 
-    cout << "Organizing data ... " << flush;
+    print("Organizing data ... ");
     // Resize adjacency_start to create each node index [x] and [x+1]
     Graph.adjacency_start.resize(Graph.nodes_qty + 2);
 
@@ -195,7 +190,7 @@ bool buildGraphFromCSV(Graph& Graph, const Files& Files) {
         Graph.edges[pos].weight = edge.weight;
     }
 
-    cout << "Done !" << endl;
+    println("\rOrganizing data ... Done !", type::VALIDATION);
 
     return SUCCESS;
 }
@@ -221,21 +216,21 @@ void loadGraph(Graph& Graph, Files& Files, bool force = false) {
     
     // If not forcing a rebuild from CSV, try to load from binary backup
     if (!force) {
-        cout << "\n\nLoading the Graph from the backup " << Files.graph.full << " ... " << flush;
+        print("\n\nLoading the Graph from the backup " + Files.graph.full + " ... ");
         // Check if the backup exists
         ifstream test(Files.graph.full, ios::binary);
         if (!test.is_open()) {
-            cout << "\nBackup not found !" << endl;
+            println("\nBackup not found !", type::WARNING);
         } else {
             test.close();
 
             // Load the backup of the Graph
             if (!loadGraphFromBinary(Graph, Files)) {
-                cout << "\nFailed to load the backup !" << endl;
+                println("\nFailed to load the backup !", type::ERROR);
             } else {
-                cout << "Done !" << endl;
+                println("\rLoading the Graph from the backup " + Files.graph.full + " ... Done !", type::VALIDATION);
                 if (!loadLandmarks(Graph, Files, force)) {
-                    cout << "Landmarks loading failed. Exiting... " << endl;
+                    println("Landmarks loading failed. Exiting... ", type::ERROR);
                 } 
                 Graph.loaded = true;
                 return;
@@ -248,17 +243,17 @@ void loadGraph(Graph& Graph, Files& Files, bool force = false) {
 
     // Build the Graph from CSV
     if(!buildGraphFromCSV(Graph, Files)) {
-        cout << "Failed to build the graph from CSV !" << endl;
-        cout << "Check the content of your CSV file and try again ... " << endl;
+        println("Failed to build the graph from CSV !", type::ERROR);
+        println("Check the content of your CSV file and try again ... ", type::ERROR);
         return;
     }
 
     // Save it to binary backup for next time
     if(!saveGraphToBinary(Graph, Files)){
-        cout << "Failed to save the graph to binary !" << endl;
+        println("Failed to save the graph to binary !", type::ERROR);
     } else {
         if (!loadLandmarks(Graph, Files, force)) {
-            cout << "Landmarks loading failed. Exiting... " << endl;
+            println("Landmarks loading failed. Exiting... ", type::ERROR);
         } 
         Graph.loaded = true;
         return;

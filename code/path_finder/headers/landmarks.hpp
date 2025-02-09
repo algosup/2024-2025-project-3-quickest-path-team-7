@@ -15,7 +15,7 @@ void buildLandmarks(Graph& Graph) {
     Graph.landmarks.clear();
     Graph.landmark_distance.clear();
 
-    cout << "Building landmarks ... " << flush;
+    print("Building landmarks ... ");
 
     vector<bool> isLandmark(Graph.nodes_qty, false);
     vector<int> pathsArray(Graph.nodes_qty);
@@ -34,7 +34,7 @@ void buildLandmarks(Graph& Graph) {
     // Then find the farthest node as the next landmark
     for (int landmark = 0; landmark < landmarks_qty; ++landmark) {
 
-        cout << "\rBuilding landmarks (" << landmark+1  << "/" << landmarks_qty << ") ... " << flush;
+        print("\rBuilding landmarks (" + to_string(landmark+1) + "/" + to_string(landmarks_qty) + ") ... ", type::INFO);
 
         int current_landmark = Graph.landmarks.back();
         // get all the shortest paths from the landmark node to all the other nodes
@@ -77,17 +77,17 @@ void buildLandmarks(Graph& Graph) {
 
     }
 
-    cout << "\rBuilding landmarks (" << landmarks_qty << "/" << landmarks_qty << ") ... Done !" << endl;
+    println("\rBuilding landmarks (" + to_string(landmarks_qty) + "/" + to_string(landmarks_qty) + ") ... Done !", type::VALIDATION);
 
 }
 
 void saveLandmarksToBinary(Graph& Graph, Files& files) {
 
-    cout << "Saving landmarks to " << files.landmarks.full << " ... " << flush;
+    print("Saving landmarks to " + files.landmarks.full + " ... ");
 
     ofstream file(files.landmarks.full, ios::binary);
     if (!file.is_open()) {
-        cerr << "\nFailed to open the file for writing: " << files.landmarks.full << endl;
+        println("\nFailed to open the file for writing: " + files.landmarks.full, type::ERROR);
         return;
     }
 
@@ -108,14 +108,14 @@ void saveLandmarksToBinary(Graph& Graph, Files& files) {
 
     file.close();
 
-    cout << "Done!" << endl;
+    println("\rSaving landmarks to " + files.landmarks.full + " ... Done!", type::VALIDATION);
 }
 
 bool loadLandmarksFromBinary(Graph& Graph, Files& files) {
-    cout << "Loading landmarks from " << files.landmarks.full << " ... " << flush;
+    print("Loading landmarks from " + files.landmarks.full + " ... ");
     ifstream file(files.landmarks.full, ios::binary);
     if (!file.is_open()) {
-        cout << "Backup not found!" << endl;
+        println("\nBackup not found!", type::WARNING);
         return false;
     }
 
@@ -135,7 +135,7 @@ bool loadLandmarksFromBinary(Graph& Graph, Files& files) {
               (size_t)n * m * sizeof(int));
 
     file.close();
-    cout << "Done!" << endl;
+    println("\rLoading landmarks from " + files.landmarks.full + " ... Done!", type::VALIDATION);
     Graph.landmarks_loaded = true;
     return true;
 }
@@ -148,8 +148,8 @@ bool loadLandmarks(Graph& Graph, Files& files, bool force = false) {
     if (landmarks_qty > Graph.nodes_qty) {
         landmarks_qty = Graph.nodes_qty;
         root_landmark = Graph.nodes_qty;
-        cout << "Number of landmarks set to " << landmarks_qty << " (number of nodes)" << endl;
-        cout << "New root landmark: " << root_landmark << endl;
+        println("Number of landmarks set to " + to_string(landmarks_qty) + " (number of nodes)", type::WARNING);
+        println("New root landmark: " + to_string(root_landmark), type::WARNING);
     }
 
     // update the landmarks backup file name based on the number of landmarks
@@ -169,6 +169,7 @@ bool loadLandmarks(Graph& Graph, Files& files, bool force = false) {
     }
 
     return Graph.landmarks_loaded;
+
 }
 
 #endif
