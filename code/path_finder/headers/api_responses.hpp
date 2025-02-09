@@ -226,9 +226,9 @@ void sendEndpointError(int client_socket) {
         ss << "    <error_type>Invalid endpoint</error_type>\n";
         ss << "    <resolution>Check the API documentation for valid endpoints.</resolution>\n";
         ss << "    <documentation>https://example.com/docs#endpoints</documentation>\n";
-        ss << "    <example>GET /path?start=1&end=4</example>\n";
-        ss << "    <example>GET /debuGlobalPath?start=1&end=4</example>\n";
-        ss << "    <example>GET /comp_path?start=1&end=4</example>\n";
+        ss << "    <example>GET /path?start=1&amp;end=4</example>\n";
+        ss << "    <example>GET /debug_path?start=1&amp;end=4</example>\n";
+        ss << "    <example>GET /comp_path?start=1&amp;end=4</example>\n";
         ss << "    <example>GET /command?command=rebuild_graph</example>\n";
         ss << "  </details>\n";
         ss << "</status>\n";
@@ -242,7 +242,9 @@ void sendEndpointError(int client_socket) {
         ss << "        \"error_type\": \"Invalid endpoint\",\n";
         ss << "        \"resolution\": \"Check the API documentation for valid endpoints.\",\n";
         ss << "        \"documentation\": \"https://example.com/docs#endpoints\",\n";
-        ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=1&end=4\"\n";
+        ss << "        \"example\": \"GET /path?start=1&end=4\"\n";
+        ss << "        \"example\": \"GET /debug_path?start=1&end=4\"\n";
+        ss << "        \"example\": \"GET /comp_path?start=1&end=4\"\n";
         ss << "        \"example\": \"GET /command?command=rebuild_graph\"\n";
         ss << "    }\n";
         ss << "}\n";
