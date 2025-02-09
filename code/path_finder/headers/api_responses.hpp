@@ -143,7 +143,7 @@ void sendComparedPath(Path& GlobalPath, Path& DijkstraPath, int client_socket) {
         ss << "  <start>" << GlobalPath.start << "</start>\n";
         ss << "  <end>" << GlobalPath.end << "</end>\n";
         ss << "  <oversize_percentage>" << comparisonPercentage(GlobalPath.distance, DijkstraPath.distance) << "</oversize_percentage>\n";
-        ss << "  <DijkstraPath_length>" << DijkstraPath.distance << "</DijkstraPath_length>\n";
+        ss << "  <dijkstra_path_length>" << DijkstraPath.distance << "</dijkstra_path_length>\n";
         ss << "  <astar_path_length>" << GlobalPath.distance << "</astar_path_length>\n";
         ss << "  <time_unit>" << TIME_UNIT_FULL_STR << "</time_unit>\n";
         ss << "  <astar_calculation_time>" << GlobalPath.calculation_time << "</astar_calculation_time>\n";
@@ -177,7 +177,7 @@ void sendComparedPath(Path& GlobalPath, Path& DijkstraPath, int client_socket) {
         ss << "    \"start\"                : \"" << GlobalPath.start << "\",\n";
         ss << "    \"end\"                  : \"" << GlobalPath.end << "\",\n";
         ss << "    \"oversize_percentage\"  : \"" << comparisonPercentage(GlobalPath.distance, DijkstraPath.distance) << "\",\n";
-        ss << "    \"DijkstraPath_length\" : \"" << DijkstraPath.distance << "\",\n";
+        ss << "    \"dijkstra_path_length\" : \"" << DijkstraPath.distance << "\",\n";
         ss << "    \"astar_path_length\"    : \"" << GlobalPath.distance << "\",\n";
         ss << "    \"time_unit\"            : \"" << TIME_UNIT_FULL_STR << "\",\n";
         ss << "    \"astar_calculation_time\": \"" << GlobalPath.calculation_time << "\",\n";

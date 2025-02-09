@@ -217,7 +217,7 @@ void handleRequest(int client_socket) {
         endpoint_adaptation = "";
         handlePathRequest(client_socket, request, LIGHT);
     } 
-    else if (request.find("GET /debuGlobalPath?") != string::npos) {
+    else if (request.find("GET /debug_path?") != string::npos) {
         display_valid_requests ? cout << "\nVALID REQUEST :\n" << request << endl : cout << "";
         endpoint_adaptation = "debug_";
         handlePathRequest(client_socket, request, DEBUG);
