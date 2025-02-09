@@ -225,7 +225,7 @@ void sendEndpointError(int client_socket) {
         ss << "  <details>\n";
         ss << "    <error_type>Invalid endpoint</error_type>\n";
         ss << "    <resolution>Check the API documentation for valid endpoints.</resolution>\n";
-        ss << "    <documentation>https://example.com/docs#endpoints</documentation>\n";
+        ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#command-endpoint</documentation>\n";
         ss << "    <example>GET /path?start=1&amp;end=4</example>\n";
         ss << "    <example>GET /debug_path?start=1&amp;end=4</example>\n";
         ss << "    <example>GET /comp_path?start=1&amp;end=4</example>\n";
@@ -241,7 +241,7 @@ void sendEndpointError(int client_socket) {
         ss << "    \"details\": {\n";
         ss << "        \"error_type\": \"Invalid endpoint\",\n";
         ss << "        \"resolution\": \"Check the API documentation for valid endpoints.\",\n";
-        ss << "        \"documentation\": \"https://example.com/docs#endpoints\",\n";
+        ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#command-endpoint\",\n";
         ss << "        \"example\": \"GET /path?start=1&end=4\"\n";
         ss << "        \"example\": \"GET /debug_path?start=1&end=4\"\n";
         ss << "        \"example\": \"GET /comp_path?start=1&end=4\"\n";
@@ -270,7 +270,7 @@ void sendWrongFormat(int client_socket) {
         ss << "  <details>\n";
         ss << "    <error_type>Invalid response format</error_type>\n";
         ss << "    <resolution>Only 'json' and 'xml' are accepted formats. If any format specified, json is selected by default</resolution>\n";
-        ss << "    <documentation>https://example.com/docs#response-format</documentation>\n";
+        ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path</documentation>\n";
         ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&amp;end=4</example>\n";
         ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&amp;end=4&amp;format=xml</example>\n";
         ss << "  </details>\n";
@@ -284,7 +284,7 @@ void sendWrongFormat(int client_socket) {
         ss << "    \"details\": {\n";
         ss << "        \"error_type\": \"Invalid response format\",\n";
         ss << "        \"resolution\": \"Only 'json' and 'xml' are accepted formats. If any format specified, json is selected by default\",\n";
-        ss << "        \"documentation\": \"https://example.com/docs#response-format\",\n";
+        ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path\",\n";
         ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=1&end=4\",\n";
         ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=1&end=4&format=xml\"\n";
         ss << "    }\n";
@@ -315,7 +315,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "    <error_type>The \"start\" and \"end\" nodes are equal</error_type>\n";
                     ss << "    <parameter_value>" << parameter << "</parameter_value>\n";
                     ss << "    <resolution>Start and end nodes must be different.</resolution>\n";
-                    ss << "    <documentation>https://example.com/docs#parameters</documentation>\n";
+                    ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path</documentation>\n";
                     ss << "  </details>\n";
                     ss << "</status>\n";
                     break;
@@ -337,7 +337,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "    <invalid_parameter>" << parameter << "</invalid_parameter>\n";
                     ss << "    <resolution>This parameter requires a positive 32-bit INTEGER.</resolution>\n";
                 }
-                ss << "    <documentation>https://example.com/docs#parameters</documentation>\n";
+                ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path</documentation>\n";
                 ss << "    <example>GET /" << endpoint_adaptation << "path?start=5&amp;end=6</example>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
@@ -359,7 +359,6 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "    <landmark_id>" << parameter << "</landmark_id>\n";
                     ss << "    <resolution>Nodes of this dataset are between 1 and " << GlobalGraph.nodes_qty << ".</resolution>\n";
                 }
-                ss << "    <documentation>https://example.com/docs#landmarks</documentation>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
                 break;
@@ -371,12 +370,12 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                 ss << "<status>\n";
                 ss << "  <message>Method Not Allowed</message>\n";
                 ss << "  <details>\n";
-                ss << "    <method_used>POST</method_used>\n";
+                ss << "    <method_used>" << parameter << "</method_used>\n";
                 ss << "    <allowed_methods>\n";
                 ss << "      <method>GET</method>\n";
                 ss << "    </allowed_methods>\n";
-                ss << "    <resolution>Use the correct HTTP method. Refer to the API documentation.</resolution>\n";
-                ss << "    <documentation>https://example.com/docs#http-methods</documentation>\n";
+                ss << "    <resolution>Use GET method only. You can refer to the API documentation.</resolution>\n";
+                ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details</documentation>\n";
                 ss << "    <example>GET /" << endpoint_adaptation << "path?start=5&amp;end=6</example>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
@@ -390,7 +389,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                 ss << "  <details>\n";
                 ss << "    <error>Internal Server Error</error>\n";
                 ss << "    <resolution>Check server logs for detailed error information.</resolution>\n";
-                ss << "    <documentation>https://example.com/docs#errors</documentation>\n";
+                ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md</documentation>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
                 break;
@@ -409,7 +408,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "        \"error_type\": \"The 'start' and 'end' nodes are equal\",\n";
                     ss << "        \"parameter_value\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"Start and end nodes must be different.\",\n";
-                    ss << "        \"documentation\": \"https://example.com/docs#parameters\"\n";
+                    ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path\"\n";
                     ss << "    }\n";
                     ss << "}\n";
                     break;
@@ -428,7 +427,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "        \"invalid_parameter\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"This parameter requires a positive 32-bit INTEGER.\",\n";
                 }
-                ss << "        \"documentation\": \"https://example.com/docs#parameters\",\n";
+                ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path\",\n";
                 ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=5&end=6\"\n";
                 ss << "    }\n";
                 ss << "}\n";
@@ -450,7 +449,6 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "        \"landmark_id\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"Nodes of this dataset are between 1 and " << GlobalGraph.nodes_qty << "\",\n";
                 }
-                ss << "        \"documentation\": \"https://example.com/docs#landmarks\"\n";
                 ss << "    }\n";
                 ss << "}\n";
                 break;
@@ -462,10 +460,10 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                 ss << "{\n";
                 ss << "    \"status\": \"Method Not Allowed\",\n";
                 ss << "    \"details\": {\n";
-                ss << "        \"method_used\": \"POST\",\n";
+                ss << "        \"method_used\": \"" << parameter << "\",\n";
                 ss << "        \"allowed_methods\": [\"GET\"],\n";
-                ss << "        \"resolution\": \"Use the correct HTTP method. Refer to the API documentation.\",\n";
-                ss << "        \"documentation\": \"https://example.com/docs#http-methods\",\n";
+                ss << "        \"resolution\": \"Use GET method only. You can refer to the API documentation.\",\n";
+                ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details\",\n";
                 ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=5&end=6\"\n";
                 ss << "    }\n";
                 ss << "}\n";
@@ -480,7 +478,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                 ss << "    \"details\": {\n";
                 ss << "        \"error\": \"Internal Server Error\",\n";
                 ss << "        \"resolution\": \"Check server logs for detailed error information.\",\n";
-                ss << "        \"documentation\": \"https://example.com/docs#errors\"\n";
+                ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md\"\n";
                 ss << "    }\n";
                 ss << "}\n";
                 break;
@@ -516,7 +514,7 @@ void sendCmdError(int client_socket, int error_code, int kind = 1, string parame
                     ss << "    <invalid_parameter>" << parameter << "</invalid_parameter>\n";
                     ss << "    <resolution>This parameter requires a valid command.</resolution>\n";
                 }
-                ss << "    <documentation>https://example.com/docs#commands</documentation>\n";
+                ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md</documentation>\n";
                 ss << "    <example>GET /command?command=quickest-path&start=5&amp;end=6</example>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
@@ -529,12 +527,12 @@ void sendCmdError(int client_socket, int error_code, int kind = 1, string parame
                 ss << "<status>\n";
                 ss << "  <message>Method Not Allowed</message>\n";
                 ss << "  <details>\n";
-                ss << "    <method_used>POST</method_used>\n";
+                ss << "    <method_used>" << parameter << "</method_used>\n";
                 ss << "    <allowed_methods>\n";
                 ss << "      <method>GET</method>\n";
                 ss << "    </allowed_methods>\n";
-                ss << "    <resolution>Use the correct HTTP method. Refer to the API documentation.</resolution>\n";
-                ss << "    <documentation>https://example.com/docs#http-methods</documentation>\n";
+                ss << "    <resolution>Use GET method only. You can refer to the API documentation.</resolution>\n";
+                ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details</documentation>\n";
                 ss << "    <example>GET /command?command=rebuild_graph</example>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
@@ -549,7 +547,7 @@ void sendCmdError(int client_socket, int error_code, int kind = 1, string parame
                 ss << "  <details>\n";
                 ss << "    <error>Internal Server Error</error>\n";
                 ss << "    <resolution>Check server logs for detailed error information.</resolution>\n";
-                ss << "    <documentation>https://example.com/docs#errors</documentation>\n";
+                ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md</documentation>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
                 break;
@@ -574,7 +572,7 @@ void sendCmdError(int client_socket, int error_code, int kind = 1, string parame
                     ss << "        \"invalid_parameter\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"This parameter requires a valid command.\",\n";
                 }
-                ss << "        \"documentation\": \"https://example.com/docs#commands\",\n";
+                ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md\",\n";
                 ss << "        \"example\": \"GET /command?command=rebuild_graph\"\n";
                 ss << "    }\n";
                 ss << "}\n";
@@ -587,10 +585,10 @@ void sendCmdError(int client_socket, int error_code, int kind = 1, string parame
                 ss << "{\n";
                 ss << "    \"status\": \"Method Not Allowed\",\n";
                 ss << "    \"details\": {\n";
-                ss << "        \"method_used\": \"POST\",\n";
+                ss << "        \"method_used\": \"" << parameter << "\",\n";
                 ss << "        \"allowed_methods\": [\"GET\"],\n";
-                ss << "        \"resolution\": \"Use the correct HTTP method. Refer to the API documentation.\",\n";
-                ss << "        \"documentation\": \"https://example.com/docs#http-methods\",\n";
+                ss << "        \"resolution\": \"Use GET method only. You can refer to the API documentation.\",\n";
+                ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details\",\n";
                 ss << "        \"example\": \"GET /command?command=rebuild_graph\"\n";
                 ss << "    }\n";
                 ss << "}\n";
@@ -605,7 +603,7 @@ void sendCmdError(int client_socket, int error_code, int kind = 1, string parame
                 ss << "    \"details\": {\n";
                 ss << "        \"error\": \"Internal Server Error\",\n";
                 ss << "        \"resolution\": \"Check server logs for detailed error information.\",\n";
-                ss << "        \"documentation\": \"https://example.com/docs#errors\"\n";
+                ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md\"\n";
                 ss << "    }\n";
                 ss << "}\n";
                 break;

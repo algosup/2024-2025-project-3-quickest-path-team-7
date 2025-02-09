@@ -159,7 +159,7 @@ void requireDataset(Files& Files, bool new_dataset = false) {
             if (new_dataset) {
                 cout << " 4 - Keep this dataset" << endl;
             } else{ 
-                cout << " 4 - Rescan " << Files.working_directory << Files.sub_folder << endl;
+                cout << " 4 - Rescan " << Files.working_directory << "/" << Files.sub_folder << endl;
             }
 
             // Get the user choice
