@@ -271,8 +271,8 @@ void sendWrongFormat(int client_socket) {
         ss << "    <error_type>Invalid response format</error_type>\n";
         ss << "    <resolution>Only 'json' and 'xml' are accepted formats. If any format specified, json is selected by default</resolution>\n";
         ss << "    <documentation>https://example.com/docs#response-format</documentation>\n";
-        ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&end=4</example>\n";
-        ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&end=4&format=xml</example>\n";
+        ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&amp;end=4</example>\n";
+        ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&amp;end=4&amp;format=xml</example>\n";
         ss << "  </details>\n";
         ss << "</status>\n";
     } else {
@@ -338,7 +338,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "    <resolution>This parameter requires a positive 32-bit INTEGER.</resolution>\n";
                 }
                 ss << "    <documentation>https://example.com/docs#parameters</documentation>\n";
-                ss << "    <example>GET /" << endpoint_adaptation << "path?start=5&end=6</example>\n";
+                ss << "    <example>GET /" << endpoint_adaptation << "path?start=5&amp;end=6</example>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
                 break;
@@ -377,7 +377,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                 ss << "    </allowed_methods>\n";
                 ss << "    <resolution>Use the correct HTTP method. Refer to the API documentation.</resolution>\n";
                 ss << "    <documentation>https://example.com/docs#http-methods</documentation>\n";
-                ss << "    <example>GET /" << endpoint_adaptation << "path?start=5&end=6</example>\n";
+                ss << "    <example>GET /" << endpoint_adaptation << "path?start=5&amp;end=6</example>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
                 break;
@@ -517,7 +517,7 @@ void sendCmdError(int client_socket, int error_code, int kind = 1, string parame
                     ss << "    <resolution>This parameter requires a valid command.</resolution>\n";
                 }
                 ss << "    <documentation>https://example.com/docs#commands</documentation>\n";
-                ss << "    <example>GET /command?command=quickest-path&start=5&end=6</example>\n";
+                ss << "    <example>GET /command?command=quickest-path&start=5&amp;end=6</example>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
                 break;
