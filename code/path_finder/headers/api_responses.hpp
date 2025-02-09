@@ -270,7 +270,7 @@ void sendWrongFormat(int client_socket) {
         ss << "  <details>\n";
         ss << "    <error_type>Invalid response format</error_type>\n";
         ss << "    <resolution>Only 'json' and 'xml' are accepted formats. If any format specified, json is selected by default</resolution>\n";
-        ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path</documentation>\n";
+        ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details</documentation>\n";
         ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&amp;end=4</example>\n";
         ss << "    <example>GET /" << endpoint_adaptation << "path?start=1&amp;end=4&amp;format=xml</example>\n";
         ss << "  </details>\n";
@@ -284,7 +284,7 @@ void sendWrongFormat(int client_socket) {
         ss << "    \"details\": {\n";
         ss << "        \"error_type\": \"Invalid response format\",\n";
         ss << "        \"resolution\": \"Only 'json' and 'xml' are accepted formats. If any format specified, json is selected by default\",\n";
-        ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path\",\n";
+        ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details\",\n";
         ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=1&end=4\",\n";
         ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=1&end=4&format=xml\"\n";
         ss << "    }\n";
@@ -315,7 +315,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "    <error_type>The \"start\" and \"end\" nodes are equal</error_type>\n";
                     ss << "    <parameter_value>" << parameter << "</parameter_value>\n";
                     ss << "    <resolution>Start and end nodes must be different.</resolution>\n";
-                    ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path</documentation>\n";
+                    ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details</documentation>\n";
                     ss << "  </details>\n";
                     ss << "</status>\n";
                     break;
@@ -337,7 +337,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "    <invalid_parameter>" << parameter << "</invalid_parameter>\n";
                     ss << "    <resolution>This parameter requires a positive 32-bit INTEGER.</resolution>\n";
                 }
-                ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path</documentation>\n";
+                ss << "    <documentation>https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details</documentation>\n";
                 ss << "    <example>GET /" << endpoint_adaptation << "path?start=5&amp;end=6</example>\n";
                 ss << "  </details>\n";
                 ss << "</status>\n";
@@ -408,7 +408,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "        \"error_type\": \"The 'start' and 'end' nodes are equal\",\n";
                     ss << "        \"parameter_value\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"Start and end nodes must be different.\",\n";
-                    ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path\"\n";
+                    ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details\"\n";
                     ss << "    }\n";
                     ss << "}\n";
                     break;
@@ -427,7 +427,7 @@ void sendError(int client_socket, int error_code, int kind = 1, string parameter
                     ss << "        \"invalid_parameter\": \"" << parameter << "\",\n";
                     ss << "        \"resolution\": \"This parameter requires a positive 32-bit INTEGER.\",\n";
                 }
-                ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#basic-shortest-path\",\n";
+                ss << "        \"documentation\": \"https://github.com/algosup/2024-2025-project-3-quickest-path-team-7/blob/main/Document/Functional/FunctionalSpecifications.md#api-details\",\n";
                 ss << "        \"example\": \"GET /" << endpoint_adaptation << "path?start=5&end=6\"\n";
                 ss << "    }\n";
                 ss << "}\n";
