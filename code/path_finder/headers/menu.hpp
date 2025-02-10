@@ -4,33 +4,33 @@
 #include "header.hpp"
 
 void displayHelp(){
-    cout << "Commands: \n" << endl;
-    cout << " - [integer]           : ask for a node Y to calculate the path between X and Y" << endl;
-    cout << " - [string]            : read if it's a keyword for a preloaded path (such as fast, med, longest,...) and run it" << endl;
-    cout << " - \"comparator\"      : activate the comparator mode to evaluate the difference between A* and dijkstra precision" << endl;
-    cout << " - \"exit comparator\" : deactivate the comparator mode" << endl;
-    cout << " - \"weight\"          : change the heuristic weight" << endl;
-    cout << " - \"qty lm\"          : change the number of landmarks" << endl;
-    cout << " - \"build lm\"        : rebuild the landmarks" << endl;
-    cout << " - \"build graph\"     : rebuild the graph" << endl;
-    cout << " - \"display lm\"      : display the landmarks" << endl;
-    cout << " - \"pwd\"             : display the current working directory" << endl;
-    cout << " - \"chfolder\"        : change the folder path for input/output files" << endl;
-    cout << " - \"display files\"   : display the current files paths" << endl;
-    cout << " - \"dataset\"         : change the dataset name" << endl;
-    cout << " - \"port\"            : change the port number" << endl;
-    cout << " - \"display api\"     : display/hide the API responses and request specifically" << endl;
-    cout << " - \"stop\"            : exit the program" << endl;
-    cout << endl;
+    println("HELP - Commands: \n", type::BOLD);
+    println(" - [integer]         : ask for a node Y to calculate the path between X and Y");
+    println(" - [string]          : read if it's a keyword for a preloaded path (such as fast, med, longest,...) and run it");
+    println(" - \"comparator\"      : activate the comparator mode to evaluate the difference between A* and dijkstra precision");
+    println(" - \"exit comparator\" : deactivate the comparator mode");
+    println(" - \"weight\"          : change the heuristic weight");
+    println(" - \"qty lm\"          : change the number of landmarks");
+    println(" - \"build lm\"        : rebuild the landmarks");
+    println(" - \"build graph\"     : rebuild the graph");
+    println(" - \"display lm\"      : display the landmarks");
+    println(" - \"pwd\"             : display the current working directory");
+    println(" - \"new dataset\"     : change the dataset .csv");
+    println(" - \"files location\"  : change the location of input/output files");
+    println(" - \"display files\"   : display the current files paths");
+    println(" - \"new port\"        : change the port number");
+    println(" - \"display api\"     : display/hide the API responses and request specifically");
+    println(" - \"stop\"            : exit the program");
+    println("");
 }
 
-int takeUserInput(Graph& Graph, Path& path, Files& files) {
+int takeUserInput(Graph& Graph, Path& path, Files& Files) {
 
     string input;
     if (comparator_mode) {
-        cout << "\n\n!Comparator Mode!\nEnter a command or the start node : ";
+        print("\n\n->Comparator Mode ↴ \nEnter a command or the start node : ", type::INFO);
     } else {
-        cout << "\n\nEnter a command or the start node : ";
+        print("\n\nEnter a command or the start node : ");
     }
     // cin. ignore if necessary :
     while (cin.peek() == '\n') {
@@ -68,109 +68,110 @@ int takeUserInput(Graph& Graph, Path& path, Files& files) {
     // Check for special commands
     if (input == "comparator") {
         comparator_mode = true;
-        cout << "Comparator mode activated" << endl;
+        println("Comparator mode activated");
         return COMMAND;
     }
     if (input == "exit comparator") {
         comparator_mode = false;
-        cout << "Comparator mode deactivated" << endl;
+        println("Comparator mode deactivated");
         return COMMAND;
     }
     if (input == "weight") {
-        cout << "Enter the weight: ";
+        print("Enter the weight: ");
         cin >> heuristic_weight;
-        cout << "Weight set to " << heuristic_weight << endl;
+        println("Weight set to " + to_string(heuristic_weight));
         return COMMAND;
     }
     if (input == "qty lm") {
-        cout << "Enter the number of landmarks: ";
+        print("Enter the number of landmarks: ");
         cin >> landmarks_qty;
-        loadLandmarks(Graph, files);
+        loadLandmarks(Graph, Files);
         return COMMAND;
     }
     if (input == "build lm") {
-        loadLandmarks(Graph, files, FORCE_BUILD);
+        loadLandmarks(Graph, Files, FORCE_BUILD);
         return COMMAND;
     }
     if (input == "build graph") {
-        loadGraph(Graph, files, FORCE_BUILD);
+        // try to load the graph and landmarks until it is successful
+        loadGraph(GlobalGraph, GlobalFiles, FORCE_BUILD);
+        if (!GlobalGraph.loaded) {
+            println("The graph could not be loaded. Reloading the previous dataset from backup...", type::ERROR);
+            loadGraph(GlobalGraph, GlobalFiles);
+        }
+        if (!GlobalGraph.loaded) {
+            println("The graph could not be loaded. Exiting...", type::ERROR);
+            return EXIT;
+        }
         return COMMAND;
     }
     if (input == "display lm") {
-        cout << "Landmarks: " << endl;
+        println("Landmarks: ");
         for (int lm : Graph.landmarks) {
-            cout << " - " << lm << " " << endl;
+            println(" - " + to_string(lm));
         }
         return COMMAND;
     }
     if (input == "pwd") {
-        cout << "Working Directory: " << filesystem::current_path() << endl;
+        println("Working Directory: " + filesystem::current_path().string());
         return COMMAND;
     }
-    if (input == "chfolder") {
-        cout << "Please provide a relative path : ";
-        cin >> files.folder;
-        // if not ending with a slash, add it
-        files.folder = files.folder.back() == '/' ? files.folder : files.folder + "/";
-        buildFilesPath(files);
-        cout << "Files path changed to " << files.folder << endl;
+    if (input == "new dataset") {
+        requireDataset(Files, NEW_ONE);
+        println("Dataset set to " + Files.dataset.full, type::VALIDATION);
+        loadGraph(Graph, Files);
+        return COMMAND;
+    }
+    if (input == "files location") {
+        newLocation(Files);
+        requireDataset(Files, ASK_FOLDER);
+        println("Files location updated", type::VALIDATION);
+        loadGraph(Graph, Files);
         return COMMAND;
     }
     if (input == "display files") {
-        cout << "Dataset          : " << files.dataset.full << endl;
-        cout << "graph backup     : " << files.graph.full << endl;
-        cout << "Landmarks backup : " << files.landmarks.full << endl;
-        cout << "Result output    : " << files.output.full << endl;
-        cout << "Compared output  : " << files.comp_output.full << endl;
-        cout << "API icon         : " << files.api_icon.full << endl;
+        println("Dataset          : " + Files.dataset.full);
+        println("graph backup     : " + Files.graph.full);
+        println("Landmarks backup : " + Files.landmarks.full);
+        println("Result output    : " + Files.output.full);
+        println("Compared output  : " + Files.comp_output.full);
+        println("API icon         : " + Files.api_icon.full);
 
         return COMMAND;
     }
-    if (input == "dataset") {
-        string new_dataset;
-        cout << "Enter the new dataset name: ";
-        cin.ignore();
-        getline(cin, new_dataset);
-        files.dataset.base = new_dataset;
-        buildFilesPath(files);
-        requireDataset(files);
-        cout << "Dataset set to " << files.dataset.full << endl;
-        loadGraph(Graph, files);
-        return COMMAND;
-    }
-    if (input == "port") {
-        cout << "Enter the new port number: ";
+    if (input == "new port") {
+        print("Enter a new port number (current is " + to_string(port) + ") : ");
         cin >> port;
-        cout << "Port set to " << port << endl;
+        println("Port set to " + to_string(port) + "successfully", type::VALIDATION);
         kill_api.store(true);
         api_ready.store(false);
         thread(runApiServer).detach();
         return COMMAND;
     }
     if (input == "display api") {
-        cout << "Which data do you want to display ?"       << endl;
-        cout << " 1/-1 : display/hide the valid requests"   << endl;
-        cout << " 2/-2 : display/hide the bad   requests"   << endl;
-        cout << " 3/-3 : display/hide the valid responses"  << endl;
-        cout << " 4/-4 : display/hide the error responses"  << endl;
-        cout << " 5/-5 : display/hide all the above"        << endl;
-        cout << "Option : ";
+        println("Which data do you want to (un)display ?");
+        println(" 1/-1 : display/hide the valid requests");
+        println(" 2/-2 : display/hide the bad   requests");
+        println(" 3/-3 : display/hide the valid responses");
+        println(" 4/-4 : display/hide the error responses");
+        println(" 5/-5 : display/hide all the above");
+        print("Option : ");
 
         int option;
         cin >> option;
         switch (option) {
 
         case 1:
-            display_valid_requests = true;
+            display_valid_endpoints = true;
             break;
         case -1:
-            display_valid_requests = false;
+            display_valid_endpoints = false;
             break;
         case 2:
-            display_bad_requests = true;
+            display_bad_endpoints = true;
             break;  
         case -2:
-            display_bad_requests = false;
+            display_bad_endpoints = false;
             break;
         case 3:
             display_valid_responses = true;
@@ -185,23 +186,23 @@ int takeUserInput(Graph& Graph, Path& path, Files& files) {
             display_error_responses = false;
             break;
         case 5:
-            display_valid_requests = true;
-            display_bad_requests = true;
+            display_valid_endpoints = true;
+            display_bad_endpoints = true;
             display_valid_responses = true;
             display_error_responses = true;
             break;
         case -5:
-            display_valid_requests = false;
-            display_bad_requests = false;
+            display_valid_endpoints = false;
+            display_bad_endpoints = false;
             display_valid_responses = false;
             display_error_responses = false;
             break;
         default:
-            cout << "Invalid option" << endl;
+            println("Invalid option", type::WARNING);
             break;
         }
 
-        cout << "Display options updated" << endl;
+        println("Display options updated", type::VALIDATION);
         return COMMAND;
     }
     if (input == "help") {
@@ -229,7 +230,7 @@ int takeUserInput(Graph& Graph, Path& path, Files& files) {
     }
 
     input = "";
-    cout << "Enter the end node                : ";
+    print("Enter the end node                : ");
     while (cin.peek() == '\n') {
         cin.ignore();
     }

@@ -29,12 +29,15 @@ if ! command -v g++ >/dev/null 2>&1; then
 fi
 
 # Compile the C++ code
+cd "$PATH_FINDER_DIR"
 if [ "$(uname)" = "Darwin" ]; then
     echo "Compiling main.cpp for macOS..."
-    g++ -std=c++17 -O3 -o "$PATH_FINDER_DIR/main" "$PATH_FINDER_DIR/main.cpp"
+    echo "g++ -std=c++17 -O3 -o main main.cpp"
+    g++ -std=c++17 -O3 -o main main.cpp
 elif [ "$(uname)" = "Linux" ]; then
     echo "Compiling main.cpp for Linux..."
-    g++ -std=c++17 -O3 -o "$PATH_FINDER_DIR/main" "$PATH_FINDER_DIR/main.cpp" -pthread
+    echo "g++ -std=c++17 -O3 -o main main.cpp -pthread"
+    g++ -std=c++17 -O3 -o main main.cpp -pthread
 else
     echo "Unsupported OS. Compilation failed."
     exit 1
@@ -47,4 +50,5 @@ fi
 
 echo "Compilation successful. Running main and opening HTML file..."
 xdg-open "$FRONT_DIR/index.html" 2>/dev/null || open "$FRONT_DIR/index.html" 2>/dev/null
-cd "$PATH_FINDER_DIR" && ./main
+cd "$PATH_FINDER_DIR"
+./main
