@@ -3,6 +3,7 @@
 # Test Strategy 
 
 ---
+
 **Title:** Quickest Path - Test Strategy
 
 **Team:** Team 7
@@ -412,10 +413,9 @@ No third-party services are required for this project as the system will be deve
 
 | Reviewer           | Role              | Approved | Date |
 | ------------------ | ----------------- | -------- | ---- |
-| Abderrazaq MAKRAN  | Program Manager   | ⏳        |      |
-| Elone DELILLE      | Project Manager   | ⏳        |      |
-| Guillaume DERAMCHI | Technical Lead    | ⏳        |      |
-| Pierre GORIN       | Quality Assurance | ⏳        |      |
-| Benoît DE KEYN     | Software Engineer | ⏳        |      |
-| Axel DAVID         | Software Engineer | ⏳        |      |
-| Tino GABET         | Technical Writer  | ⏳        |      |
+| Abderrazaq MAKRAN  | Program Manager   | ✅        | 2025-01-30 |
+| Elone DELILLE      | Project Manager   | ✅        | 2025-01-30     |
+| Guillaume DERAMCHI | Technical Lead    | ✅        | 2025-01-30     |
+| Pierre GORIN       | Quality Assurance | ✅        | 2025-01-30     |
+| Benoît DE KEYN     | Software Engineer | ✅        | 2025-01-30     |
+| Axel DAVID         | Software Engineer | ✅        | 2025-01-30     |
