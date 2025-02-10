@@ -95,10 +95,27 @@
         <dd>Yes, though the button is briefly disabled during processing to avoid accidental double submissions.</dd>
       </dl>
     </section>
+
+    <!-- Add a new section for editing the request info -->
+    <section class="manual-card">
+      <h2>
+        <i class="fas fa-edit"></i> Edit Request Info
+      </h2>
+      <form id="editRequestForm">
+        <div class="form-group">
+          <label for="editRequestInfo">
+            <i class="fas fa-info-circle"></i> Request Info:
+          </label>
+          <textarea id="editRequestInfo" rows="4" placeholder="Edit request info here..."></textarea>
+        </div>
+        <button type="submit">
+          <i class="fas fa-save"></i> Save
+        </button>
+      </form>
+    </section>
   </main>
 
   <footer class="site-footer">
     <p>&copy; 2025 Quickest Path Inc.</p>
   </footer>
 </body>
-</html>

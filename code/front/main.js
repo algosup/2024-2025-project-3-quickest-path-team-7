@@ -14,6 +14,7 @@ const resultContent = document.getElementById('resultContent');
 const loadingSpinner = document.getElementById('loadingSpinner');
 const requestInfo = document.getElementById('requestInfo');
 const resultDisplay = document.getElementById('resultDisplay');
+const requestTypeInputs = document.querySelectorAll('input[name="requestType"]');
 
 /**
  * Check if the input is a valid integer within [1..23,947,347].
@@ -70,6 +71,18 @@ function stopLoading() {
 }
 
 /**
+ * Get the selected request type.
+ */
+function getSelectedRequestType() {
+  for (const input of requestTypeInputs) {
+    if (input.checked) {
+      return input.value;
+    }
+  }
+  return 'basic';
+}
+
+/**
  * Handle the form submission:
  */
 async function handleSubmit(event) {
@@ -80,6 +93,7 @@ async function handleSubmit(event) {
 
   const startValue = startInput.value.trim();
   const endValue = endInput.value.trim();
+  const requestType = getSelectedRequestType();
 
   // Validate inputs
   if (!isValid32BitInteger(startValue)) {
@@ -91,8 +105,23 @@ async function handleSubmit(event) {
     return;
   }
 
+  // Determine the endpoint based on the request type
+  let endpoint;
+  switch (requestType) {
+    case 'detailed':
+      endpoint = 'debug_path';
+      break;
+    case 'compare':
+      endpoint = 'comp_path';
+      break;
+    case 'basic':
+    default:
+      endpoint = 'path';
+      break;
+  }
+
   // Construct the API URL
-  const url = `http://localhost:9500/path?start=${encodeURIComponent(startValue)}&end=${encodeURIComponent(endValue)}&format=json`;
+  const url = `http://localhost:9500/${endpoint}?start=${encodeURIComponent(startValue)}&end=${encodeURIComponent(endValue)}&format=json`;
 
   try {
     startLoading();
@@ -103,7 +132,7 @@ async function handleSubmit(event) {
     }
 
     // Show the request info + results on success only
-    requestInfo.textContent = `GET /path?start=${startValue}&end=${endValue}`;
+    requestInfo.textContent = `GET /${endpoint}?start=${startValue}&end=${endValue}`;
     requestInfo.classList.remove('hidden');
     resultDisplay.classList.remove('hidden');
 
