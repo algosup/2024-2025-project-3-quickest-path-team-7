@@ -60,8 +60,8 @@ int takeUserInput(Graph& Graph, Path& path, Files& Files) {
         return PATH;
     }
     if (input == "longest") {
-        path.start = 9588784;
-        path.end = 2720178;
+        path.start = 15332231;
+        path.end = 14538829;
         return PATH;
     }
 

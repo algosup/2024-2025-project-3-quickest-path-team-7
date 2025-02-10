@@ -267,6 +267,31 @@ button:hover {
   font-size: 0.95rem;
 }
 
+/* Formatted path result */
+.path-result {
+  background-color: #f1f3f5;
+  padding: 1rem;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.path-result .path-length {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.path-result .path-nodes {
+  margin-top: 0.5rem;
+}
+
+.path-result .path-node {
+  margin-left: 1rem;
+  display: block;
+}
+
 /* -------------------------------------
    6. ALGORITHM EXPLANATION SECTION
 -------------------------------------- */

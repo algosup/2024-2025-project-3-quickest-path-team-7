@@ -53,6 +53,19 @@ function formatJSON(jsonObj) {
 }
 
 /**
+ * Format the path result for display.
+ */
+function formatPathResult(data) {
+  const length = data.path_length !== undefined ? data.path_length : 'N/A';
+  const nodes = Array.isArray(data.path) && data.path.length > 0 ? data.path : ['No nodes available'];
+  let result = `<div class="path-length">Path length: ${length}</div>\n<div class="path-nodes">Path nodes:</div>\n`;
+  nodes.forEach(node => {
+    result += `<div class="path-node">⤥ ${node}</div>`;
+  });
+  return result;
+}
+
+/**
  * Show the loading spinner and disable form interactions.
  */
 function startLoading() {
@@ -137,7 +150,11 @@ async function handleSubmit(event) {
     resultDisplay.classList.remove('hidden');
 
     const data = await response.json();
-    resultContent.textContent = formatJSON(data);
+    if (requestType === 'basic') {
+      resultContent.innerHTML = formatPathResult(data);
+    } else {
+      resultContent.textContent = formatJSON(data);
+    }
   } catch (error) {
     displayError(`Error: ${error.message}`);
   } finally {
