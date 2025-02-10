@@ -72,13 +72,13 @@ body:
       label: 🌿 Branch
       description: Enter the branch where the bug occurred.
       placeholder: Enter the branch name.
-      validations:
-        required: true
+    validations:
+      required: true
   - type: textarea
     id: additional-info
     attributes:
       label: ℹ️ Additional Information
       description: Add any other details or context that could help us resolve the issue.
       placeholder: Provide additional details here.
-      validations:
-        required: false
+    validations:
+      required: false
