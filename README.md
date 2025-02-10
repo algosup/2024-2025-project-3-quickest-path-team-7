@@ -1,9 +1,16 @@
 # 🗺️ Quickest Path Algorithm 
 Project n°3 of Year 2024-2025 at ALGOSUP
 
-## Table of Contents
-- [👨‍💻 Team 7](#-team-7)
+<details>
+
+<summary>
+
+## Table of Contents  
+
+</summary>
+
 - [📋 Project Overview](#-project-overview)
+- [👨‍💻 Team 7](#-team-7)
 - [📝 Project Documents](#-project-documents)
 - [🚀 Features](#-features)
 - [📈 Algorithm Explanation](#-algorithm-explanation)
@@ -19,6 +26,13 @@ Project n°3 of Year 2024-2025 at ALGOSUP
 - [🖥️ Server Documentation](#️-server-documentation)
 - [📄 License](#-license)
 
+</details>
+
+# 📋 Project Overview
+
+This project provides a high-performance software solution to calculate the quickest path between two landmarks in the United States. The solution is exposed as a REST API, capable of handling requests efficiently and returning responses in JSON or XML formats.
+The challenge we reached was to not exceed 1 second for the response time after calculation and API handling.
+
 # 👨‍💻 Team 7
 
 | Name               | Role                | Picture                                                                 | Profile                                                                 |
@@ -29,11 +43,6 @@ Project n°3 of Year 2024-2025 at ALGOSUP
 | Pierre Gorin       | Quality Assurance   | ![github profile picture](https://github.com/Pierre2103.png?size=150)         | <img src="Document/Functional/Images/linkedin.svg" width="20px"> [LinkedIn](https://www.linkedin.com/in/pierre-gorin-61a784221/) <br> <img src="Document/Functional/Images/github.svg" width="20px"> [GitHub](https://github.com/Pierre2103)           |
 | Benoît De Keyn     | Software Engineer   | ![github profile picture](https://github.com/benoitdekeyn.png?size=150)         | <img src="Document/Functional/Images/linkedin.svg" width="20px"> [LinkedIn](https://www.linkedin.com/in/beno%C3%AEt-de-keyn-71611b293/) <br> <img src="Document/Functional/Images/github.svg" width="20px"> [GitHub](https://github.com/benoitdekeyn)       |
 | Axel David         | Software Engineer   | ![github profile picture](https://github.com/Fus1onAxel.png?size=150)           | <img src="Document/Functional/Images/linkedin.svg" width="20px"> [LinkedIn](https://www.linkedin.com/in/axel-david-6384bb32a/) <br> <img src="Document/Functional/Images/github.svg" width="20px"> [GitHub](https://github.com/Fus1onAxel)               |
-
-# 📋 Project Overview
-
-This project provides a high-performance software solution to calculate the quickest path between two landmarks in the United States. The solution is exposed as a REST API, capable of handling requests efficiently and returning responses in JSON or XML formats.
-The challenge we reached was to not exceed 1 second for the response time after calculation and API handling.
 
 # 📝 Project Documents
 
