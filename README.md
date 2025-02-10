@@ -137,7 +137,7 @@ code/
 
 To deal with large files in Git, you need to install Git LFS (Large File Storage) before cloning the repository.
 
-However, if you use **GitHub Desktop**, go to [step 4](#) directly.
+However, if you use **GitHub Desktop**, go to [step 4](#4-run-the-project) directly.
 
 ### For Windows:
 ```bash
