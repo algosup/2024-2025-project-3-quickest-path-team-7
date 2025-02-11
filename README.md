@@ -52,6 +52,7 @@ The challenge we reached was to not exceed 1 second for the response time after 
 - [Technical Specifications](Document/Technical/TechnicalSpecifications.md)
 - [Quality Assurance Strategy](Document/QA/TestStrategy.md)
 - [Project Management Artifacts](Document/Management/ManagementArtifacts.md)
+- [User Manual](https://quickest-path-team-7.gitbook.io/quickest-path-team-7-docs/)
   
 # 🚀 Features
 
