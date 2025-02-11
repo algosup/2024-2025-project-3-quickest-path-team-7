@@ -21,6 +21,7 @@
 #define OUTPUT              "shortest-path"
 #define COMP_OUTPUT         "compared-shortest-path"
 #define API_ICON            "favicon.ico"
+#define TEST_RESULTS        "sample-X-random-results"
 
 #define TIME_UNIT           microseconds
 #define TIME_UNIT_FULL_STR  "microseconds"
@@ -96,6 +97,7 @@ using int_pair = pair<int, int>;
 #include "graph.hpp"
 #include "api_responses.hpp"
 #include "api_handling.hpp"
+#include "tester_random_picking.hpp"
 #include "menu.hpp"
 
 #endif

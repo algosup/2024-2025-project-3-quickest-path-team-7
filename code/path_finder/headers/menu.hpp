@@ -18,6 +18,7 @@ void displayHelp(){
     println(" - \"new dataset\"     : change the dataset .csv");
     println(" - \"files location\"  : change the location of input/output files");
     println(" - \"display files\"   : display the current files paths");
+    println(" - \"random test\"     : run a random test with a number of samples");
     println(" - \"new port\"        : change the port number");
     println(" - \"display api\"     : display/hide the API responses and request specifically");
     println(" - \"stop\"            : exit the program");
@@ -137,6 +138,13 @@ int takeUserInput(Graph& Graph, Path& path, Files& Files) {
         println("Compared output  : " + Files.comp_output.full);
         println("API icon         : " + Files.api_icon.full);
 
+        return COMMAND;
+    }
+    if (input == "random test") {
+        print("Enter the number of samples: ");
+        int sample_size;
+        cin >> sample_size;
+        random_tester(GlobalGraph, GlobalAstar, GlobalPath, GlobalFiles, sample_size);
         return COMMAND;
     }
     if (input == "new port") {
