@@ -97,7 +97,7 @@ using int_pair = pair<int, int>;
 #include "graph.hpp"
 #include "api_responses.hpp"
 #include "api_handling.hpp"
-#include "tester_random_picking.hpp"
+#include "random_tester.hpp"
 #include "menu.hpp"
 
 #endif

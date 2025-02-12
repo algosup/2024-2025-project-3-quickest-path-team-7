@@ -1,84 +1,32 @@
-import requests
-import time
-import random
+import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
 
-# Configuration
-API_URL = "http://localhost:9500/path"
-NUM_SAMPLES = 10000  # Number of queries to execute
-MAX_NODES = 23947347  # Maximum node ID for random testing
-V = 23947347  # Number of nodes in the graph
-E = 28000000 # Number of edges in the graph
-# Storage for results
-nodes_visited = []
-execution_times = []
-max_time_path = (None, None, None, 0)  # (start, end, path_length, exec_time)
-
-MAX_RETRIES = 3
-DELAY_BETWEEN_REQUESTS = 0.01  # Half a second delay
-
-def get_path(start, end):
-    """Send a request to the API and retry if the connection fails."""
-    url = f"{API_URL}?start={start}&end={end}"
-
-    for attempt in range(MAX_RETRIES):
-        try:
-            response = requests.get(url, timeout=10)  # Ensure a timeout is set
-            response.raise_for_status()  # Raise error for bad responses (4xx, 5xx)
-            data = response.json()
-            
-            # Return the path length and execution time
-            return int(data["path_length"]), response.elapsed.total_seconds()
-
-        except requests.exceptions.ConnectionError as e:
-            print(f"⚠️ Connection failed: {e} (Retry {attempt + 1}/{MAX_RETRIES})")
-            print("-> Node IDs:", start, end)
-            time.sleep(1)  # Wait before retrying
-
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Request failed: {e}")
-            return None, None  # Return None on fatal errors
-
-    print("🚨 Max retries reached. Skipping request.")
-    return None, None  # Return None if all retries fail
+# Define the path to the uploaded CSV file
+csv_file_path = "test-results.csv"
 
 
-# Perform the tests
-for i in range(NUM_SAMPLES):
-    start = random.randint(1, MAX_NODES)
-    end = random.randint(1, MAX_NODES)
+# Extract metadata from the first two rows containing the number of samples and landmarks quantity
+with open(csv_file_path, "r") as file:
+    lines = file.readlines()
+    num_samples = lines[2].split(",")[1].strip()
+    landmarks_quantity = lines[3].split(",")[1].strip()
 
-    if start == end:
-        continue  # Avoid self-paths
+# Read the CSV file while skipping metadata rows and handling column names properly
+df = pd.read_csv(csv_file_path, skiprows=4)
 
-    time.sleep(DELAY_BETWEEN_REQUESTS)  # Add delay to avoid API overloading
-    path_length, exec_time = get_path(start, end)
-    if path_length is not None:
-        nodes_visited.append(path_length)
-        execution_times.append(exec_time)
-        
-        # Update max_time_path if current path took more time
-        if exec_time > max_time_path[3]:
-            max_time_path = (start, end, path_length, exec_time)
-    
-    # Print progress
-    progress = (i + 1) / NUM_SAMPLES * 100
-    print(f"\rProgress: {progress:.2f}%", end="")
+# Strip column names to remove extra spaces
+df.columns = df.columns.str.strip()
 
-print()  # Move to the next line after the loop
+# Extract relevant columns
+start_nodes = df["Start"]
+end_nodes = df["End"]
+nodes_visited = df["Distance"]
+execution_times = df["Calculation time (µs)"] / 1e6  # Convert microseconds to seconds
 
-# Convert lists to NumPy arrays
-nodes_visited = np.array(nodes_visited)
-execution_times = np.array(execution_times)
-
-# Sort the data to ensure the trend line looks smooth
-sorted_indices = np.argsort(nodes_visited)
-nodes_visited_sorted = nodes_visited[sorted_indices]
-execution_times_sorted = execution_times[sorted_indices]
-
-# Maximum execution time horizontal line
-max_time = np.max(execution_times)
+# Find max execution time and corresponding path
+max_time = execution_times.max()
+max_time_index = execution_times.idxmax()
+max_time_path = (start_nodes[max_time_index], end_nodes[max_time_index], nodes_visited[max_time_index], max_time)
 
 # Plot results
 plt.figure(figsize=(10, 6))
@@ -95,7 +43,7 @@ plt.axhline(y=1, color="green", linewidth=2, label="1 second threshold")
 # Annotate the 1-second threshold line
 plt.annotate(
     "1 second threshold",
-    xy=(0, 1),  # Position the annotation at y=1
+    xy=(min(nodes_visited), 1),  # Position the annotation at y=1 and minimum x value
     xytext=(10, 10),
     textcoords='offset points',
     arrowprops=dict(arrowstyle="->", color='green'),
@@ -115,7 +63,10 @@ plt.annotate(
 # Labels, title, and legend
 plt.xlabel("Path Length (Number of Nodes in Path)")
 plt.ylabel("Execution Time (Seconds)")
-plt.title("A* Algorithm Complexity Analysis for " + str(NUM_SAMPLES) + " random samples through API")
+plt.title(f"A* Algorithm using {landmarks_quantity} landmarks tested with {num_samples} random samples through API")
+
+# Adjust y-axis limits to reach 1.1 in height
+plt.ylim(top=1.1)
 
 # Use linear-linear scale for better visualization of trends
 plt.xscale("linear")
@@ -124,6 +75,11 @@ plt.yscale("linear")
 # Add gridlines
 plt.grid(True, which="both", linestyle="--", linewidth=0.5)
 
+# Save the plot as an image file high quality
+plt.savefig("test-results.png", dpi=300)
+
 # Show the plot
 plt.tight_layout()
 plt.show()
+
+exit # Exit the script after plotting the results

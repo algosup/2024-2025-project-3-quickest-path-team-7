@@ -5,13 +5,15 @@
 
 // input in microseconds, output like "12.57 ms" keep 2 digits only
 string microsecToString(long time) {
+    ostringstream oss;
     if (time < 1000) {
-        return to_string(time) + " µs";
+        oss << time << " µs";
     } else if (time < 1000000) {
-        return to_string(time / 1000) + "." + to_string(time % 1000 / 100) + " ms";
+        oss << fixed << setprecision(2) << time / 1000.0 << " ms";
     } else {
-        return to_string(time / 1000000) + "." + to_string(time % 1000000 / 100000) + " s";
+        oss << fixed << setprecision(2) << time / 1000000.0 << " s";
     }
+    return oss.str();
 }
 
 void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sample_size) {
@@ -22,10 +24,17 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
     if (heaviest_quantity < 10) heaviest_quantity = 10;
 
     // for the test results
-    string test_results = TEST_RESULTS;
+    string base_test_results = TEST_RESULTS;
     // replace the X by the number of samples
-    test_results = replaceCharByStr(test_results, 'X', to_string(sample_size));
-    test_results = Files.sub_folder + "/" + test_results + ".csv";
+    base_test_results = replaceCharByStr(base_test_results, 'X', to_string(sample_size));
+
+    // Reneme the file (1).csv, (2).csv and so on if already existing
+    int i = 1;
+    string test_results = Files.sub_folder + "/" + base_test_results + ".csv";
+    while (filesystem::exists(test_results)) {
+        test_results = Files.sub_folder + "/" + base_test_results + "(" + to_string(i) + ").csv";
+        i++;
+    }
 
     ofstream results(test_results);
     if (!results.is_open()) {
@@ -33,8 +42,9 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
         return;
     }
 
+    results << "Date and time : " << getCurrentTimestamp() << endl;
     results << "Results of random picking test ordered by calculation time" << endl;
-    results << "Sample size, " << sample_size << " paths" << endl;
+    results << "Number of tested paths, " << sample_size << endl;
     results << "Landmarks qantity, " << landmarks_qty << endl;
     results << "\nStart, End, Distance, Calculation time (" << TIME_UNIT_STR << ")" << endl;
     results.close();
@@ -102,8 +112,6 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
         results << current_path.start << ", " << current_path.end << ", " << current_path.nodes_qty << ", " << current_path.calculation_time << endl;
     }
     results.close();
-
-    println("Random test completed with an average delay of " + microsecToString(average_delay));
     
     println("The heaviest paths are in order : ");
     for (int i = 0; i < heaviest_quantity; ++i) {
@@ -121,11 +129,37 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
     }
 
     println("");
-    print("The maximum delay is ");
-    print(max_delay, type::WARNING);
-    print(" ");
-    println(TIME_UNIT_STR, type::WARNING);
+    println("Random test completed !", type::VALIDATION);
+    print("The average calculation time is ");
+    println(microsecToString(average_delay), type::WARNING);
+    print("The maximum calculation time is ");
+    println(microsecToString(max_delay), type::WARNING);
     println("Results saved in file://" + filesystem::absolute(test_results).string(), type::INFO);
+
+    //copy the csv as test_results.csv, overwriting the one before
+    filesystem::path source(test_results);
+    filesystem::path destination(Files.sub_folder + "/test_results.csv");
+    try {
+        filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);
+    } catch (filesystem::filesystem_error& e) {
+        println("ERROR copying : " + string(e.what()), type::ERROR);
+    }
+
+    // then copy this test_results.csv to "../benchmark_sampling/test_results.csv" if it exists
+    filesystem::path benchmark_folder("../benchmark_sampling");
+    if (!filesystem::exists(benchmark_folder)) {
+        return;
+    }
+
+    destination = benchmark_folder / "test-results.csv";
+    try {
+        filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);
+    } catch (filesystem::filesystem_error& e) {
+        println("ERROR copying : " + string(e.what()), type::ERROR);
+    }
+
+    println(" Now you can go to " + filesystem::absolute(benchmark_folder).string() + " to plot the results with python", type::INFO);
+    
 }
 
 #endif
