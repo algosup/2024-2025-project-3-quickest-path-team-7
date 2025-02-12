@@ -69,6 +69,7 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
 
     println("Starting the random test with " + to_string(sample_size) + " paths sample, with " + to_string(landmarks_qty) + " landmarks");
 
+    print("\rCalculating random paths ... 0 %", type::INFO);
 
     for (int i = 0; i < sample_size; ++i) {
 
@@ -140,7 +141,7 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
 
     //copy the csv as test_results.csv, overwriting the one before
     filesystem::path source(test_results);
-    filesystem::path destination(Files.sub_folder + "/test_results.csv");
+    filesystem::path destination(Files.sub_folder + "/test-results.csv");
     try {
         filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);
     } catch (filesystem::filesystem_error& e) {
