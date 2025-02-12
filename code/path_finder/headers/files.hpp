@@ -27,13 +27,13 @@ void copyFileToSubFolder(Files& Files, const string& source_file) {
     
     // check if the source is a valid file
     if (!filesystem::exists(source) || !filesystem::is_regular_file(source)) {
-        println("ERROR copying : " + source_file + " is not a valid file", type::ERROR);
+        println("ERROR copying : " + source_file + " is not a valid file", type::ERROR_BOLD);
         return;
     }
 
     // check if the destination is a CSV file
     if (destination.extension() != ".csv") {
-        println("ERROR copying : " + destination.string() + " is not a CSV file", type::ERROR);
+        println("ERROR copying : " + destination.string() + " is not a CSV file", type::ERROR_BOLD);
         return;
     }
 
@@ -42,12 +42,12 @@ void copyFileToSubFolder(Files& Files, const string& source_file) {
         filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);
         println("File copied successfully to " + destination.string());
     } catch (filesystem::filesystem_error& e) {
-        println("ERROR copying : " + string(e.what()), type::ERROR);
+        println("ERROR copying : " + string(e.what()), type::ERROR_BOLD);
     }
 }
 
 void buildFilesPath(Files& Files) {
-    Files.working_directory = filesystem::current_path();
+    Files.working_directory = filesystem::current_path().string();
     string separator = Files.sub_folder.empty() ? "" : "/";
     // build the full path for the dataset
     Files.dataset.full = Files.sub_folder + separator + Files.dataset.base;
@@ -107,7 +107,7 @@ void newLocation(Files& Files) {
                 cin.ignore();
                 getline(cin, path);
                 filesystem::current_path(path);
-                Files.working_directory = filesystem::current_path();
+                Files.working_directory = filesystem::current_path().string();
                 // if ending with a slash, remove it
                 Files.sub_folder = "";
                 buildFilesPath(Files);
@@ -119,7 +119,7 @@ void newLocation(Files& Files) {
                 getline(cin, path);
                 filesystem::current_path(path);
                 // if ending with a slash, remove it
-                Files.working_directory = filesystem::current_path();
+                Files.working_directory = filesystem::current_path().string();
                 buildFilesPath(Files);
                 println("\nWorking directory changed to " + Files.working_directory);
                 break;
@@ -180,7 +180,7 @@ void requireDataset(Files& Files, bool new_dataset = false) {
                         cin.ignore();
                         getline(cin, full_path);
                         copyFileToSubFolder(Files, full_path);
-                        Files.dataset.base = filesystem::path(full_path).filename();
+                        Files.dataset.base = filesystem::path(full_path).filename().string(); // Convert to string
                         buildFilesPath(Files);
                         println("");
                         break;

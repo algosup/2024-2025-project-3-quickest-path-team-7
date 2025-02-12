@@ -97,11 +97,11 @@ int takeUserInput(Graph& Graph, Path& path, Files& Files) {
         // try to load the graph and landmarks until it is successful
         loadGraph(GlobalGraph, GlobalFiles, FORCE_BUILD);
         if (!GlobalGraph.loaded) {
-            println("The graph could not be loaded. Reloading the previous dataset from backup...", type::ERROR);
+            println("The graph could not be loaded. Reloading the previous dataset from backup...", type::ERROR_BOLD);
             loadGraph(GlobalGraph, GlobalFiles);
         }
         if (!GlobalGraph.loaded) {
-            println("The graph could not be loaded. Exiting...", type::ERROR);
+            println("The graph could not be loaded. Exiting...", type::ERROR_BOLD);
             return EXIT;
         }
         return COMMAND;

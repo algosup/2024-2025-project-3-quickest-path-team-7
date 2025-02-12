@@ -17,7 +17,7 @@ void handlePathRequest(int client_socket, const string& request, int option = LI
     if (format_pos != string::npos) {
         response_format = request.substr(format_pos + 8, limit_pos - format_pos - 8);
         if (response_format != "json" && response_format != "xml") {
-            println("Invalid response format", type::ERROR);
+            println("Invalid response format", type::ERROR_BOLD);
             sendWrongFormat(client_socket);
             return;
         }
@@ -122,7 +122,7 @@ void handlePathRequest(int client_socket, const string& request, int option = LI
             saveComparedPathToCSV(GlobalFiles, GlobalPath, DijkstraPath);
         } 
         else {
-            println("Invalid option", type::ERROR);
+            println("Invalid option", type::ERROR_BOLD);
         } 
 
         resetComputeData(GlobalGraph, GlobalPath, GlobalAstar);
@@ -256,7 +256,7 @@ void runApiServer() {
         #ifdef _WIN32
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-            println("WSAStartup failed", type::ERROR);
+            println("WSAStartup failed", type::ERROR_BOLD);
             return;
         }
         #endif

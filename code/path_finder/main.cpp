@@ -13,7 +13,7 @@ int main() {
     while (!GlobalGraph.loaded) {
         loadGraph(GlobalGraph, GlobalFiles);
         if (!GlobalGraph.loaded) {
-            println("The graph could not be loaded", type::ERROR);
+            println("The graph could not be loaded", type::ERROR_BOLD);
             println("Press any key to retry loading the graph...", type::WARNING);
             cin.get();
         }

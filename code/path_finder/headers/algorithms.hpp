@@ -66,11 +66,11 @@ void reconstructPath(vector<int_pair>& node_before, Path& Path) {
 void astarAlgorithm(Graph& Graph, Path& Path, Astar& Astar, bool null_heuristic = false) {
 
     if (! Graph.loaded) {
-        println("ERROR: Graph not loaded, please load it first.", type::ERROR);
+        println("ERROR: Graph not loaded, please load it first.", type::ERROR_BOLD);
         return;
     }
     if (!Graph.landmarks_loaded) {
-        println("ERROR: Landmarks not loaded, please load them first.", type::ERROR);
+        println("ERROR: Landmarks not loaded, please load them first.", type::ERROR_BOLD);
         return;
     }
 

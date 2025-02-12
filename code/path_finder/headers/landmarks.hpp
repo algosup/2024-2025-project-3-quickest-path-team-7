@@ -83,7 +83,7 @@ void saveLandmarksToBinary(Graph& Graph, Files& files) {
 
     ofstream file(files.landmarks.full, ios::binary);
     if (!file.is_open()) {
-        println("\nFailed to open the file for writing: " + files.landmarks.full, type::ERROR);
+        println("\nFailed to open the file for writing: " + files.landmarks.full, type::ERROR_BOLD);
         return;
     }
 

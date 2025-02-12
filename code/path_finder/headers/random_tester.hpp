@@ -38,7 +38,7 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
 
     ofstream results(test_results);
     if (!results.is_open()) {
-        println("Failed to open the file for writing: " + test_results, type::ERROR);
+        println("Failed to open the file for writing: " + test_results, type::ERROR_BOLD);
         return;
     }
 
@@ -144,7 +144,7 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
     try {
         filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);
     } catch (filesystem::filesystem_error& e) {
-        println("ERROR copying : " + string(e.what()), type::ERROR);
+        println("ERROR copying : " + string(e.what()), type::ERROR_BOLD);
     }
 
     // then copy this test_results.csv to "../benchmark_sampling/test_results.csv" if it exists
@@ -157,7 +157,7 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
     try {
         filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);
     } catch (filesystem::filesystem_error& e) {
-        println("ERROR copying : " + string(e.what()), type::ERROR);
+        println("ERROR copying : " + string(e.what()), type::ERROR_BOLD);
     }
 
     println(" Now you can go to " + filesystem::absolute(benchmark_folder).string() + " to plot the results with python", type::INFO);

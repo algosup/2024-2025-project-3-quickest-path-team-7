@@ -97,25 +97,25 @@ bool buildGraphFromCSV(Graph& Graph, const Files& Files) {
             try {
                 row.push_back(stoi(cell));
             } catch (const invalid_argument& e) {
-                println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR);
-                println("-> Invalid node value", type::ERROR);
+                println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR_BOLD);
+                println("-> Invalid node value", type::ERROR_BOLD);
                 return FAIL;
             } catch (const out_of_range& e) {
-                println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR);
-                println("-> Value out of range !", type::ERROR);
+                println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR_BOLD);
+                println("-> Value out of range !", type::ERROR_BOLD);
                 return FAIL;
             }
             if (row.back() <= 0) {
-                println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR);
-                println("-> Nodes and weights must be integers and > 0 ", type::ERROR);
+                println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR_BOLD);
+                println("-> Nodes and weights must be integers and > 0 ", type::ERROR_BOLD);
                 return FAIL;
             }
         }
 
         // Check if the line has the correct number of values
         if (row.size() != 3) {
-            println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR);
-            println("-> Expected 3 values but read " + to_string(row.size()), type::ERROR);
+            println("ERROR : Parsing CSV at line " + to_string(counter+1), type::ERROR_BOLD);
+            println("-> Expected 3 values but read " + to_string(row.size()), type::ERROR_BOLD);
             return FAIL;
         }
         //Check if nodes and weight are strictly positive integers and store them in int variables
@@ -226,11 +226,11 @@ void loadGraph(Graph& Graph, Files& Files, bool force = false) {
 
             // Load the backup of the Graph
             if (!loadGraphFromBinary(Graph, Files)) {
-                println("\nFailed to load the backup !", type::ERROR);
+                println("\nFailed to load the backup !", type::ERROR_BOLD);
             } else {
                 println("\rLoading the Graph from the backup " + Files.graph.full + " ... Done !", type::VALIDATION);
                 if (!loadLandmarks(Graph, Files, force)) {
-                    println("Landmarks loading failed. Exiting... ", type::ERROR);
+                    println("Landmarks loading failed. Exiting... ", type::ERROR_BOLD);
                 } 
                 Graph.loaded = true;
                 return;
@@ -243,17 +243,17 @@ void loadGraph(Graph& Graph, Files& Files, bool force = false) {
 
     // Build the Graph from CSV
     if(!buildGraphFromCSV(Graph, Files)) {
-        println("Failed to build the graph from CSV !", type::ERROR);
-        println("Check the content of your CSV file and try again ... ", type::ERROR);
+        println("Failed to build the graph from CSV !", type::ERROR_BOLD);
+        println("Check the content of your CSV file and try again ... ", type::ERROR_BOLD);
         return;
     }
 
     // Save it to binary backup for next time
     if(!saveGraphToBinary(Graph, Files)){
-        println("Failed to save the graph to binary !", type::ERROR);
+        println("Failed to save the graph to binary !", type::ERROR_BOLD);
     } else {
         if (!loadLandmarks(Graph, Files, force)) {
-            println("Landmarks loading failed. Exiting... ", type::ERROR);
+            println("Landmarks loading failed. Exiting... ", type::ERROR_BOLD);
         } 
         Graph.loaded = true;
         return;
