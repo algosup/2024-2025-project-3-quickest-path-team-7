@@ -11,9 +11,11 @@ with open(csv_file_path, "r") as file:
     lines = file.readlines()
     num_samples = lines[2].split(",")[1].strip()
     landmarks_quantity = lines[3].split(",")[1].strip()
+    average_time = lines[4].split(",")[1].strip()
+    print ("average response time: ", average_time)
 
 # Read the CSV file while skipping metadata rows and handling column names properly
-df = pd.read_csv(csv_file_path, skiprows=4)
+df = pd.read_csv(csv_file_path, skiprows=6)
 
 # Strip column names to remove extra spaces
 df.columns = df.columns.str.strip()
@@ -65,7 +67,7 @@ plt.annotate(
 # Labels, title, and legend
 plt.xlabel("Path Length (Number of Nodes in Path)")
 plt.ylabel("Execution Time (Seconds)")
-plt.title(f"Team 7 algorithm tested using {landmarks_quantity} landmarks, with a sample of {num_samples} random paths")
+plt.title(f"Team 7 algorithm tested using {landmarks_quantity} landmarks, with a sample of {num_samples} random paths\nAverage Execution Time: {average_time}")
 
 # Adjust y-axis limits to reach 1.1 in height
 plt.ylim(top=1.1)

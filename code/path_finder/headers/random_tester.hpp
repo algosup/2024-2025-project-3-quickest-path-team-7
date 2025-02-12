@@ -46,7 +46,6 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
     results << "Results of random picking test ordered by calculation time" << endl;
     results << "Number of tested paths, " << sample_size << endl;
     results << "Landmarks qantity, " << landmarks_qty << endl;
-    results << "\nStart, End, Distance, Calculation time (" << TIME_UNIT_STR << ")" << endl;
     results.close();
 
     Timer timer;
@@ -106,6 +105,9 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
 
     // Fill the file
     results.open(test_results, ios::app);
+    results << "Average calculation time, " << microsecToString(average_delay) << endl;
+    results << "Maximum calculation time, " << microsecToString(max_delay) << endl;
+    results << "\nStart, End, Distance, Calculation time (" << TIME_UNIT_STR << ")" << endl;
     while (!paths.empty()) {
         current_path = paths.top();
         paths.pop();

@@ -41,8 +41,6 @@ int main() {
 
         #ifdef TOPY
         println("\n\nThe program will exit to let Python script plotting run !", type::WARNING);
-        println("Press any key to exit...", type::WARNING);
-        cin.get();
         return 0;
         #endif
 
