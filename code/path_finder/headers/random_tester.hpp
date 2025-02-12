@@ -68,7 +68,7 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
     unsigned int progression = 0;
     unsigned int progression_backup = 0;
 
-    println("Starting the random test with " + to_string(sample_size) + " samples with " + to_string(landmarks_qty) + " landmarks");
+    println("Starting the random test with " + to_string(sample_size) + " paths sample, with " + to_string(landmarks_qty) + " landmarks");
 
 
     for (int i = 0; i < sample_size; ++i) {

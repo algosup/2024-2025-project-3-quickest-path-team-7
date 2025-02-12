@@ -8,6 +8,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PATH_FINDER_DIR="$SCRIPT_DIR/path_finder"
 BENCH_DIR="$SCRIPT_DIR/benchmark_sampling"
 
+# Ask the user for landmark quantity and sample size
+read -p "Enter the landmark quantity: " LANDMARKS_QUANTITY
+read -p "Enter the sample size: " SAMPLE_SIZE
+
+
 # Check if g++ is installed
 if ! command -v g++ >/dev/null 2>&1; then
     echo "g++ compiler not found. Installing..."
@@ -25,12 +30,12 @@ fi
 cd "$PATH_FINDER_DIR"
 if [ "$(uname)" = "Darwin" ]; then
     echo "Compiling main.cpp for macOS..."
-    echo "g++ -std=c++17 -O3 -DTEST -DSPLSIZ=10 -DLMQTY=12 -DTOPY -o main main.cpp"
-    g++ -std=c++17 -O3 -DTEST -DSPLSIZ=10 -DLMQTY=12 -DTOPY -o main main.cpp
+    echo "g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o main main.cpp"
+    g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o main main.cpp
 elif [ "$(uname)" = "Linux" ]; then
     echo "Compiling main.cpp for Linux..."
-    echo "g++ -std=c++17 -O3 -DTEST -DSPLSIZ=10 -DLMQTY=12 -DTOPY -o main main.cpp -pthread"
-    g++ -std=c++17 -O3 -DTEST -DSPLSIZ=10 -DLMQTY=12 -DTOPY -o main main.cpp -pthread
+    echo "g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o main main.cpp -pthread"
+    g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o main main.cpp -pthread
 else
     echo "Unsupported OS. Compilation failed."
     exit 1
@@ -40,6 +45,7 @@ if [ $? -ne 0 ]; then
     echo "Compilation failed."
     exit 1
 fi
+
 
 echo "Compilation successful. Running main and opening HTML file..."
 cd "$PATH_FINDER_DIR"

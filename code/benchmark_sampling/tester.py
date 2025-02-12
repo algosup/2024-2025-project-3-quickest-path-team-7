@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 # Define the path to the uploaded CSV file
 csv_file_path = "test-results.csv"
 
+print (f"Reading data from {csv_file_path} ... ")
 
 # Extract metadata from the first two rows containing the number of samples and landmarks quantity
 with open(csv_file_path, "r") as file:
@@ -28,6 +29,7 @@ max_time = execution_times.max()
 max_time_index = execution_times.idxmax()
 max_time_path = (start_nodes[max_time_index], end_nodes[max_time_index], nodes_visited[max_time_index], max_time)
 
+print (f"Plotting results ... ")
 # Plot results
 plt.figure(figsize=(10, 6))
 
@@ -63,7 +65,7 @@ plt.annotate(
 # Labels, title, and legend
 plt.xlabel("Path Length (Number of Nodes in Path)")
 plt.ylabel("Execution Time (Seconds)")
-plt.title(f"A* Algorithm using {landmarks_quantity} landmarks tested with {num_samples} random samples through API")
+plt.title(f"Team 7 algorithm tested using {landmarks_quantity} landmarks, with a sample of {num_samples} random paths")
 
 # Adjust y-axis limits to reach 1.1 in height
 plt.ylim(top=1.1)
