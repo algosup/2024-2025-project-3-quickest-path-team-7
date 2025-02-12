@@ -30,12 +30,12 @@ fi
 cd "$PATH_FINDER_DIR"
 if [ "$(uname)" = "Darwin" ]; then
     echo "Compiling main.cpp for macOS..."
-    echo "g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o main main.cpp"
-    g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o main main.cpp
+    echo "g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o tester main.cpp"
+    g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o tester main.cpp
 elif [ "$(uname)" = "Linux" ]; then
     echo "Compiling main.cpp for Linux..."
-    echo "g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o main main.cpp -pthread"
-    g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o main main.cpp -pthread
+    echo "g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o tester main.cpp -pthread"
+    g++ -std=c++17 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o tester main.cpp -pthread
 else
     echo "Unsupported OS. Compilation failed."
     exit 1
@@ -49,7 +49,7 @@ fi
 
 echo "Compilation successful. Running main and opening HTML file..."
 cd "$PATH_FINDER_DIR"
-./main
+./tester
 
 # Move into the benchmark directory
 cd "$BENCH_DIR" || { echo "Directory $BENCH_DIR not found!"; exit 1; }
