@@ -112,7 +112,7 @@ void resetConsoleColor() {
 
 void print(const string& message, type t = type::BASIC) {
     setConsoleColor(t);
-    cout << message;
+    cout << message << flush;
     resetConsoleColor();
 }
 

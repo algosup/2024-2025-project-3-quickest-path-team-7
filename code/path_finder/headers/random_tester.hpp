@@ -69,18 +69,23 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
 
     println("Starting the random test with " + to_string(sample_size) + " paths sample, with " + to_string(landmarks_qty) + " landmarks");
 
+    println("Generating random paths ...");
+    random_device rd;
+    mt19937 gen(rd());  // Initialize the Mersenne Twister generator
+    uniform_int_distribution<> dist(1, GlobalGraph.nodes_qty);  // Distribution in the range [1, 23947347]
+    vector<int_pair> random_paths;
+    for (int i = 0; i < sample_size; ++i) {
+        random_paths.push_back({dist(gen), dist(gen)});
+    }
+
     print("Calculating random paths ... 0 %", type::INFO);
 
     for (int i = 0; i < sample_size; ++i) {
 
         resetComputeData(Graph, Path, Astar);
 
-        random_device rd;
-        mt19937 gen(rd());  // Initialize the Mersenne Twister generator
-        uniform_int_distribution<> dist(1, GlobalGraph.nodes_qty);  // Distribution in the range [1, 23947347]
-
-        Path.start = dist(gen);
-        Path.end = dist(gen);
+        Path.start = random_paths[i].first;
+        Path.end = random_paths[i].second;
 
         findPath(Graph, Path, Astar, timer);
 
@@ -95,10 +100,10 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
 
         // Show progression and count lines
         counter++;
-        progression = counter * 100 / sample_size;
+        progression = (counter * 100) / sample_size;
         if (progression != progression_backup) {
-            print("\rCalculating random paths ... " + to_string(progression) + " %", type::INFO);
             progression_backup = progression;
+            print("\rCalculating random paths ... " + to_string(progression) + " %", type::INFO);
         }
     }
     println("\rCalculating random paths ... 100 %", type::VALIDATION);
