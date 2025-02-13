@@ -10,8 +10,8 @@ set "GPP=C:\msys64\mingw64\bin\g++.exe"
 set "BENCH_DIR=%SCRIPT_DIR%benchmark_sampling"
 
 ::ASk for the sample size and the number of landmarks
-set /p SAMPLE_SIZE="Enter the sample size: "
 set /p LANDMARKS_QUANTITY="Enter the number of landmarks: "
+set /p SAMPLE_SIZE="Enter the sample size: "
 
 :: Check if g++ is installed
 where g++ >nul 2>nul
@@ -89,6 +89,7 @@ call "tester.exe"
 REM Move into the benchmark directory
 cd /d "%BENCH_DIR%" || (
     echo Directory %BENCH_DIR% not found!
+    pause
     exit /b 1
 )
 
@@ -107,11 +108,6 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 
-:: Ensure pip is available
-python -m ensurepip
-python -m pip install --upgrade pip
-
-
 REM Create a virtual environment inside the benchmark directory if it doesn't exist
 if not exist "%VENV_DIR%" (
     echo Creating a virtual environment in %VENV_DIR%...
@@ -123,8 +119,9 @@ echo Activating the virtual environment...
 call "%VENV_DIR%\Scripts\activate.bat"
 
 REM Install required Python packages
+echo Upgrading pip...
+pip install --upgrade pip 
 echo Installing required Python packages...
-pip install --upgrade pip
 pip install pandas matplotlib
 
 REM Run the benchmark script
