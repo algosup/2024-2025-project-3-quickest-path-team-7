@@ -212,22 +212,18 @@ function buildComparePathHTML(data) {
     data.astar_nodes_quantity || data.dijkstra_nodes_quantity || "N/A";
 
   let overview = `
-    <div class="path-length"><span class="label">Path length: ${displayedPathLength}</div>
-    <div class="nodes-length"><span class="label">Path nodes: ${displayedNodeCount}</div>
-    <br>
+  <div class="oversize-percentage"><span class="label">Oversize percentage:</span> ${data.oversize_percentage}%</div>
+  <div class="heuristic-weight"><span class="label">Heuristic weight:</span> ${data.heuristic_weight}</div>
+  <div class="landmarks-quantity"><span class="label">Landmarks quantity:</span> ${data.landmarks_quantity}</div>
+  <br>
+  <div class="astar-path-length"><span class="label">A* path length:</span> ${data.astar_path_length}</div>
+  <div class="astar-nodes-quantity"><span class="label">A* nodes:</span> ${data.astar_nodes_quantity}</div>
+  <div class="time"><span class="label">A* calculation time:</span> ${astarTime}</div>
+  <br>
+  <div class="dijkstra-path-length"><span class="label">Dijkstra path length:</span> ${data.dijkstra_path_length}</div>
+  <div class="dijkstra-nodes-quantity"><span class="label">Dijkstra nodes:</span> ${data.dijkstra_nodes_quantity}</div>
+  <div class="time"><span class="label">Dijkstra calculation time:</span> ${dijkstraTime}</div>
   `;
-  if (astarTime) {
-    overview += `<div class="time"><span class="label">A* calculation time:</span> ${astarTime}</div>`;
-  }
-  if (dijkstraTime) {
-    overview += `<div class="time"><span class="label">Dijkstra calculation time:</span> ${dijkstraTime}</div>`;
-  }
-  if (data.heuristic_weight) {
-    overview += `<div class="heuristic-weight"><span class="label">Heuristic weight:</span> ${data.heuristic_weight}</div>`;
-  }
-  if (data.landmarks_quantity) {
-    overview += `<div class="landmarks-quantity"><span class="label">Landmarks quantity:</span> ${data.landmarks_quantity}</div>`;
-  }
 
   let details = `
   <details class="accordion" style="overflow-y: hidden;">
