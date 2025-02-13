@@ -4,7 +4,7 @@
 #define CSV_LINES           28854312    // Serve only to display the loading progress in the console
 #define WEIGHT              1.02        // The weight of the heuristic cost for A star
 #define ROOT_LANDMARK       1           // The first landmark to be picked    
-#define LANDMARKS_QTY       10          // The number of landmarks to be used
+#define LANDMARKS_QTY       25          // The number of landmarks to be used
 
 #define PORT                9500
 #define DISP_BAD_EPT        false       // Display bad endpoints requests in terminal
@@ -70,6 +70,7 @@
 #include <cstring>
 #include <filesystem>
 #include <ctime>
+#include <random>
 
 // API includes
 #ifdef _WIN32

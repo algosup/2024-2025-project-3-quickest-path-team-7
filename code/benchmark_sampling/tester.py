@@ -98,6 +98,7 @@ plt.grid(True, which="both", linestyle="--", linewidth=0.5)
 
 # resize window
 plt.tight_layout()
+plt.subplots_adjust(top=0.8)  # Increase the top margin
 
 # Save the plot as an image file high quality
 plt.savefig("test-results.png", dpi=300)
@@ -105,4 +106,5 @@ plt.savefig("test-results.png", dpi=300)
 # Show the plot
 plt.show()
 
-exit # Exit the script after plotting the results
+# Exit the script after plotting the results
+exit

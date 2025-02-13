@@ -9,6 +9,10 @@ set "MINGW_PATH=C:\msys64\mingw64\bin"
 set "GPP=C:\msys64\mingw64\bin\g++.exe"
 set "BENCH_DIR=%SCRIPT_DIR%benchmark_sampling"
 
+::ASk for the sample size and the number of landmarks
+set /p LANDMARKS_QUANTITY="Enter the number of landmarks: "
+set /p SAMPLE_SIZE="Enter the sample size: "
+
 :: Check if g++ is installed
 where g++ >nul 2>nul
 if %errorlevel% neq 0 (
@@ -67,7 +71,7 @@ echo %PATH%
 echo Compiling main.cpp..
 cd %PATH_FINDER_DIR%
 @echo on
-g++ -std=c++23 -O3 -DTEST -DSPLSIZ=$SAMPLE_SIZE -DLMQTY=$LANDMARKS_QUANTITY -DTOPY -o tester.exe main.cpp -lws2_32
+g++ -std=c++23 -O3 -DTEST -DSPLSIZ=%SAMPLE_SIZE% -DLMQTY=%LANDMARKS_QUANTITY% -DTOPY -o tester.exe main.cpp -lws2_32
 @echo off
 if %errorlevel% neq 0 (
     echo Compilation failed.
@@ -85,19 +89,24 @@ call "tester.exe"
 REM Move into the benchmark directory
 cd /d "%BENCH_DIR%" || (
     echo Directory %BENCH_DIR% not found!
+    pause
     exit /b 1
 )
 
 REM Define virtual environment path inside the benchmark directory
-set VENV_DIR=.\.venv
+set VENV_DIR=.venv
 
-REM Check if Python is installed
+:: Check if Python is installed
 where python >nul 2>nul
-if %errorlevel% neq 0 (
-    echo Python not found. Installing...
-    echo Please install Python manually from https://www.python.org/downloads/
-    exit /b 1
+IF %ERRORLEVEL% NEQ 0 (
+    echo Python not found. Installing Python...
+    powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = 'TLS12'; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.12.1/python-3.12.1-amd64.exe' -OutFile 'python_installer.exe'}"
+    start /wait python_installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_pip=1
+    del python_installer.exe
+) ELSE (
+    echo Python is already installed.
 )
+
 
 REM Create a virtual environment inside the benchmark directory if it doesn't exist
 if not exist "%VENV_DIR%" (
@@ -110,8 +119,9 @@ echo Activating the virtual environment...
 call "%VENV_DIR%\Scripts\activate.bat"
 
 REM Install required Python packages
+echo Upgrading pip...
+pip install --upgrade pip 
 echo Installing required Python packages...
-pip install --upgrade pip
 pip install pandas matplotlib
 
 REM Run the benchmark script
