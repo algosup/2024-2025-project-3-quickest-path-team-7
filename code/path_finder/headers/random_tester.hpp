@@ -87,6 +87,8 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
         Path.start = random_paths[i].first;
         Path.end = random_paths[i].second;
 
+        this_thread::sleep_for(chrono::milliseconds(10)); // to avoid same time for different paths
+
         findPath(Graph, Path, Astar, timer);
 
         current_path.calculation_time = Path.calculation_time;
