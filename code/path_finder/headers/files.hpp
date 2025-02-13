@@ -37,6 +37,11 @@ void copyFileToSubFolder(Files& Files, const string& source_file) {
         return;
     }
 
+    // Remove the destination file if it exists
+    if (filesystem::exists(destination)) {
+        filesystem::remove(destination);
+    }
+
     // Copy the file
     try {
         filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);

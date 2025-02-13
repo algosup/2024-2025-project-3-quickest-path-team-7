@@ -70,6 +70,7 @@
 #include <cstring>
 #include <filesystem>
 #include <ctime>
+#include <random>
 
 // API includes
 #ifdef _WIN32

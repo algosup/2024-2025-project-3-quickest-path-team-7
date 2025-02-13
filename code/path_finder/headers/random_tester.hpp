@@ -75,8 +75,12 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
 
         resetComputeData(Graph, Path, Astar);
 
-        Path.start = rand() % Graph.nodes_qty + 1;
-        Path.end = rand() % Graph.nodes_qty + 1;
+        random_device rd;
+        mt19937 gen(rd());  // Initialize the Mersenne Twister generator
+        uniform_int_distribution<> dist(1, GlobalGraph.nodes_qty);  // Distribution in the range [1, 23947347]
+
+        Path.start = dist(gen);
+        Path.end = dist(gen);
 
         findPath(Graph, Path, Astar, timer);
 
@@ -142,6 +146,12 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
     //copy the csv as test_results.csv, overwriting the one before
     filesystem::path source(test_results);
     filesystem::path destination(Files.sub_folder + "/test-results.csv");
+
+    // Remove the destination file if it exists
+    if (filesystem::exists(destination)) {
+        filesystem::remove(destination);
+    }
+
     try {
         filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);
     } catch (filesystem::filesystem_error& e) {
@@ -155,6 +165,12 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
     }
 
     destination = benchmark_folder / "test-results.csv";
+
+    // Remove the destination file if it exists
+    if (filesystem::exists(destination)) {
+        filesystem::remove(destination);
+    }
+
     try {
         filesystem::copy(source, destination, filesystem::copy_options::overwrite_existing);
     } catch (filesystem::filesystem_error& e) {
