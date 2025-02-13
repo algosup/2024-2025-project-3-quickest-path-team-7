@@ -187,7 +187,7 @@ sh macLinuxProjectBuilder.sh
 ```
 If required, give the execution rights to the script before running it:
 ```sh
-chmod +x macLinuxProjectBuilder.sh
+chmod 777 macLinuxProjectBuilder.sh
 ```
 
 
