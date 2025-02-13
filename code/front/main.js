@@ -12,10 +12,13 @@ const submitBtn = document.getElementById("submitBtn");
 const errorMessage = document.getElementById("errorMessage");
 const loadingSpinner = document.getElementById("loadingSpinner");
 const requestInfo = document.getElementById("requestInfo");
-const outputContent = document.getElementById("outputContent"); // The container that was "hidden" by default
 const overviewDisplay = document.getElementById("overviewDisplay");
 const detailsDisplay = document.getElementById("detailsDisplay");
 const requestTypeInput = document.getElementById("requestType");
+const requestFormatInput = document.getElementById("requestFormat");
+const requestResponseOutput = document.getElementById("requestResponse");
+const outputContainer = document.getElementsByClassName("output-container")[0];
+const outputResponse = document.getElementsByClassName("request-response")[0];
 
 /**
  * Check if the input is a valid integer within [1..23,947,347].
@@ -38,7 +41,8 @@ function displayError(message) {
   // Hide request info
   requestInfo.classList.add("hidden");
   // Hide the output content
-  outputContent.classList.add("hidden");
+  outputContainer.classList.remove("hidden");
+  outputResponse.classList.add("hidden");
 
   // Optionally, clear out the overview/details sections
   overviewDisplay.innerHTML = "";
@@ -331,8 +335,14 @@ function stopLoading() {
  * Get the selected request type (basic, detailed, compare).
  */
 function getSelectedRequestType() {
-  // If <select id="requestType"> or a hidden input:
   return requestTypeInput.value;
+}
+
+/**
+ * Get the selected request format (json, xml).
+ */
+function getSelectedRequestFormat() {
+  return requestFormatInput.value;
 }
 
 /**
@@ -349,6 +359,7 @@ async function handleSubmit(event) {
   const startValue = startInput.value.trim();
   const endValue = endInput.value.trim();
   const requestType = getSelectedRequestType();
+  const requestFormat = getSelectedRequestFormat();
 
   // Validate inputs
   if (!isValid32BitInteger(startValue)) {
@@ -393,7 +404,7 @@ async function handleSubmit(event) {
     }
 
     // Show the request info
-    requestInfo.textContent = `> GET /${endpoint}?start=${startValue}&end=${endValue}`;
+    requestInfo.textContent = `> GET /${endpoint}?start=${startValue}&end=${endValue}&format=${requestFormat}`;
     requestInfo.classList.remove("hidden");
     errorMessage.classList.add("hidden");
 
@@ -406,9 +417,26 @@ async function handleSubmit(event) {
     // Inject them into the new containers
     overviewDisplay.innerHTML = overview;
     detailsDisplay.innerHTML = details;
+    
+    // if the response format is JSON, display the raw JSON response
+    // else if the response format is XML, redo the fetch request with XML format
+    if (requestFormat === "json") {
+      requestResponseOutput.textContent = JSON.stringify(data, null, 2);
+    } else if (requestFormat === "xml") {
+      // redo the fetch request with XML format after replacing the format=json with format=xml in the URL and wait 10ms before fetching
+      const xmlUrl = url.replace("format=json", "format=xml");
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      const xmlResponse = await fetch(xmlUrl);
+      if (!xmlResponse.ok) {
+        throw new Error(`API request failed with status ${xmlResponse.status}`);
+      }
+      const xmlData = await xmlResponse.text();
+      requestResponseOutput.textContent = xmlData;
+    }
 
-    // Make sure outputContent is visible
-    outputContent.classList.remove("hidden");
+    errorMessage.classList.add("hidden");
+    outputContainer.classList.remove("hidden");
+    outputResponse.classList.remove("hidden");
   } catch (error) {
     displayError(`Error: ${error.message}`);
   } finally {

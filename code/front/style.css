@@ -153,12 +153,13 @@ body {
 .path-form {
   display: flex;
   flex-direction: row;
-  flex-wrap:initial
+  flex-wrap: initial;
 }
 
 .form-group {
   /* margin-bottom: 1rem; */
-  margin: 0 1rem 1rem 1rem;
+  margin: 0 0.5rem 1rem 0.5rem;
+  max-width: 275px;
 }
 
 .form-group label {
@@ -187,10 +188,6 @@ input[type="text"], select {
   border-radius: 5px;
   font-size: 1rem;
   transition: border-color var(--transition-speed);
-}
-
-select {
-  max-width: 80%;
 }
 
 input[type="text"]:focus {
@@ -273,6 +270,32 @@ button:hover {
   display: flex;
   flex-direction: row;
   gap: 1rem;
+}
+
+.request-response {
+  background-color: #fff;
+  max-width: 1150px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.request-response pre {
+  padding: 1rem;
+  background-color: #1e1e1e;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  border: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  word-break: break-all;
+  color: #00ff7f;
+  text-shadow: 0 0 2px #00ff7f;
 }
 
 .overview {
@@ -579,6 +602,25 @@ tbody tr:hover {
 @media (max-width: 800px) {
   .algorithm-cards {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .output-content {
+    flex-direction: column;
+  }
+
+  .overview {
+    border-right: none;
+    padding-right: 0;
+    margin-bottom: 1rem;
+    flex: 0;
+  }
+
+  tbody {
+    max-height: 400px;
+  }
+
+  .path-form {
+    flex-wrap: wrap;
   }
 }
 
