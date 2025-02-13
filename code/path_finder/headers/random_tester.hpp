@@ -69,7 +69,7 @@ void random_tester(Graph& Graph, Astar& Astar, Path& Path, Files& Files, int sam
 
     println("Starting the random test with " + to_string(sample_size) + " paths sample, with " + to_string(landmarks_qty) + " landmarks");
 
-    print("\rCalculating random paths ... 0 %", type::INFO);
+    print("Calculating random paths ... 0 %", type::INFO);
 
     for (int i = 0; i < sample_size; ++i) {
 
