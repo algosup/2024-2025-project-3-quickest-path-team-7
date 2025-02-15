@@ -5,7 +5,7 @@
 
 enum class type {
     BASIC,
-    ERROR,
+    ERROR_BOLD,
     ERROR_LIGHT,
     LOG,
     VALIDATION,
@@ -17,104 +17,128 @@ enum class type {
     RED,
     YELLOW
 };
-
-void print(const string& message, type t = type::BASIC) {
+#ifdef _WIN32
+void setConsoleColor(type t) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     switch (t) {
         case type::BASIC:
-        cout    << "\033[0m" // Normal color (white)
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 7); // White
             break;
-        case type::ERROR:
-        cerr    << "\033[1;31m" // Bold red
-                << message
-                << "\033[0m"
-                << flush;
+        case type::ERROR_BOLD:
+            SetConsoleTextAttribute(hConsole, 12); // Red
             break;
         case type::ERROR_LIGHT:
-        cerr    << "\033[31m" // Light red
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 4); // Light Red
             break;
         case type::LOG:
-        cout    << "\033[34m" // light blue
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 9); // Blue
             break;
-        case type::VALIDATION: // bold green
-        cout    << "\033[1;32m"
-                << message
-                << "\033[0m"
-                << flush;
+        case type::VALIDATION:
+            SetConsoleTextAttribute(hConsole, 10); // Green
             break;
         case type::WARNING:
-        cout    << "\033[1;33m" // Bold yellow
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 14); // Yellow
             break;
         case type::INFO:
-        cout    << "\033[1;34m" // Bold blue
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 11); // Cyan
             break;
         case type::BOLD:
-        cout    << "\033[1m" // Bold white
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 15); // Bright White
             break;
         case type::GREEN:
-        cout    << "\033[32m" // light Green
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 2); // Green
             break;
         case type::BLUE:
-        cout    << "\033[34m" // light blue
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 1); // Blue
             break;
         case type::RED:
-        cout    << "\033[31m" // light red
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 4); // Red
             break;
         case type::YELLOW:
-        cout    << "\033[33m" // light yellow
-                << message
-                << "\033[0m"
-                << flush;
+            SetConsoleTextAttribute(hConsole, 6); // Yellow
             break;
     }
+}
+
+void resetConsoleColor() {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); // Reset to default color
+}
+#else
+void setConsoleColor(type t) {
+    switch (t) {
+        case type::BASIC:
+            cout << "\033[0m"; // Normal color (white)
+            break;
+        case type::ERROR_BOLD:
+            cerr << "\033[1;31m"; // Bold red
+            break;
+        case type::ERROR_LIGHT:
+            cerr << "\033[31m"; // Light red
+            break;
+        case type::LOG:
+            cout << "\033[34m"; // Light blue
+            break;
+        case type::VALIDATION:
+            cout << "\033[1;32m"; // Bold green
+            break;
+        case type::WARNING:
+            cout << "\033[1;33m"; // Bold yellow
+            break;
+        case type::INFO:
+            cout << "\033[1;34m"; // Bold blue
+            break;
+        case type::BOLD:
+            cout << "\033[1m"; // Bold white
+            break;
+        case type::GREEN:
+            cout << "\033[32m"; // Light green
+            break;
+        case type::BLUE:
+            cout << "\033[34m"; // Light blue
+            break;
+        case type::RED:
+            cout << "\033[31m"; // Light red
+            break;
+        case type::YELLOW:
+            cout << "\033[33m"; // Light yellow
+            break;
+    }
+}
+
+void resetConsoleColor() {
+    cout << "\033[0m"; // Reset to default color
+}
+#endif
+
+void print(const string& message, type t = type::BASIC) {
+    setConsoleColor(t);
+    cout << message << flush;
+    resetConsoleColor();
 }
 
 void print(const int message, type t = type::BASIC) {
     print(to_string(message), t);
 }
-void print (const float message, int precision, type t = type::BASIC) {
+
+void print(const float message, int precision, type t = type::BASIC) {
     stringstream ss;
     ss << fixed << setprecision(precision) << message;
     print(ss.str(), t);
 }
+
 void println(const string& message, type t = type::BASIC) {
     print(message + "\n", t);
 }
+
 void println(int message, type t = type::BASIC) {
     print(to_string(message) + "\n", t);
 }
+
 void println(float message, int precision, type t = type::BASIC) {
     stringstream ss;
     ss << fixed << setprecision(precision) << message;
     print(ss.str() + "\n", t);
 }
-
 
 // Function to format a number with spaces between each group of three digits
 string formatWithSpaces(long number) {
@@ -143,7 +167,7 @@ void savePathToCSV(Files& files, Path& path_data) {
 
     ofstream file(files.output.full);
     if (!file.is_open()) {
-        println("Failed to open the file for writing.", type::ERROR);
+        println("Failed to open the file for writing.", type::ERROR_BOLD);
         return;
     }
 
@@ -173,7 +197,7 @@ void saveComparedPathToCSV(Files& files, Path& astar_path, Path& perfect_path) {
 
     ofstream file(files.comp_output.full);
     if (!file.is_open()) {
-        println("Failed to open the file for writing.", type::ERROR);
+        println("Failed to open the file for writing.", type::ERROR_BOLD);
         return;
     }
 
@@ -209,7 +233,7 @@ void saveComparedPathToCSV(Files& files, Path& astar_path, Path& perfect_path) {
 void displayResults(Path& path_data) {
     // If there is no path between the two nodes, output a message
     if (path_data.path.empty()) {
-        println("No path found between node " + formatWithSpaces(path_data.start) + " and node " + formatWithSpaces(path_data.end) + ".", type::ERROR);
+        println("No path found between node " + formatWithSpaces(path_data.start) + " and node " + formatWithSpaces(path_data.end) + ".", type::ERROR_BOLD);
         return;
     }
 
@@ -223,7 +247,7 @@ void displayResults(Path& path_data) {
 void displayComparisonResults(Path& astar_path, Path& perfect_path) {
     // If there is no path between the two nodes, output a message
     if (astar_path.path.empty()) {
-        println("No path found between node " + formatWithSpaces(astar_path.start) + " and node " + formatWithSpaces(astar_path.end) + ".", type::ERROR);
+        println("No path found between node " + formatWithSpaces(astar_path.start) + " and node " + formatWithSpaces(astar_path.end) + ".", type::ERROR_BOLD);
         return;
     }
 

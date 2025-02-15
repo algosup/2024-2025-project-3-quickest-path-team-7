@@ -16,7 +16,7 @@ body {
 
 body {
   font-family: 'Inter', sans-serif;
-  color: #cfb0b0;
+  color: #444444;
   line-height: 1.5;
   background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
   display: flex;
@@ -59,6 +59,9 @@ body {
   background-image: url('https://plus.unsplash.com/premium_photo-1681929370657-2b465220b4d9?q=80&w=3133&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
   background-position: center;     /* Centers the image horizontally & vertically */
   background-repeat: no-repeat;    /* Prevents tiling */
+
+  /* Greyscale the background to make text more readable */
+  filter: grayscale(1);
   
   /* Option 1: Ensure the image fills the header, with some cropping if needed */
   background-size: cover;         
@@ -76,6 +79,7 @@ body {
   font-size: 2rem;
   font-weight: 600;
   margin-bottom: 1rem;
+  color: #ffffff;
 }
 
 .nav-bar ul {
@@ -113,10 +117,10 @@ body {
   padding: 1rem;
 }
 
-.container {
+.input-container {
   background-color: #fff;
   padding: 2rem;
-  max-width: 550px;
+  max-width: 1150px;
   width: 100%;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -148,16 +152,25 @@ body {
 -------------------------------------- */
 .path-form {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: initial;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
+  margin: 0 0.5rem 1rem 0.5rem;
+  max-width: 275px;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.path-form .form-group label {
+  display: inline-block;
+  margin-right: 1rem;
   font-weight: 500;
 }
 
@@ -167,8 +180,9 @@ body {
   color: #666;
 }
 
-input[type="text"] {
+input[type="text"], select {
   width: 100%;
+  height: 3rem;
   padding: 0.75rem;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -183,6 +197,9 @@ input[type="text"]:focus {
 }
 
 button {
+  width: 20%;
+  height: 3rem;
+
   padding: 0.75rem;
   background: linear-gradient(90deg, #d79dd8, #c24daa);
   color: var(--primary-color);
@@ -192,7 +209,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background var(--transition-speed), transform 0.1s ease-in-out;
-  margin-top: 0.5rem;
+  margin: 30.6px 0 0 0;   /* 30.6px is the total height of the inputs labels */
 
   display: flex;
   align-items: center;
@@ -229,22 +246,151 @@ button:hover {
   }
 }
 
-.error {
-  color: var(--error-color);
-  margin-top: 1rem;
+.output-container {
+  background-color: #fff;
+  padding: 2rem;
+  max-width: 1150px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.output-header {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
   font-weight: 500;
 }
 
-/* Original Request Info */
-.request-info {
+.output-content {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.request-response {
+  background-color: #fff;
+  max-width: 1150px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+  margin-bottom: 2rem;
+  padding: 1rem;
   margin-top: 1rem;
-  padding: 0.75rem;
-  background-color: #f1f3f5;
-  color: #333;
+}
+
+.request-response pre {
+  padding: 1rem;
+  background-color: #1e1e1e;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
-  border-radius: 5px;
+  border-radius: 4px;
+  border: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
   word-break: break-all;
+  color: #00ff7f;
+  text-shadow: 0 0 2px #00ff7f;
+}
+
+.overview {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 350px;
+  border-right: 1px solid #ddd;
+  padding-right: 1rem;
+}
+
+span.label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-decoration: underline #666 solid 1px;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.accordion {
+  background-color: #f1f3f5;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-top: 1rem;
+  max-height: 650px;
+  overflow-y: auto;
+}
+
+/* Basic table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+thead, tbody tr {
+  display:table;
+  width:100%;
+  table-layout:fixed;
+}
+
+thead th {
+  background-color: #f1f3f5;
+  padding: 0.25rem;
+  border-bottom: 2px solid #ccc;
+}
+
+tbody {
+  display:block;
+  max-height:550px;
+  overflow-y:scroll;
+}
+
+tbody td {
+  border-bottom: 1px solid #eee;
+  padding: 0.25rem;
+}
+
+/* Highlight rows */
+.row-match {
+  background-color: #ddf8dc;
+}
+.row-mismatch {
+  background-color: #fde0dc;
+}
+
+/* Optional hover effect */
+tbody tr:hover {
+  filter: brightness(95%);
+}
+
+.request-info, .error {
+  padding: 0.75rem 1rem;
+  background-color: #1e1e1e;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  border: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  word-break: break-all;
+}
+
+.request-info {
+  color: #00ff7f;
+  text-shadow: 0 0 2px #00ff7f;
+}
+
+.error {
+  color: #ff0000;
+  text-shadow: 0 0 2px #ff0000;
 }
 
 /* Result container */
@@ -259,6 +405,31 @@ button:hover {
   overflow-x: auto;
   font-family: 'Courier New', monospace;
   font-size: 0.95rem;
+}
+
+/* Formatted path result */
+.path-result {
+  background-color: #f1f3f5;
+  padding: 1rem;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.path-result .path-length {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.path-result .path-nodes {
+  margin-top: 0.5rem;
+}
+
+.path-result .path-node {
+  margin-left: 1rem;
+  display: block;
 }
 
 /* -------------------------------------
@@ -431,6 +602,25 @@ button:hover {
 @media (max-width: 800px) {
   .algorithm-cards {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .output-content {
+    flex-direction: column;
+  }
+
+  .overview {
+    border-right: none;
+    padding-right: 0;
+    margin-bottom: 1rem;
+    flex: 0;
+  }
+
+  tbody {
+    max-height: 400px;
+  }
+
+  .path-form {
+    flex-wrap: wrap;
   }
 }
 

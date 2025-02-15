@@ -13,18 +13,50 @@ int main() {
     while (!GlobalGraph.loaded) {
         loadGraph(GlobalGraph, GlobalFiles);
         if (!GlobalGraph.loaded) {
-            println("The graph could not be loaded", type::ERROR);
+            println("The graph could not be loaded", type::ERROR_BOLD);
             println("Press any key to retry loading the graph...", type::WARNING);
             cin.get();
         }
     }
-    
+
+#ifdef TEST
+        // TEST MODE
+
+        // Reset the path data and the Astar data
+        resetComputeData(GlobalGraph, GlobalPath, GlobalAstar);
+
+        // Test the algorithm with random nodes, data from compilation parameters
+        #ifdef SPLSIZ
+        int sample_size = SPLSIZ;
+        #else
+        int sample_size = 1000;
+        #endif
+
+        if (sample_size > GlobalGraph.nodes_qty) {
+            sample_size = GlobalGraph.nodes_qty;
+            cout << "Sample size was bigger than the number of nodes, so now equal to " << sample_size << endl;
+        }
+
+        random_tester(GlobalGraph, GlobalAstar, GlobalPath, GlobalFiles, sample_size);
+
+        #ifdef TOPY
+        println("\n\nThe program will exit to let Python script plotting run !", type::WARNING);
+        return 0;
+        #endif
+
+        println("\n\nIf you want to test another sample, type the command 'random test'", type::BOLD);
+        println("You can try different landmark quantities by typing 'qty lm'");
+        println("Or you can try different heuristic weights by typing 'weight'\n");
+
+#endif
+
     api_ready.store(false);
     thread(runApiServer).detach();
-    
+
+
     // Main loop for terminal access to the server
     while (true) {
-        
+
         // wait for the API to be ready
         while (!api_ready.load()) {
             continue;

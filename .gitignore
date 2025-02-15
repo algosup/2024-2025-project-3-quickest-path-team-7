@@ -37,7 +37,11 @@ code/.vscode/settings.json
 code/dijkstra/main
 code/path_finder/files/compared-shortest-path.csv
 code/path_finder/files/shortest-path.csv
-main
-main.exe
-.DS_Store
-.DS_Store
+*main
+*main.exe
+*.DS_Store
+*.venv
+*tester
+*tester.exe
+*sample-*.csv
+*test-results.*

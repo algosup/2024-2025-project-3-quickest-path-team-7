@@ -4,7 +4,7 @@
 #define CSV_LINES           28854312    // Serve only to display the loading progress in the console
 #define WEIGHT              1.02        // The weight of the heuristic cost for A star
 #define ROOT_LANDMARK       1           // The first landmark to be picked    
-#define LANDMARKS_QTY       10          // The number of landmarks to be used
+#define LANDMARKS_QTY       25          // The number of landmarks to be used
 
 #define PORT                9500
 #define DISP_BAD_EPT        false       // Display bad endpoints requests in terminal
@@ -21,6 +21,7 @@
 #define OUTPUT              "shortest-path"
 #define COMP_OUTPUT         "compared-shortest-path"
 #define API_ICON            "favicon.ico"
+#define TEST_RESULTS        "sample-X-random-results"
 
 #define TIME_UNIT           microseconds
 #define TIME_UNIT_FULL_STR  "microseconds"
@@ -69,11 +70,13 @@
 #include <cstring>
 #include <filesystem>
 #include <ctime>
+#include <random>
 
 // API includes
 #ifdef _WIN32
     #include <winsock2.h>
     #include <ws2tcpip.h>
+    #include <windows.h>
     #pragma comment(lib, "ws2_32.lib")  // Link with Winsock library
     typedef int socklen_t; // Windows does not define socklen_t
 #else
@@ -96,6 +99,7 @@ using int_pair = pair<int, int>;
 #include "graph.hpp"
 #include "api_responses.hpp"
 #include "api_handling.hpp"
+#include "random_tester.hpp"
 #include "menu.hpp"
 
 #endif

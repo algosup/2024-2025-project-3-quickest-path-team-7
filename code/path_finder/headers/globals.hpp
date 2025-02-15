@@ -9,9 +9,15 @@
 const int INF = numeric_limits<int>::max();
 
 // Astars parameters
-float   heuristic_weight    = WEIGHT;
+
+#ifdef LMQTY
+int     landmarks_qty       = LMQTY;
+#else
 int     landmarks_qty       = LANDMARKS_QTY;
+#endif
+float   heuristic_weight    = WEIGHT;
 int     root_landmark       = ROOT_LANDMARK;
+
 
 // API synchronization
 mutex graph_path_file_access;

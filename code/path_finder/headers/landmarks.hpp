@@ -11,10 +11,6 @@
 
 void buildLandmarks(Graph& Graph) {
 
-    //Reset the landmarks data
-    Graph.landmarks.clear();
-    Graph.landmark_distance.clear();
-
     print("Building landmarks ... ");
 
     vector<bool> isLandmark(Graph.nodes_qty, false);
@@ -87,7 +83,7 @@ void saveLandmarksToBinary(Graph& Graph, Files& files) {
 
     ofstream file(files.landmarks.full, ios::binary);
     if (!file.is_open()) {
-        println("\nFailed to open the file for writing: " + files.landmarks.full, type::ERROR);
+        println("\nFailed to open the file for writing: " + files.landmarks.full, type::ERROR_BOLD);
         return;
     }
 
@@ -112,6 +108,14 @@ void saveLandmarksToBinary(Graph& Graph, Files& files) {
 }
 
 bool loadLandmarksFromBinary(Graph& Graph, Files& files) {
+
+     //Reset the landmarks data
+    Graph.landmarks.clear();
+    Graph.landmark_distance.clear();
+    Graph.landmarks_loaded = false;
+    Graph.landmarks.shrink_to_fit();
+    Graph.landmark_distance.shrink_to_fit();
+
     print("Loading landmarks from " + files.landmarks.full + " ... ");
     ifstream file(files.landmarks.full, ios::binary);
     if (!file.is_open()) {
